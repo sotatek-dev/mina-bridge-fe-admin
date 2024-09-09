@@ -3,6 +3,7 @@ import { Box, Center, Container } from '@chakra-ui/react';
 import { redirect, usePathname } from 'next/navigation';
 import { PropsWithChildren, useEffect, useState } from 'react';
 
+import LoadingWithText from '@/components/elements/loading/spinner.text';
 import ROUTES, { PROTECTED_ROUTES } from '@/configs/routes';
 import useChakraTheme from '@/hooks/useChakraTheme';
 import useDeviceCheck from '@/hooks/useDeviceCheck';
@@ -12,7 +13,6 @@ import useWalletEvents from '@/hooks/useWalletEvents';
 import useWeb3Injected from '@/hooks/useWeb3Injected';
 import { useZKContractState } from '@/providers/zkBridgeInitalize';
 import { getWalletSlice, useAppSelector } from '@/store';
-import LoadingWithText from '@/components/elements/loading/spinner.text';
 
 type Props = PropsWithChildren<{}>;
 
