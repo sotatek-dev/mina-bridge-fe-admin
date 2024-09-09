@@ -1,0 +1,23 @@
+name: Deploy develop
+run-name: ${{ github.actor }} is deploying develop branch🚀
+on:
+  push:
+    branches:
+      - "develop"
+jobs:
+  Deploy:
+    runs-on: [mina-bridge-fe-runner]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 18.19
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18.19
+
+      - run: |
+          rm -rf .next
+          yarn
+          yarn build
+          pm2 restart develop.pm2.json

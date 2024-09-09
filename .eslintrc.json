@@ -1,0 +1,77 @@
+{
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:react/recommended"
+    // "plugin:prettier/recommended",
+  ],
+  "plugins": [
+    "react",
+    "prettier"
+  ],
+  "ignorePatterns": [
+    "src/configs/ABIs/**/*.js"
+  ],
+  "rules": {
+    // eslint rules
+    "import/order": [
+      "error",
+      {
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ],
+    "unused-imports/no-unused-imports": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "no-multi-spaces": [
+      "error",
+      {
+        "ignoreEOLComments": true
+      }
+    ],
+    // jsx-a11y
+    "jsx-a11y/alt-text": "off",
+
+    // react rules
+    "react/display-name": "off",
+    "react/react-in-jsx-scope": "off",
+    "react/jsx-pascal-case": [
+      1,
+      {
+        "allowAllCaps": false,
+        "allowNamespace": false,
+        "allowLeadingUnderscore": false
+      }
+    ],
+    // "react/jsx-curly-spacing": ["error", []],
+    "react/jsx-curly-brace-presence": [
+      2,
+      {
+        "props": "always",
+        "children": "never",
+        "propElementValues": "always"
+      }
+    ],
+    "react/jsx-max-props-per-line": [
+      2,
+      {
+        "maximum": 1,
+        "when": "multiline"
+      }
+    ],
+    "react/jsx-closing-bracket-location": [
+      2,
+      "tag-aligned"
+    ],
+    "react/jsx-closing-tag-location": [
+      2,
+      "tag-aligned"
+    ],
+    "jsx-quotes": [
+      "error",
+      "prefer-double"
+    ]
+  }
+}

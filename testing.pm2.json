@@ -1,0 +1,10 @@
+{
+    "apps": [
+        {
+            "name": "testing-mina-bridge-fe-user",
+            "script": "yarn start:testing",
+            "node_args": "",
+            "instances": 1
+        }
+    ]
+}
