@@ -1,7 +1,7 @@
 {
     "apps": [
         {
-            "name": "dev-mina-bridge-fe-user",
+            "name": "dev-mina-bridge-fe-admin",
             "script": "yarn start",
             "node_args": "",
             "instances": 1

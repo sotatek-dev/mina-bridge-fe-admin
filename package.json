@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "node_modules/.bin/next dev",
     "build": "node_modules/.bin/next build",
-    "start": "node_modules/.bin/next start -p 3970",
-    "start:testing": "node_modules/.bin/next start -p 3971",
+    "start": "node_modules/.bin/next start -p 3972",
+    "start:testing": "node_modules/.bin/next start -p 3973",
     "lint": "node_modules/.bin/next lint"
   },
   "dependencies": {

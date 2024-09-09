@@ -6,7 +6,7 @@ on:
       - "develop"
 jobs:
   Deploy:
-    runs-on: [mina-bridge-fe-runner]
+    runs-on: [mina-bridge-fe-admin-runner]
     steps:
       - name: Checkout
         uses: actions/checkout@v3

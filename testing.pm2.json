@@ -1,7 +1,7 @@
 {
     "apps": [
         {
-            "name": "testing-mina-bridge-fe-user",
+            "name": "testing-mina-bridge-fe-admin",
             "script": "yarn start:testing",
             "node_args": "",
             "instances": 1
