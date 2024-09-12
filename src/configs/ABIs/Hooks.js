@@ -23,9 +23,7 @@ var __metadata =
     if (typeof Reflect === 'object' && typeof Reflect.metadata === 'function')
       return Reflect.metadata(k, v);
   };
-/**
- * eslint-disable @typescript-eslint/prefer-readonly-parameter-types
- */
+/* eslint-disable @typescript-eslint/prefer-readonly-parameter-types */
 /* eslint-disable new-cap */
 import {
   Bool,

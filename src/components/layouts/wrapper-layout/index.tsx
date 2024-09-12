@@ -1,9 +1,13 @@
 'use client';
-import { Box, Center, Container } from '@chakra-ui/react';
+import { Box, Center, Container, VStack } from '@chakra-ui/react';
 import { redirect, usePathname } from 'next/navigation';
-import { PropsWithChildren, useEffect, useState } from 'react';
+import { PropsWithChildren, useEffect } from 'react';
 
-import LoadingWithText from '@/components/elements/loading/spinner.text';
+import UnmatchedChain from '../banners/unmatchedChain';
+import Header from '../header';
+
+import Modals from '@/components/modules/modals';
+import NotiReporter from '@/components/modules/notiReporter';
 import ROUTES, { PROTECTED_ROUTES } from '@/configs/routes';
 import useChakraTheme from '@/hooks/useChakraTheme';
 import useDeviceCheck from '@/hooks/useDeviceCheck';
@@ -11,7 +15,6 @@ import useInitPersistData from '@/hooks/useInitPersistData';
 import useLoadWalletInstances from '@/hooks/useLoadWalletInstances';
 import useWalletEvents from '@/hooks/useWalletEvents';
 import useWeb3Injected from '@/hooks/useWeb3Injected';
-import { useZKContractState } from '@/providers/zkBridgeInitalize';
 import { getWalletSlice, useAppSelector } from '@/store';
 
 type Props = PropsWithChildren<{}>;
@@ -25,18 +28,10 @@ function WrapperLayout({ children }: Props) {
   useDeviceCheck();
 
   const pathname = usePathname();
-  const { isConnected } = useAppSelector(getWalletSlice);
-  const { isInitializing } = useZKContractState().state;
-  const isNotPOAScreen = pathname !== ROUTES.PROOF_OF_ASSETS;
   const isNotHistoryScreen = pathname !== ROUTES.HISTORY;
-  const isNotUserGuide = pathname !== ROUTES.USER_GUIDE;
+  const isNotConfigurationScreen = pathname !== ROUTES.CONFIGURATION;
   const isNotHomeScreen = pathname !== ROUTES.HOME;
-
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const { isConnected } = useAppSelector(getWalletSlice);
 
   useEffect(() => {
     if (!isConnected && PROTECTED_ROUTES.includes(pathname as ROUTES))
@@ -45,47 +40,39 @@ function WrapperLayout({ children }: Props) {
 
   return (
     <div id={'wrapper-layout'}>
-      {isInitializing || !isClient ? (
-        <LoadingWithText
-          id={'zk_contract_initialize_loading'}
-          label={'Waiting for initialize instances'}
-        />
-      ) : (
-        <>
-          {/*<Header />*/}
-          <Box
-            as={'section'}
-            w={'full'}
-            h={'full'}
-            minH={'calc(100vh - 75px)'}
-            bgColor={'text.100'}
-            bgImage={
-              isNotPOAScreen && isNotHistoryScreen && isNotUserGuide
-                ? 'url("/assets/images/image.main-bg.jpg")'
-                : ''
-            }
-            bgSize={'cover'}
-            bgPosition={'left top'}
-            bgRepeat={'no-repeat'}
-            bgAttachment={'fixed'}
-            overflow={'auto'}
+      <VStack maxH={'100vh'} minH={'100vh'} h={'100vh'}>
+        {isNotHomeScreen && <Header />}
+        <Box
+          as={'section'}
+          w={'full'}
+          h={'full'}
+          bgColor={'text.100'}
+          bgImage={
+            isNotHistoryScreen && isNotConfigurationScreen
+              ? 'url("/assets/images/image.main-bg.jpg")'
+              : ''
+          }
+          bgSize={'cover'}
+          bgPosition={'left top'}
+          bgRepeat={'no-repeat'}
+          bgAttachment={'fixed'}
+          overflow={'auto'}
+        >
+          {isConnected && <UnmatchedChain />}
+          <Container
+            maxW={{
+              sm: 'container.sm',
+              md: 'container.md',
+              lg: 'container.lg',
+              xl: 'container.xl',
+            }}
           >
-            {/*{!isNotHomeScreen && <UnmatchedChain />}*/}
-            <Container
-              maxW={{
-                sm: 'container.sm',
-                md: 'container.md',
-                lg: 'container.lg',
-                xl: 'container.xl',
-              }}
-            >
-              <Center w={'full'}>{children}</Center>
-            </Container>
-          </Box>
-        </>
-      )}
-      {/*<Modals />*/}
-      {/*<NotiReporter />*/}
+            <Center w={'full'}>{children}</Center>
+          </Container>
+        </Box>
+      </VStack>
+      <Modals />
+      <NotiReporter />
     </div>
   );
 }

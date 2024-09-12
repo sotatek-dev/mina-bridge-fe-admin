@@ -37,3 +37,14 @@ type ResponseNetworkConfig = {
     decimals: number;
   };
 };
+
+type ResponseSignature = {
+  field: string;
+  scalar: string;
+};
+
+type ResponseSignatureResult = {
+  data: any;
+  publickey: string;
+  signature: ResponseSignature;
+};

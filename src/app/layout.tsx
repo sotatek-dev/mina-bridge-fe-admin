@@ -5,8 +5,8 @@ import ClientProviders from '@/components/providers/ClientProviders';
 import ReduxProvider from '@/components/providers/ReduxProvider';
 
 export const metadata: Metadata = {
-  title: 'Mina Bridge',
-  description: 'Mina Bridge',
+  title: 'Mina Bridge Admin',
+  description: 'Mina Bridge Admin',
   icons: '/assets/logos/logo.mina.circle.svg',
 };
 

@@ -23,7 +23,4 @@ const NetworkEthereum: Network = {
     },
   },
 };
-export function getEtherAccountScan(addr: string) {
-  return `${NetworkEthereum.metadata.scanUrl}/address/${addr}`;
-}
 export default NetworkEthereum;

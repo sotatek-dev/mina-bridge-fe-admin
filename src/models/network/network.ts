@@ -1,4 +1,4 @@
-import { PROVIDER_TYPE } from "../contract/evm/contract";
+import { PROVIDER_TYPE } from '../contract/evm/contract';
 
 // enum configs
 export enum NETWORK_NAME {
@@ -20,9 +20,9 @@ export enum EVM_CHAIN {
 }
 
 export enum ZK_CHAIN {
-  MAINNET = 'mina:mainnet',
-  DEVNET = 'mina:testnet',
-  BERKELEY = 'mina:berkeley',
+  MAINNET = 'Mainnet',
+  DEVNET = 'Devnet',
+  BERKELEY = 'Berkeley',
   TESTWORLD2 = 'testworld2',
 }
 
@@ -68,7 +68,6 @@ export type NetworkZKChainMetadataType = {
   chainType: CHAIN_TYPE;
   chainName: string;
   proxyUrl?: string;
-  archiveUrl?: string;
   scanUrl: string;
 };
 
@@ -127,7 +126,7 @@ export const EVM_CHAINS_METADATA: Record<
     chainName: 'sepolia',
     provider: {
       type: PROVIDER_TYPE.HTTPS,
-      uri: 'https://ethereum-sepolia.blockpi.network/v1/rpc/public',
+      uri: 'https://rpc.sepolia.ethpandaops.io',
     },
     scanUrl: 'https://sepolia.etherscan.io',
   },
@@ -142,25 +141,20 @@ export const ZK_CHAINS_METADATA: Record<ZK_CHAIN, NetworkZKChainMetadataType> =
       chainType: CHAIN_TYPE.MAINNET,
       chainName: 'Mina',
       proxyUrl: 'https://proxy.minaexplorer.com/',
-      archiveUrl: '',
       scanUrl: 'https://minascan.io/mainnet',
     },
     [ZK_CHAIN.DEVNET]: {
       chainId: ZK_CHAIN.DEVNET,
       chainType: CHAIN_TYPE.DEVNET,
       chainName: 'Mina Devnet',
-      proxyUrl: 'https://api.minascan.io/node/devnet/v1/graphql',
-      archiveUrl: '',
+      proxyUrl: 'https://proxy.devnet.minaexplorer.com/',
       scanUrl: 'https://minascan.io/devnet',
     },
     [ZK_CHAIN.BERKELEY]: {
       chainId: ZK_CHAIN.BERKELEY,
       chainType: CHAIN_TYPE.TESTNET,
       chainName: 'Berkeley',
-      proxyUrl: 'https://api.minascan.io/node/berkeley/v1/graphql',
-      archiveUrl: 'https://api.minascan.io/archive/berkeley/v1/graphql',
-      // proxyUrl: 'https://proxy.berkeley.minaexplorer.com/graphql',
-      // archiveUrl: 'https://archive.berkeley.minaexplorer.com/',
+      proxyUrl: 'https://proxy.berkeley.minaexplorer.com/',
       scanUrl: 'https://minascan.io/berkeley',
     },
     [ZK_CHAIN.TESTWORLD2]: {
@@ -168,7 +162,6 @@ export const ZK_CHAINS_METADATA: Record<ZK_CHAIN, NetworkZKChainMetadataType> =
       chainType: CHAIN_TYPE.TESTNET,
       chainName: 'Mina Test world 2',
       proxyUrl: '',
-      archiveUrl: '',
       scanUrl: 'https://minascan.io/testworld',
     },
   };

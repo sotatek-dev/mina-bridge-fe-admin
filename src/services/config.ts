@@ -29,4 +29,24 @@ enum USERS_ENDPOINT {
   PROTOCOL_FEE = 'protocol-fee',
 }
 
-export { CoinGeckoSV, PairDetailSV, PairSV, USERS_ENDPOINT };
+enum ADMIN_ENDPOINT {
+  HISTORY = 'history',
+  COMMON_CONFIG = 'common-config',
+  UPDATE_COMMON_CONFIG = 'update-common-config',
+}
+
+enum AUTH {
+  LOGIN_ADMIN_ENV = 'login-admin-evm',
+  LOGIN_ADMIN_MINA = 'login-admin-mina',
+  LOGIN_MESSAGE = 'admin/login-message',
+  REFRESH_TOKEN = 'refresh-token',
+}
+
+export {
+  CoinGeckoSV,
+  PairDetailSV,
+  PairSV,
+  USERS_ENDPOINT,
+  ADMIN_ENDPOINT,
+  AUTH,
+};

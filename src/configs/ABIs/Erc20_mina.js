@@ -28,29 +28,28 @@ var __metadata =
       return Reflect.metadata(k, v);
   };
 import {
-  Account,
   AccountUpdate,
   Bool,
-  Field,
-  Int64,
-  method,
-  Permissions,
-  PublicKey,
   SmartContract,
+  method,
+  PublicKey,
+  UInt64,
+  Account,
   state,
   State,
+  VerificationKey,
+  Field,
+  Int64,
   Struct,
-  UInt64,
-  VerificationKey
-} from "o1js";
+  Permissions,
+} from 'o1js';
 // eslint-disable-next-line max-len
 // eslint-disable-next-line no-duplicate-imports, @typescript-eslint/consistent-type-imports
-import { TransferFromToOptions } from "./interfaces/token/transferable.js";
-import errors from "./errors.js";
-import { AdminAction } from "./interfaces/token/adminable.js";
-import Hooks from "./Hooks.js";
-import { Bridge } from "./Bridge.js";
-
+import { TransferFromToOptions } from './interfaces/token/transferable.js';
+import errors from './errors.js';
+import { AdminAction } from './interfaces/token/adminable.js';
+import Hooks from './Hooks.js';
+import { Bridge } from './Bridge.js';
 class Transfer extends Struct({
   from: PublicKey,
   to: PublicKey,
@@ -154,6 +153,7 @@ class Token extends SmartContract {
   /**
    * Approvable
    */
+  // TODO
   hasNoBalanceChange(accountUpdates) {
     return Bool(true);
   }
