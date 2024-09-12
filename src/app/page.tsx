@@ -1,68 +1,40 @@
 'use client';
+import { Button, Heading, Image, VStack } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
 
-import { VStack } from '@chakra-ui/layout';
-import { Text } from '@chakra-ui/react';
-import Link from 'next/link';
-import React from 'react';
-
-// import FormBridge from '@/components/modules/formBridge';
+import useHeaderLogic from '@/components/layouts/header/useHeaderLogic';
 import ROUTES from '@/configs/routes';
+import { getWalletSlice, useAppSelector } from '@/store';
 
+function Home() {
+  const router = useRouter();
+  const { isConnected } = useAppSelector(getWalletSlice);
+  const { btnConnectWalletProps } = useHeaderLogic();
 
-export default function Home() {
+  if (isConnected) {
+    router.push(ROUTES.HISTORY);
+    return null;
+  }
+
   return (
     <VStack
       w={'full'}
       pb={{ base: '80px', lg: '110px' }}
-      pt={{ base: '0', md: '20px' }}
       gap={'0'}
+      h={{ base: 'calc(100vh - 85px)', lg: 'calc(100vh -115px)' }}
+      justifyContent={'center'}
     >
-      <VStack
-        maxW={'500px'}
-        w={'full'}
-        mt={'16px'}
-        px={'50px'}
-        py={'15px'}
-        gap={0}
-        bg={'white'}
-        borderRadius={'12px'}
-        boxShadow={'0px 4px 50px 0px rgba(0, 0, 0, 0.05)'}
-      >
-        <Link href={ROUTES.PROOF_OF_ASSETS} className={'form-link'}>
-          <Text
-            as={'span'}
-            variant={'md_bold'}
-            color={'primary.purple'}
-            sx={{
-              '.form-link:hover &': {
-                textDecor: 'underline',
-                color: 'primary.purple.05',
-              },
-            }}
-          >
-            View proof of assets
-          </Text>
-        </Link>
-        <Link href={ROUTES.USER_GUIDE} className={'form-link'}>
-          <Text
-            as={'span'}
-            variant={'md_bold'}
-            color={'primary.purple'}
-            sx={{
-              '.form-link:hover &': {
-                textDecor: 'underline',
-                color: 'primary.purple.05',
-              },
-            }}
-          >
-            User guide
-          </Text>
-        </Link>
-      </VStack>
-      <Text variant={'md'} color={'text.500'} m={'0'} mt={'16px'}>
-        The safe, fast and most secure way to bring cross-chain assets to Mina
-        chains
-      </Text>
+      <Image src={'/assets/logos/logo.mina.text.svg'} />
+      <Heading m={'35px 0'} as={'h3'} variant={'h3'} color={'text.900'}>
+        Mina Bridge Admin Portal
+      </Heading>
+      {!isConnected && (
+        <Button {...btnConnectWalletProps} w={'290px'}>
+          Connect Wallet
+        </Button>
+      )}
     </VStack>
   );
 }
+
+export default Home;

@@ -1,8 +1,8 @@
-import { WALLET_NAME } from "./wallet.abstract";
-import WalletAuro from "./wallet.auro";
-import WalletMetamask from "./wallet.metamask";
+import { WALLET_NAME } from './wallet.abstract';
+import WalletAuro from './wallet.auro';
+import WalletMetamask from './wallet.metamask';
 
-import { IsServer } from "@/constants";
+import { IsServer } from '@/constants';
 
 export type Wallet = WalletMetamask | WalletAuro;
 

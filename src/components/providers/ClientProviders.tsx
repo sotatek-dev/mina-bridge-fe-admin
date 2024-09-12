@@ -1,16 +1,13 @@
 'use client';
-import { ChakraProvider } from "@chakra-ui/react";
-import React from "react";
+import { ChakraProvider } from '@chakra-ui/react';
+import React from 'react';
 
-import theme from "@/configs/theme";
-import ZKContractProvider from "@/providers/zkBridgeInitalize";
+import theme from '@/configs/theme';
 
 const ClientProviders = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
-      <ZKContractProvider>
-        <ChakraProvider theme={theme}>{children}</ChakraProvider>
-      </ZKContractProvider>
+      <ChakraProvider theme={theme}>{children}</ChakraProvider>
     </>
   );
 };

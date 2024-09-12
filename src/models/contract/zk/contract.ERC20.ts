@@ -1,132 +1,86 @@
-import { FungibleToken } from "mina-fungible-token";
-import { fetchAccount, Mina, PublicKey, TokenId } from "o1js";
+import { Mina, PublicKey, UInt64, fetchAccount } from 'o1js';
 
-import { Bridge } from "@/configs/ABIs/zk/Bridge";
-import { ZkContractType } from "@/configs/constants";
-import { gql } from "@/grapql";
-import { getAccountInfoTokenQuery } from "@/grapql/queries";
-import { handleRequest } from "@/helpers/asyncHandlers";
-import { fetchFiles, fileSystem } from "@/helpers/common";
-import { Network } from "@/models/network";
+import { Bridge } from '@/configs/ABIs/Bridge';
+import Token from '@/configs/ABIs/Erc20_mina';
 
 export default class ERC20Contract {
+  bridgeAddress: PublicKey;
   tokenAddress: PublicKey;
-  contractInstance: FungibleToken | null;
+  contractBridgeInstance: Bridge | null;
+  contractTokenInstance: Token | null;
   provider: typeof Mina;
-  hooks: PublicKey = PublicKey.fromBase58(
-    process.env.NEXT_PUBLIC_MINA_HOOKS_ADDRESS || ''
-  );
-  network: Network;
 
-  constructor(tokenAddress: string, network: Network) {
-    this.network = network;
-    if ('proxyUrl' in network.metadata && network.metadata.proxyUrl) {
-      Mina.setActiveInstance(
-        Mina.Network({
-          mina: network.metadata.proxyUrl,
-          archive:
-            network.metadata.archiveUrl ||
-            'https://api.minascan.io/archive/berkeley/v1/graphql/',
-        })
-      );
-    }
+  constructor(bridgeAddress: string, tokenAddress: string) {
+    Mina.setActiveInstance(
+      Mina.Network({
+        // mina: 'https://api.minascan.io/node/berkeley/v1/graphql',
+        mina: 'https://api.minascan.io/node/berkeley/v1/graphql',
+        archive: 'https://api.minascan.io/archive/berkeley/v1/graphql',
+      })
+    );
+
     this.provider = Mina;
+    this.bridgeAddress = PublicKey.fromBase58(bridgeAddress);
     this.tokenAddress = PublicKey.fromBase58(tokenAddress);
-    this.contractInstance = new FungibleToken(this.tokenAddress);
+
+    this.contractTokenInstance = new Token(this.tokenAddress);
+    this.contractBridgeInstance = new Bridge(
+      this.bridgeAddress,
+      // TODO: convert to tokenId
+      this.contractTokenInstance.tokenId
+    );
   }
   static async init() {
-    try {
-      console.log('-----fetch files');
-      console.time('fetch files');
-      const [cacheTokenFiles, cacheBridgeFiles] = await Promise.all([
-        fetchFiles(ZkContractType.TOKEN),
-        fetchFiles(ZkContractType.BRIDGE),
-      ]);
-      console.log('-----fetch files done');
-      console.timeEnd('fetch files');
-      console.time('compile contracts');
-      console.log('-----compile contracts');
-      await Bridge.compile({
-        cache: fileSystem(cacheBridgeFiles),
-      });
-      await FungibleToken.compile({
-        cache: fileSystem(cacheTokenFiles),
-      });
-      console.log('-----compile contracts done');
-      console.timeEnd('compile contracts');
-    } catch (error) {
-      console.log('error', error);
-    }
+    await Bridge.compile();
+    console.log('Bridge compile');
+
+    await Token.compile();
+    console.log('Token compile');
   }
 
-  changeInstance(tokenAddress: string) {
-    this.tokenAddress = PublicKey.fromBase58(tokenAddress);
-    this.contractInstance = new FungibleToken(this.tokenAddress);
-  }
-
-  async fetchInvolveAccount(userAddr: string, bridgeAddress: string) {
+  async fetchInvolveAccount(userAddr: string) {
     console.log('-----fetch user account');
-    await fetchAccount({ publicKey: PublicKey.fromBase58(userAddr) });
+    const data = await fetchAccount({
+      publicKey: PublicKey.fromBase58(userAddr),
+    });
+    console.log('🚀 ~ ERC20Contract ~ fetchInvolveAccount ~ data:', data);
+
+    console.log('-----fetch bridge account');
+    await fetchAccount({
+      publicKey: this.bridgeAddress,
+      // TODO: convert from: token.id to tokenId
+      tokenId: this.contractTokenInstance?.tokenId,
+    });
 
     console.log('-----fetch token account');
     await fetchAccount({ publicKey: this.tokenAddress });
-
-    console.log('-----fetch bridge account');
-    console.log('bridgeAddress', this.contractInstance);
-    await fetchAccount({
-      publicKey: PublicKey.fromBase58(bridgeAddress),
-    });
-
-    console.log('-----fetch bridge account with token');
-    await fetchAccount({
-      publicKey: PublicKey.fromBase58(bridgeAddress),
-      tokenId: this.contractInstance!!.tokenId,
-    });
-
-    // console.log('-----fetch hook account', this.hooks);
-    // await fetchAccount({ publicKey: this.hooks });
   }
 
-  async getBalance(userAddr: string) {
-    // Direct access to mina gql
-    const query = getAccountInfoTokenQuery;
-    const params = {
-      publicKey: userAddr,
-      token: TokenId.toBase58(TokenId.derive(this.tokenAddress)),
-    };
-
-    if ('proxyUrl' in this.network.metadata && this.network.metadata.proxyUrl) {
-      const [data, error] = await handleRequest(
-        gql(this.network.metadata.proxyUrl, query, params)
-      );
-      if (error || !data || !data.account) return '0';
-      return data.account.balance.total;
-    }
-    return '0';
-
-    // using o1js function
-    // if (!this.contractInstance) return;
-
-    // const [account, error] = handleException(userAddr, PublicKey.fromBase58);
-    // if (error || !account) return;
-
-    // await fetchAccount({
-    //   publicKey: account,
-    //   tokenId: this.contractInstance.token.id,
-    // });
-    // return this.provider
-    //   .getBalance(account, this.contractInstance.token.id)
-    //   .toString();
+  approveUpdate() {
+    if (!this.contractTokenInstance || !this.contractBridgeInstance) return;
+    return this.contractTokenInstance.approveUpdate(
+      this.contractBridgeInstance.self
+    );
   }
 
-  // lock(receipt: string, bridgeAddr: string, amount: string) {
-  //   if (!this.contractInstance) return;
-  //   console.log('-------tx payload', receipt, amount);
+  async config(min: number, max: number, address: string) {
+    const newMinter = PublicKey.fromBase58(address);
+    console.log('🚀 ~ ERC20Contract ~ config ~ address:', newMinter);
+    if (!this.contractBridgeInstance || !this.contractTokenInstance) return;
+    return this.contractBridgeInstance.config(
+      newMinter,
+      UInt64.from(min),
+      UInt64.from(max)
+    );
+  }
 
-  //   this.contractInstance.lock(
-  //     Field.from(receipt),
-  //     PublicKey.fromBase58(bridgeAddr),
-  //     UInt64.from(amount)
-  //   );
-  // }
+  async getMinAmount() {
+    if (!this.contractBridgeInstance) return;
+    return this.contractBridgeInstance.minAmount.get();
+  }
+
+  async getMaxAmount() {
+    if (!this.contractBridgeInstance) return;
+    return this.contractBridgeInstance.maxAmount.get();
+  }
 }

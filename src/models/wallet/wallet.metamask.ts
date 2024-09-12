@@ -1,5 +1,8 @@
 import { MetaMaskInpageProvider, RequestArguments } from '@metamask/providers';
-import Web3, { ProviderMessage, ProviderRpcError } from 'web3';
+import _ from 'lodash';
+import { PublicKey, TokenId } from 'o1js';
+import Web3 from 'web3';
+import { ProviderMessage, ProviderRpcError } from 'web3';
 
 import { PROVIDER_TYPE, ProviderType } from '../contract/evm/contract';
 import Network, { NETWORK_NAME, NETWORK_TYPE } from '../network/network';
@@ -13,11 +16,11 @@ import Wallet, {
   WALLET_NAME,
 } from './wallet.abstract';
 
-import ITV from '@/configs/time';
 import { IsServer } from '@/constants';
 import { handleException, handleRequest } from '@/helpers/asyncHandlers';
 import { formWei } from '@/helpers/common';
 import { getWeb3Instance } from '@/helpers/evmHandlers';
+import { store } from '@/store';
 import { TokenType } from '@/store/slices/persistSlice';
 
 export type WalletMetamaskEvents =
@@ -42,7 +45,8 @@ export default class WalletMetamask extends Wallet {
     WALLET_NOT_INSTALLED: `Please install ${this.name} wallet`,
     WALLET_WRONG_CHAIN: 'You have connected to unsupported chain',
     WALLET_CONNECT_FAILED: 'Fail to connect wallet',
-    WALLET_CONNECT_REJECTED: 'User rejected the request.',
+    WALLET_CONNECT_REJECTED: 'Signature rejected.',
+    WALLET_USER_REJECTED: 'User rejected',
     WALLET_GET_BALANCE_FAIL: "Can't get the current balance",
     MINA_UNKNOWN_SEND_ERROR: 'Unknown mina transaction error',
   };
@@ -54,7 +58,6 @@ export default class WalletMetamask extends Wallet {
     super({
       name: WALLET_NAME.METAMASK,
       metadata: {
-        displayName: 'Metamask',
         supportedNetwork: [NETWORK_NAME.MINA, NETWORK_NAME.ETHEREUM],
         InjectedObject: WALLET_INJECT_OBJ.METAMASK,
         logo: {
@@ -69,14 +72,17 @@ export default class WalletMetamask extends Wallet {
           android: URL_INSTALL_ANDROID.METAMASK,
           ios: URL_INSTALL_IOS.METAMASK,
         },
-        supportedDevices: {
-          [NETWORK_TYPE.EVM]: ['desktop', 'smartphone', 'tablet'],
-          [NETWORK_TYPE.ZK]: ['desktop'],
-        },
+        displayName: 'Metamask',
       },
     });
   }
 
+  // getInjectedObject(): MetaMaskInpageProvider {
+  //   const metadata = store.getState().walletObj.metamask;
+  //   if (!metadata.isInjected)
+  //     throw new Error(this.errorList.WALLET_NOT_INSTALLED);
+  //   return metadata.ethereum!!;
+  // }
   getInjectedObject(): MetaMaskInpageProvider {
     if (IsServer) {
       throw new Error('Server rendering error');
@@ -99,62 +105,61 @@ export default class WalletMetamask extends Wallet {
     return (await this.getInjectedObject().request<T>(args)) as T;
   }
 
-  addListener(params: WalletMetamaskEvents, nwType?: NETWORK_TYPE) {
-    const isZK = nwType === NETWORK_TYPE.ZK;
-    const isChainChangedEv =
-      params.eventName === WALLET_EVENT_NAME.CHAIN_CHANGED;
-    if (isZK && isChainChangedEv) {
-      const root = this;
-      async function cb() {
-        const [chainId] = await handleRequest(root.getNetwork(nwType));
-        isChainChangedEv && params.handler(chainId || '');
-      }
-      return setInterval(cb, ITV.S5);
-    }
-
+  addListener(params: WalletMetamaskEvents) {
     this.getInjectedObject().on(params.eventName, params.handler as any);
   }
-  removeListener(e: WALLET_EVENT_NAME, nwType?: NETWORK_TYPE, id?: any) {
-    const isZK = nwType === NETWORK_TYPE.ZK;
-    const isChainChangedEv = e === WALLET_EVENT_NAME.CHAIN_CHANGED;
-    if (isZK && isChainChangedEv && id) {
-      return clearInterval(id);
-    }
+  removeListener(e: WALLET_EVENT_NAME) {
     this.getInjectedObject().removeAllListeners(e);
   }
   async connect(
     network: Network,
+    msg: string,
+    isSign?: boolean,
     onStart?: () => void,
     onFinish?: () => void,
     onError?: () => void,
     whileHandle?: () => void
   ) {
     let account: string = '';
+    let signature: string | ResponseSignature = '';
     switch (network.type) {
       case NETWORK_TYPE.EVM:
-        const accountArr = await this.sendRequest<string[]>({
-          method: 'eth_requestAccounts',
-        });
+        const [resAccount, errorAccount] = await handleRequest(
+          this.sendRequest<string[]>({
+            method: 'eth_requestAccounts',
+          })
+        );
+        if (errorAccount)
+          throw new Error(this.errorList.WALLET_CONNECT_REJECTED);
         // throw error if cannot get account
         if (
-          !accountArr ||
-          accountArr.length === 0 ||
-          typeof accountArr[0] === 'undefined'
+          !resAccount ||
+          resAccount.length === 0 ||
+          typeof resAccount[0] === 'undefined'
         ) {
           throw new Error(this.errorList.WALLET_CONNECT_FAILED);
         }
         // set account if could get correct account
-        account = Web3.utils.toChecksumAddress(accountArr[0]);
+        account = resAccount[0];
+        if (isSign) {
+          const [res, error] = await handleRequest(
+            this.sendRequest<string>({
+              method: 'personal_sign',
+              params: [msg, account],
+            })
+          );
+          if (error) throw new Error(this.errorList.WALLET_CONNECT_REJECTED);
+          if (res) signature = res;
+        }
         break;
 
       case NETWORK_TYPE.ZK:
         const snap = await this.sendRequest<GetSnapResponse>({
           method: 'wallet_getSnaps',
         });
-        // console.log('🚀 ~ WalletMetamask ~ snap:', snap);
-        const snapId: string = process.env.NEXT_PUBLIC_REQUIRED_SNAP_ID || '';
-        const version: string =
-          process.env.NEXT_PUBLIC_REQUIRED_SNAP_VERSION || '';
+        console.log('🚀 ~ WalletMetamask ~ snap:', snap);
+        const snapId: string = process.env.NEXT_PUBLIC_REQUIRED_SNAP_ID!!;
+        const version: string = process.env.NEXT_PUBLIC_REQUIRED_SNAP_VERSION!!;
 
         if (!snap.hasOwnProperty(snapId) || snap[snapId].version !== version) {
           console.log('run');
@@ -184,15 +189,35 @@ export default class WalletMetamask extends Wallet {
             },
           },
         });
+        account = accountInfo.publicKey;
+        if (!isSign) break;
+        const [resSnap, errorSnap] = await handleRequest(
+          this.sendRequest<ResponseSignatureResult>({
+            method: 'wallet_invokeSnap',
+            params: {
+              snapId,
+              request: {
+                method: 'mina_signMessage',
+                params: {
+                  message: msg,
+                },
+              },
+            },
+          })
+        );
+        if (errorSnap) throw new Error(this.errorList.WALLET_CONNECT_REJECTED);
+        if (resSnap) signature = resSnap.signature;
 
         onFinish && onFinish();
-        account = accountInfo.publicKey;
         break;
 
       default:
         break;
     }
-    return account;
+    return {
+      account,
+      signature,
+    };
   }
 
   async createTx() {
@@ -247,8 +272,7 @@ export default class WalletMetamask extends Wallet {
         }
         return '';
       case NETWORK_TYPE.ZK:
-        const snapId = process.env.NEXT_PUBLIC_REQUIRED_SNAP_ID || '';
-        // check balance as native token
+        const snapId = process.env.NEXT_PUBLIC_REQUIRED_SNAP_ID;
         if (isNativeToken) {
           const accountInfo = await this.sendRequest<ResponseAccountInfo>({
             method: 'wallet_invokeSnap',
@@ -261,58 +285,31 @@ export default class WalletMetamask extends Wallet {
           });
           return formWei(accountInfo.balance.total, asset.decimals);
         }
-        // check balance as ERC20 token
-        // const [tokenPub, convertPubError] = handleException(
-        //   asset.tokenAddr,
-        //   PublicKey.fromBase58
-        // );
-
-        // if (convertPubError || !tokenPub) return '0';
-
-        // console.log(
-        //   '🚀 ~ WalletMetamask ~ TokenId.toBase58(TokenId.derive(tokenPub)):',
-        //   TokenId.toBase58(TokenId.derive(tokenPub))
-        // );
-        // const [account, reqError] = await handleRequest(
-        //   this.sendRequest<ResponseAccountInfo>({
-        //     method: 'wallet_invokeSnap',
-        //     params: {
-        //       snapId,
-        //       request: {
-        //         method: 'mina_accountInfo',
-        //         params: {
-        //           tokenId: TokenId.toBase58(TokenId.derive(tokenPub)),
-        //         },
-        //       },
-        //     },
-        //   })
-        // );
-        // if (reqError || !account)
-        //   throw new Error(this.errorList.WALLET_GET_BALANCE_FAIL);
-        // console.log('🚀 ~ WalletMetamask ~ account:', account);
-        // return formWei(account.balance.total, asset.decimals);
-
-        const ERC20Module = await import('@/models/contract/zk/contract.ERC20');
-        const ERC20Contract = ERC20Module.default;
-
-        const [ctr, initCtrError] = handleException(
+        const [tokenPub, convertPubError] = handleException(
           asset.tokenAddr,
-          (addr) => new ERC20Contract(addr, network)
+          PublicKey.fromBase58
         );
-        if (initCtrError || !ctr) return '0';
-        // console.log(
-        //   TokenId.toBase58(
-        //     TokenId.derive(PublicKey.fromBase58(asset.tokenAddr))
-        //   )
-        // );
 
-        const [blnWei, reqError] = await handleRequest(
-          ctr.getBalance(userAddr)
+        if (convertPubError || !tokenPub) return '0';
+
+        const [account, reqError] = await handleRequest(
+          this.sendRequest<ResponseAccountInfo>({
+            method: 'wallet_invokeSnap',
+            params: {
+              snapId,
+              request: {
+                method: 'mina_accountInfo',
+                params: {
+                  tokenId: TokenId.toBase58(TokenId.derive(tokenPub)),
+                },
+              },
+            },
+          })
         );
-        if (reqError || !blnWei)
+        // console.log('🚀 ~ WalletMetamask ~ account:', account);
+        if (reqError || !account)
           throw new Error(this.errorList.WALLET_GET_BALANCE_FAIL);
-
-        return formWei(blnWei!!.toString(), asset.decimals);
+        return formWei(account.balance.total, asset.decimals);
 
       default:
         return '';
@@ -334,7 +331,9 @@ export default class WalletMetamask extends Wallet {
               ],
             })
           );
-          if (error) return false;
+          if (error) {
+            throw new Error(this.errorList.WALLET_USER_REJECTED);
+          }
         }
         return true;
       case NETWORK_TYPE.ZK:
@@ -382,7 +381,7 @@ export default class WalletMetamask extends Wallet {
   }
 
   async sendTx(payload: any): Promise<void> {
-    const snapId: string = process.env.NEXT_PUBLIC_REQUIRED_SNAP_ID || '';
+    const snapId = process.env.NEXT_PUBLIC_REQUIRED_SNAP_ID;
 
     const res = await this.getInjectedObject().request({
       method: 'wallet_invokeSnap',
@@ -399,13 +398,12 @@ export default class WalletMetamask extends Wallet {
         },
       },
     });
-    // recheck when sent tx success, currently res return null
     if (
-      !res ||
-      (typeof res === 'string' &&
-        res.includes(this.errorMessageList.UNKNOWN_MINA_SEND_TX))
+      typeof res === 'string' &&
+      res.includes(this.errorMessageList.UNKNOWN_MINA_SEND_TX)
     ) {
       throw new Error(this.errorList.MINA_UNKNOWN_SEND_ERROR);
     }
+    console.log('🚀 ~ WalletMetamask ~ res ~ res:', res);
   }
 }

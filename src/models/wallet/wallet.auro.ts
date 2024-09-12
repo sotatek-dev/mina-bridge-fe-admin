@@ -1,6 +1,6 @@
 import MinaProvider, { ChainInfoArgs } from '@aurowallet/mina-provider';
 
-import Network, { NETWORK_NAME, NETWORK_TYPE } from '../network/network';
+import Network, { NETWORK_NAME } from '../network/network';
 
 import Wallet, {
   URL_INSTALL_ANDROID,
@@ -12,10 +12,7 @@ import Wallet, {
 } from './wallet.abstract';
 
 import { IsServer } from '@/constants';
-import { gql } from '@/grapql';
-import { getAccountInfoQuery } from '@/grapql/queries';
-import { handleException, handleRequest } from '@/helpers/asyncHandlers';
-import { formWei } from '@/helpers/common';
+import { store } from '@/store';
 import { TokenType } from '@/store/slices/persistSlice';
 
 type MinaRequestResType<T> = SplitType<T>[0];
@@ -44,7 +41,7 @@ export default class WalletAuro extends Wallet {
     WALLET_NOT_INSTALLED: `Please install ${this.name} wallet`,
     WALLET_WRONG_CHAIN: 'You have connected to unsupported chain',
     WALLET_CONNECT_FAILED: 'Fail to connect wallet',
-    WALLET_CONNECT_REJECTED: 'User rejected the request.',
+    WALLET_CONNECT_REJECTED: 'Signature rejected.',
     WALLET_GET_BALANCE_FAIL: "Can't get the current balance",
   };
 
@@ -52,7 +49,6 @@ export default class WalletAuro extends Wallet {
     super({
       name: WALLET_NAME.AURO,
       metadata: {
-        displayName: 'Auro Wallet',
         supportedNetwork: [NETWORK_NAME.MINA],
         InjectedObject: WALLET_INJECT_OBJ.AURO,
         logo: {
@@ -67,10 +63,7 @@ export default class WalletAuro extends Wallet {
           android: URL_INSTALL_ANDROID.AURO,
           ios: URL_INSTALL_IOS.AURO,
         },
-        supportedDevices: {
-          [NETWORK_TYPE.EVM]: [],
-          [NETWORK_TYPE.ZK]: ['desktop'],
-        },
+        displayName: 'Auro Wallet',
       },
     });
   }
@@ -109,6 +102,8 @@ export default class WalletAuro extends Wallet {
 
   async connect(
     network: Network,
+    msg: string,
+    isSign?: boolean,
     onStart?: () => void,
     onFinish?: () => void,
     onError?: () => void,
@@ -116,17 +111,40 @@ export default class WalletAuro extends Wallet {
   ) {
     onStart && onStart();
 
-    const [res, error] = await this.handleRequestWithError(
+    const [resAccount, errorAccount] = await this.handleRequestWithError(
       this.InjectedObject.requestAccounts()
     );
 
-    if (error) throw error;
+    if (errorAccount) throw errorAccount;
+    if (!isSign)
+      return {
+        account: resAccount[0],
+        signature: '',
+      };
 
-    if (!res || res.length === 0 || typeof res[0] === undefined) {
+    const [resSignMessage, errorSignMessage] =
+      await this.handleRequestWithError<any>(
+        this.InjectedObject.signMessage({
+          message: msg,
+        })
+      );
+
+    if (errorSignMessage)
+      throw new Error(this.errorList.WALLET_CONNECT_REJECTED);
+
+    if (
+      !resAccount ||
+      resAccount.length === 0 ||
+      typeof resAccount[0] === undefined ||
+      !resSignMessage
+    ) {
       throw new Error(this.errorList.WALLET_CONNECT_FAILED);
     }
     onFinish && onFinish();
-    return res[0];
+    return {
+      account: resAccount[0],
+      signature: resSignMessage.signature,
+    };
   }
 
   async createTx() {
@@ -147,7 +165,7 @@ export default class WalletAuro extends Wallet {
 
   async getNetwork() {
     const res = await this.InjectedObject.requestNetwork();
-    return res.networkID;
+    return res.name;
   }
 
   async switchNetwork(network: Network): Promise<boolean> {
@@ -155,8 +173,7 @@ export default class WalletAuro extends Wallet {
     if (walletChainId === network.metadata.chainId) return true;
     const [_, error] = await this.handleRequestWithError(
       this.InjectedObject.switchChain({
-        // TODO: check type of old version
-        // chainId: network.metadata.chainId.toLowerCase(),
+        // TODO: convert: chainId to networkId
         networkID: network.metadata.chainId.toLowerCase(),
       })
     );
@@ -169,33 +186,30 @@ export default class WalletAuro extends Wallet {
     userAddr: string,
     asset: TokenType
   ): Promise<string> {
-    const isNativeToken = network.nativeCurrency.symbol === asset.symbol;
+    // const isNativeToken = network.nativeCurrency.symbol === asset.symbol;
 
-    if (isNativeToken) {
-      const query = getAccountInfoQuery;
-      const variables = { publicKey: userAddr };
-      if ('proxyUrl' in network.metadata && network.metadata.proxyUrl) {
-        const [data, error] = await handleRequest(
-          gql(network.metadata.proxyUrl, query, variables)
-        );
-        if (error || !data || !data.account) return '0';
-        return formWei(data.account.balance.total, asset.decimals);
-      }
-    }
+    // if (isNativeToken) {
+    //   const query = getAccountInfoQuery;
+    //   const variables = { publicKey: userAddr };
+    //   if ('proxyUrl' in network.metadata && network.metadata.proxyUrl) {
+    //     const [data, error] = await handleRequest(
+    //       gql(network.metadata.proxyUrl, query, variables)
+    //     );
+    //     if (error || !data || !data.account) return '0';
+    //     return formWei(data.account.balance.total, asset.decimals);
+    //   }
+    // }
+    // const [ctr, initCtrError] = handleException(
+    //   asset.tokenAddr,
+    //   (addr) => new ERC20Contract(addr)
+    // );
+    // if (initCtrError || !ctr) return '0';
 
-    const ERC20Module = await import('@/models/contract/zk/contract.ERC20');
-    const ERC20Contract = ERC20Module.default;
+    // const [blnWei, reqError] = await handleRequest(ctr.getBalance(userAddr));
+    // if (reqError || !blnWei)
+    //   throw new Error(this.errorList.WALLET_GET_BALANCE_FAIL);
 
-    const [ctr, initCtrError] = handleException(
-      asset.tokenAddr,
-      (addr) => new ERC20Contract(addr, network)
-    );
-    if (initCtrError || !ctr) return '0';
-
-    const [blnWei, reqError] = await handleRequest(ctr.getBalance(userAddr));
-    if (reqError || !blnWei)
-      throw new Error(this.errorList.WALLET_GET_BALANCE_FAIL);
-
-    return formWei(blnWei!!.toString(), asset.decimals);
+    // return formWei(blnWei!!.toString(), asset.decimals);
+    return '';
   }
 }

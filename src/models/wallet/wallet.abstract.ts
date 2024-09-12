@@ -1,9 +1,7 @@
-// import { CARD_STATUS } from '@/components/modules/modals/components/modalConnectWallet/partials/card';
-import { DeviceType } from "device-detector-js/dist/typings/device";
+import Network, { NETWORK_NAME, NETWORK_TYPE } from '../network/network';
 
-import Network, { NETWORK_NAME, NETWORK_TYPE } from "../network/network";
-
-import { TokenType } from "@/store/slices/persistSlice";
+import { CARD_STATUS } from '@/components/modules/modals/components/modalConnectWallet/partials/card';
+import { TokenType } from '@/store/slices/persistSlice';
 
 export enum WALLET_EVENT_NAME {
   ACCOUNTS_CHANGED = 'accountsChanged',
@@ -47,8 +45,7 @@ export type DISPLAY_NAME = string;
 
 export type InstallationURL = Record<DEVICES, string>;
 
-// export type WALLET_STATUS = CARD_STATUS;
-export type WALLET_STATUS = string;
+export type WALLET_STATUS = CARD_STATUS;
 
 export type WalletLogo = {
   base: string;
@@ -60,12 +57,16 @@ export type WalletMetadataType = {
   supportedNetwork: NETWORK_NAME[];
   installationURL: InstallationURL;
   displayName: DISPLAY_NAME;
-  supportedDevices: Record<NETWORK_TYPE, DeviceType[]>;
 };
 
 export type WalletInitialDataType = {
   name: WALLET_NAME;
   metadata: WalletMetadataType;
+};
+
+export type ResponseConnect = {
+  account: string;
+  signature: string | ResponseSignature;
 };
 
 export default abstract class Wallet {
@@ -78,11 +79,13 @@ export default abstract class Wallet {
 
   abstract connect(
     network: Network,
+    msg: string,
+    isSign?: boolean,
     onStart?: () => void,
     onFinish?: () => void,
     onError?: () => void,
     whileHandle?: () => void
-  ): Promise<string>;
+  ): Promise<ResponseConnect>;
   abstract createTx(): Promise<string>;
   abstract signTx(): Promise<string>;
   abstract getNetwork(nwType?: NETWORK_TYPE): Promise<string>;
@@ -96,6 +99,6 @@ export default abstract class Wallet {
   abstract addListener(params: {
     eventName: WALLET_EVENT_NAME;
     handler: (args: any) => void;
-  }): any | void;
+  }): void;
   abstract removeListener(eventName: WALLET_EVENT_NAME): void;
 }
