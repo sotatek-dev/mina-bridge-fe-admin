@@ -24,8 +24,4 @@ const NetworkMina: Network = {
   },
 };
 
-export function getMinaAccountScan(addr: string) {
-  return `${NetworkMina.metadata.scanUrl}/account/${addr}?type=zk-acc`;
-}
-
 export default NetworkMina;

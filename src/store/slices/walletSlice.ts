@@ -6,10 +6,11 @@ import { createAppThunk } from '..';
 import { persistSliceActions, TokenType } from './persistSlice';
 import { walletInstanceSliceActions } from './walletInstanceSlice';
 
+import { handleRequest } from '@/helpers/asyncHandlers';
+import StorageUtils from '@/helpers/handleBrowserStorage';
 import NETWORKS, { Network, NETWORK_NAME } from '@/models/network';
 import WALLETS, { Wallet, WALLET_NAME } from '@/models/wallet';
-import { WALLET_EVENT_NAME } from '@/models/wallet/wallet.abstract';
-
+import authService, { ResponseAuthToken } from '@/services/authService';
 
 export enum NETWORK_KEY {
   SRC = 'src',
@@ -37,7 +38,7 @@ export type WalletState = WalletStateConnected | WalletStateDisConnected;
 export type connectWalletPayload = {
   wallet: Wallet;
   network: Network;
-
+  isSign?: boolean;
   onCnStart?: () => void;
   onCnFinish?: () => void;
   whileCnHandle?: () => void;
@@ -66,19 +67,75 @@ const connectWallet = createAppThunk<{
     {
       wallet,
       network,
+      isSign,
       onCnStart,
       onCnFinish,
       whileCnHandle,
     }: connectWalletPayload,
     { dispatch, getState }
   ) => {
-    const res = await wallet.connect(
+    let msg = '';
+    if (isSign) {
+      const [res, error] = await handleRequest(authService.getMessage());
+      if (error || !res) return;
+      msg = res.message;
+    }
+
+    // Connect and sign signature
+    const { account, signature } = await wallet.connect(
       network,
+      msg,
+      isSign,
       onCnStart,
       onCnFinish,
       undefined,
       whileCnHandle
     );
+
+    let token: ResponseAuthToken | null = {
+      accessToken: '',
+      refreshToken: '',
+    };
+
+    // Check if Reconnection don't sign
+
+    // Login with auth api
+    // TODO
+    if (isSign) {
+      switch (wallet.name) {
+        case WALLET_NAME.METAMASK:
+          if (network.name === NETWORK_NAME.ETHEREUM) {
+            const [resEVM, errorEMV] = await handleRequest(
+              authService.loginAdminEVM({ address: account, signature })
+            );
+            if (errorEMV) break;
+            token = resEVM;
+          }
+          if (network.name === NETWORK_NAME.MINA) {
+            const [resMina, errorMina] = await handleRequest(
+              authService.loginAdminMina({ address: account, signature })
+            );
+            if (errorMina) break;
+            token = resMina;
+          }
+          break;
+        case WALLET_NAME.AURO:
+          if (!isSign) break;
+          const [resMina, errorMina] = await handleRequest(
+            authService.loginAdminMina({ address: account, signature })
+          );
+          if (errorMina) break;
+          token = resMina;
+          break;
+        default:
+          break;
+      }
+    }
+
+    if (token === null || !token.accessToken || !token.refreshToken)
+      throw new Error('Signature invalid');
+
+    StorageUtils.setToken(token.accessToken);
     // const curTarNetwork = getState().wallet.networkName.tar;
     // const isCurTarMatchSrc = curTarNetwork === network.name;
     const availTarNetwork = (Object.keys(NETWORKS) as NETWORK_NAME[]).filter(
@@ -94,10 +151,10 @@ const connectWallet = createAppThunk<{
           // tar: isCurTarMatchSrc ? availTarNetwork : curTarNetwork,
           tar: availTarNetwork,
         },
-        address: res,
+        address: account,
       })
     );
-    Cookie.set('address', res);
+    Cookie.set('address', account);
 
     // store wallet and network instance which contain non-serialize data that couldn't use persist
     dispatch(
@@ -188,61 +245,12 @@ const changeNetwork = createAppThunk()(
   }
 );
 
-const switchSrcTarNetwork = createAppThunk()(
-  'wallet/thunk/switchSrcTarNetwork',
-  async (_, { dispatch, getState }) => {
-    const curTarNetwork = getState().wallet.networkName.tar;
-    const curSrcNetwork = getState().wallet.networkName.src;
-    const curWallet = getState().walletInstance.walletInstance;
-
-    if (!curWallet || !curSrcNetwork || !curTarNetwork)
-      throw new Error('You must connect to a wallet to use this feature');
-
-    if (curWallet.metadata.supportedNetwork.includes(curTarNetwork)) {
-      const res = await curWallet.connect(NETWORKS[curTarNetwork]);
-
-      // store wallet and network key which contain serialize data that could use persist
-      dispatch(
-        walletSlicePrvActions.connected({
-          walletKey: curWallet.name,
-          networkName: {
-            src: curTarNetwork,
-            tar: curSrcNetwork,
-          },
-          address: res,
-        })
-      );
-
-      // store wallet and network instance which contain non-serialize data that couldn't use persist
-      dispatch(
-        walletInstanceSliceActions.initializeInstance({
-          walletKey: curWallet.name,
-          networkName: {
-            src: curTarNetwork,
-            tar: curSrcNetwork,
-          },
-        })
-      );
-      dispatch(persistSliceActions.setLastNetworkName(curTarNetwork)); // store key to persist slice
-      return true;
-    }
-    throw new Error(
-      `Your wallet doesn't support this network. Please change the wallet connected`
-    );
-  }
-);
-
 const disconnect = createAppThunk()(
   'wallet/disconnect',
-  async (_, { dispatch, getState }) => {
-    const { walletInstance } = getState().walletInstance;
-    // remove all listener before disconnect
-    walletInstance!!.removeListener(WALLET_EVENT_NAME.ACCOUNTS_CHANGED);
-    walletInstance!!.removeListener(WALLET_EVENT_NAME.CHAIN_CHANGED);
-    walletInstance!!.removeListener(WALLET_EVENT_NAME.DISCONNECT);
-    walletInstance!!.removeListener(WALLET_EVENT_NAME.MESSAGE);
+  async (_, { dispatch }) => {
     dispatch(walletSlicePrvActions.disconnectWallet());
     dispatch(walletInstanceSliceActions.removeInstances());
+    StorageUtils.setToken('');
     Cookie.remove('address');
     return true;
   }
@@ -251,10 +259,8 @@ const disconnect = createAppThunk()(
 const reconnectWallet = createAppThunk()(
   'wallet/reconnectWallet',
   async (_, { dispatch, getState }) => {
-    const { walletKey, networkName, asset } = getState().wallet;
-    const { listAsset } = getState().persist;
-
-    if (!walletKey || !WALLETS[walletKey])
+    const { walletKey, networkName } = getState().wallet;
+    if (!walletKey)
       throw new Error(
         "You haven't connected to any wallet or network just yet"
       );
@@ -266,42 +272,22 @@ const reconnectWallet = createAppThunk()(
     );
     const res = await dispatch(
       connectWallet({
-        wallet: WALLETS[walletKey],
+        wallet: WALLETS[walletKey]!!,
         network: NETWORKS[networkName.src],
       })
     );
-
     if (
       connectWallet.rejected.match(res) &&
-      res.error.message === WALLETS[walletKey].errorList.WALLET_CONNECT_REJECTED
+      res.error.message ===
+        WALLETS[walletKey]!!.errorList.WALLET_CONNECT_REJECTED
     ) {
       dispatch(disconnect());
       return false;
     }
 
-    const swRes = await WALLETS[walletKey].switchNetwork(
-      NETWORKS[networkName.src]
-    );
+    await WALLETS[walletKey]!!.switchNetwork(NETWORKS[networkName.src]);
 
-    // rehydrate asset
-    if (asset) {
-      const assetPersisted = listAsset[networkName.src].find(
-        (item) => item.pairId === asset.pairId && item.symbol === asset.symbol
-      );
-      const assetReplacement = listAsset[networkName.src].find(
-        (item) => item.pairId === asset.pairId && item.symbol === asset.symbol
-      );
-      if (!assetPersisted && !assetReplacement) {
-        dispatch(walletSlicePrvActions.changeAsset());
-      }
-      if (!assetPersisted && assetReplacement) {
-        dispatch(walletSlicePrvActions.changeAsset(assetReplacement));
-      }
-      if (assetPersisted) {
-        dispatch(walletSlicePrvActions.changeAsset(assetPersisted));
-      }
-    }
-    return swRes;
+    return true;
   }
 );
 
@@ -330,7 +316,6 @@ export const WalletSlice = createSlice({
       state.isConnected = false;
       state.walletKey = null;
       state.networkName = { src: null, tar: null };
-      state.asset = undefined;
     },
     changeAsset(state, action: PayloadAction<TokenType | undefined>) {
       state.asset = action.payload;
@@ -346,7 +331,6 @@ export const walletSliceActions = {
   connectWallet,
   rehydrateNetworkInstance,
   changeNetwork,
-  switchSrcTarNetwork,
   disconnect,
   reconnectWallet,
 };

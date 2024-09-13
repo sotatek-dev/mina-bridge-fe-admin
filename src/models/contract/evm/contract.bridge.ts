@@ -1,10 +1,7 @@
-import { MatchPrimitiveType } from 'web3';
-import { PayableMethodObject } from 'web3-eth-contract';
-
 import Contract, { InitializeContractType } from './contract';
 
-import ABIBridgeETH from '@/configs/ABIs/evm/Bridge_ETH';
-import { formWei, toWei } from '@/helpers/common';
+import ABIBridgeETH from '@/configs/ABIs/Bridge_ETH.ts';
+import { toWei } from '@/helpers/common';
 import { TokenType } from '@/store/slices/persistSlice';
 type ABIType = typeof ABIBridgeETH;
 
@@ -17,10 +14,11 @@ export type EVMBridgeCtrLockPayload = {
   isNativeToken?: boolean;
 };
 
-export type EVMBridgeTXLock = PayableMethodObject<
-  [string, string, MatchPrimitiveType<'uint256', unknown>],
-  void
->;
+export type EVMBridgeConfigPayload = {
+  amount: string;
+  userAddr: string;
+  asset: TokenType;
+};
 
 export default class BridgeContract extends Contract<ABIType> {
   constructor({
@@ -29,39 +27,35 @@ export default class BridgeContract extends Contract<ABIType> {
   }: Omit<InitializeContractType<ABIType>, 'contractABI'>) {
     super({ address, contractABI: ABIBridgeETH, provider });
   }
-
-  buildTxLock({
+  lock({
     tkAddr,
     desAddr,
     amount,
+    userAddr,
     asset,
-  }: Omit<
-    EVMBridgeCtrLockPayload,
-    'userAddr' | 'isNativeToken'
-  >): EVMBridgeTXLock {
+    isNativeToken,
+  }: EVMBridgeCtrLockPayload) {
     const emitVal = toWei(amount, asset.decimals);
-    console.log(
-      '🚀 ~ BridgeContract ~ emitVal:',
-      emitVal,
-      formWei(emitVal, asset.decimals)
-    );
-    return this.contractInstance.methods.lock(tkAddr, desAddr, emitVal);
-  }
-
-  sendTxLock(
-    tx: EVMBridgeTXLock,
-    {
-      amount,
-      userAddr,
-      asset,
-      isNativeToken,
-    }: Omit<EVMBridgeCtrLockPayload, 'tkAddr' | 'desAddr'>
-  ) {
-    const emitVal = toWei(amount, asset.decimals);
-    return tx.send({
+    return this.contractInstance.methods.lock(tkAddr, desAddr, emitVal).send({
       from: userAddr,
       gas: '300000',
       value: isNativeToken ? emitVal : '0',
+    });
+  }
+
+  setMaxAmount({ amount, userAddr, asset }: EVMBridgeConfigPayload) {
+    const max = toWei(amount, asset.decimals);
+    return this.contractInstance.methods.setMaxAmount(max).send({
+      from: userAddr,
+      gas: '300000',
+    });
+  }
+
+  setMinAmount({ amount, userAddr, asset }: EVMBridgeConfigPayload) {
+    const min = toWei(amount, asset.decimals);
+    return this.contractInstance.methods.setMinAmount(min).send({
+      from: userAddr,
+      gas: '300000',
     });
   }
 

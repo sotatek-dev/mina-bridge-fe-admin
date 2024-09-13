@@ -1,4 +1,4 @@
-import { PROVIDER_TYPE } from "../contract/evm/contract";
+import { PROVIDER_TYPE } from '../contract/evm/contract';
 
 // enum configs
 export enum NETWORK_NAME {
@@ -24,6 +24,12 @@ export enum ZK_CHAIN {
   DEVNET = 'mina:testnet',
   BERKELEY = 'mina:berkeley',
   TESTWORLD2 = 'testworld2',
+}
+
+enum ENetworkNameOldVersion {
+  MAINNET = 'Mainnet',
+  DEVNET = 'Devnet',
+  BERKELEY = 'Berkeley',
 }
 
 export enum CHAIN_TYPE {
@@ -68,7 +74,6 @@ export type NetworkZKChainMetadataType = {
   chainType: CHAIN_TYPE;
   chainName: string;
   proxyUrl?: string;
-  archiveUrl?: string;
   scanUrl: string;
 };
 
@@ -127,7 +132,7 @@ export const EVM_CHAINS_METADATA: Record<
     chainName: 'sepolia',
     provider: {
       type: PROVIDER_TYPE.HTTPS,
-      uri: 'https://ethereum-sepolia.blockpi.network/v1/rpc/public',
+      uri: 'https://rpc.sepolia.ethpandaops.io',
     },
     scanUrl: 'https://sepolia.etherscan.io',
   },
@@ -142,25 +147,20 @@ export const ZK_CHAINS_METADATA: Record<ZK_CHAIN, NetworkZKChainMetadataType> =
       chainType: CHAIN_TYPE.MAINNET,
       chainName: 'Mina',
       proxyUrl: 'https://proxy.minaexplorer.com/',
-      archiveUrl: '',
       scanUrl: 'https://minascan.io/mainnet',
     },
     [ZK_CHAIN.DEVNET]: {
       chainId: ZK_CHAIN.DEVNET,
       chainType: CHAIN_TYPE.DEVNET,
       chainName: 'Mina Devnet',
-      proxyUrl: 'https://api.minascan.io/node/devnet/v1/graphql',
-      archiveUrl: '',
+      proxyUrl: 'https://proxy.devnet.minaexplorer.com/',
       scanUrl: 'https://minascan.io/devnet',
     },
     [ZK_CHAIN.BERKELEY]: {
       chainId: ZK_CHAIN.BERKELEY,
       chainType: CHAIN_TYPE.TESTNET,
       chainName: 'Berkeley',
-      proxyUrl: 'https://api.minascan.io/node/berkeley/v1/graphql',
-      archiveUrl: 'https://api.minascan.io/archive/berkeley/v1/graphql',
-      // proxyUrl: 'https://proxy.berkeley.minaexplorer.com/graphql',
-      // archiveUrl: 'https://archive.berkeley.minaexplorer.com/',
+      proxyUrl: 'https://proxy.berkeley.minaexplorer.com/',
       scanUrl: 'https://minascan.io/berkeley',
     },
     [ZK_CHAIN.TESTWORLD2]: {
@@ -168,7 +168,6 @@ export const ZK_CHAINS_METADATA: Record<ZK_CHAIN, NetworkZKChainMetadataType> =
       chainType: CHAIN_TYPE.TESTNET,
       chainName: 'Mina Test world 2',
       proxyUrl: '',
-      archiveUrl: '',
       scanUrl: 'https://minascan.io/testworld',
     },
   };
@@ -176,6 +175,20 @@ export const ZK_CHAINS_METADATA: Record<ZK_CHAIN, NetworkZKChainMetadataType> =
 export const getZKNetworkMetadata = (
   chain: ZK_CHAIN
 ): NetworkZKChainMetadataType => ZK_CHAINS_METADATA[chain];
+
+// description: the npm:mina-snap 0.1.5 or 0.1.6 is using different enum for chain ID compared to "o1js"  package
+export const getZKChainIdName = (chainId: string): string => {
+  switch (chainId) {
+    case ZK_CHAIN.MAINNET:
+      return ENetworkNameOldVersion.MAINNET;
+    case ZK_CHAIN.DEVNET:
+      return ENetworkNameOldVersion.DEVNET;
+    case ZK_CHAIN.BERKELEY:
+      return ENetworkNameOldVersion.BERKELEY;
+    default:
+      return chainId;
+  }
+};
 
 // default export
 type Network =
