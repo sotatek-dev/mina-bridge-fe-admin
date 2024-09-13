@@ -21,12 +21,6 @@ export default function useWalletEvents() {
   async function checkMatchedNetwork(wallet: Wallet, nw: Network) {
     const curChain = await wallet.getNetwork(nw.type);
 
-    console.log({
-      curChain: curChain,
-      nw: nw.metadata,
-      // get: getZKChainIdName(nw.metadata.chainId).toLowerCase(),
-    });
-
     if (curChain.toLowerCase() !== nw.metadata.chainId.toLowerCase())
       return dispatch(
         uiSliceActions.openBanner({
