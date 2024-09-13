@@ -26,6 +26,12 @@ export enum ZK_CHAIN {
   TESTWORLD2 = 'testworld2',
 }
 
+enum ENetworkNameOldVersion {
+  MAINNET = 'Mainnet',
+  DEVNET = 'Devnet',
+  BERKELEY = 'Berkeley',
+}
+
 export enum CHAIN_TYPE {
   MAINNET = 'mainnet',
   TESTNET = 'testnet',
@@ -169,6 +175,20 @@ export const ZK_CHAINS_METADATA: Record<ZK_CHAIN, NetworkZKChainMetadataType> =
 export const getZKNetworkMetadata = (
   chain: ZK_CHAIN
 ): NetworkZKChainMetadataType => ZK_CHAINS_METADATA[chain];
+
+// description: the npm:mina-snap 0.1.5 or 0.1.6 is using different enum for chain ID compared to "o1js"  package
+export const getZKChainIdName = (chainId: string): string => {
+  switch (chainId) {
+    case ZK_CHAIN.MAINNET:
+      return ENetworkNameOldVersion.MAINNET;
+    case ZK_CHAIN.DEVNET:
+      return ENetworkNameOldVersion.DEVNET;
+    case ZK_CHAIN.BERKELEY:
+      return ENetworkNameOldVersion.BERKELEY;
+    default:
+      return chainId;
+  }
+};
 
 // default export
 type Network =

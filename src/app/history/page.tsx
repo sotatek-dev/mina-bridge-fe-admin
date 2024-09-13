@@ -1,7 +1,12 @@
-import React from 'react';
+import HistoryContent from './content';
+import HistoryProvider from './context';
 
-const History = () => {
-  return <div>History</div>;
-};
+export type FormBridgeProps = {};
 
-export default History;
+export default function History({}: FormBridgeProps) {
+  return (
+    <HistoryProvider>
+      <HistoryContent />
+    </HistoryProvider>
+  );
+}

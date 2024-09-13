@@ -99,7 +99,6 @@ export default function useHeaderLogic(extractFnc: boolean = false) {
       };
 
     // when have a wallet connect
-    console.log({ address });
     const [fSlice, sSlice] = truncateMid(address!!, 4, 4); // truncate adddress
 
     return {
