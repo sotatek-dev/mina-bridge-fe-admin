@@ -31,11 +31,11 @@ export default class ERC20Contract {
     );
   }
   static async init() {
-    await Bridge.compile();
-    console.log('Bridge compile');
-
-    await Token.compile();
-    console.log('Token compile');
+    // TODO: ZK compile
+    // await Bridge.compile();
+    // console.log('Bridge compile');
+    // await Token.compile();
+    // console.log('Token compile');
   }
 
   async fetchInvolveAccount(userAddr: string) {
