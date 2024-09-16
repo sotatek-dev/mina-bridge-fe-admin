@@ -132,7 +132,7 @@ export const EVM_CHAINS_METADATA: Record<
     chainName: 'sepolia',
     provider: {
       type: PROVIDER_TYPE.HTTPS,
-      uri: 'https://rpc.sepolia.ethpandaops.io',
+      uri: 'https://ethereum-sepolia-rpc.publicnode.com',
     },
     scanUrl: 'https://sepolia.etherscan.io',
   },
