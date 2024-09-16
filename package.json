@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node_modules/.bin/next dev",
+    "dev": "node_modules/.bin/next dev -p 3972",
+    "dev:testing": "node_modules/.bin/next dev -p 3973",
     "build": "node_modules/.bin/next build",
     "start": "node_modules/.bin/next start -p 3972",
     "start:testing": "node_modules/.bin/next start -p 3973",

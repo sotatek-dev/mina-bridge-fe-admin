@@ -41,6 +41,19 @@ const ABIBridgeETH = [
   {
     anonymous: false,
     inputs: [
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'newThreshold',
+        type: 'uint256',
+      },
+    ],
+    name: 'ChangeThreshold',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
       { indexed: false, internalType: 'uint8', name: 'version', type: 'uint8' },
     ],
     name: 'Initialized',
@@ -144,6 +157,23 @@ const ABIBridgeETH = [
     type: 'event',
   },
   {
+    inputs: [],
+    name: 'UNLOCK_HASH',
+    outputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'bytes32', name: '_digest', type: 'bytes32' },
+      { internalType: 'bytes', name: '_signature', type: 'bytes' },
+    ],
+    name: '_getSigner',
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [{ internalType: 'address', name: '_minter', type: 'address' }],
     name: 'changeMinter',
     outputs: [],
@@ -152,13 +182,46 @@ const ABIBridgeETH = [
   },
   {
     inputs: [
+      { internalType: 'uint256', name: '_newThreshold', type: 'uint256' },
+    ],
+    name: 'changeThreshold',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      { internalType: 'address', name: 'token', type: 'address' },
+      { internalType: 'uint256', name: 'amount', type: 'uint256' },
+      { internalType: 'address', name: 'user', type: 'address' },
+      { internalType: 'string', name: 'hash', type: 'string' },
+      { internalType: 'uint256', name: 'fee', type: 'uint256' },
+    ],
+    name: 'getUnlockHash',
+    outputs: [
+      { internalType: 'bytes32', name: '_unlockHash', type: 'bytes32' },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
       { internalType: 'address', name: '_minter', type: 'address' },
       { internalType: 'uint256', name: '_minAmount', type: 'uint256' },
       { internalType: 'uint256', name: '_maxAmount', type: 'uint256' },
+      { internalType: 'address[]', name: '_validators', type: 'address[]' },
+      { internalType: 'uint256', name: '_threshold', type: 'uint256' },
     ],
     name: 'initialize',
     outputs: [],
     stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: 'totalSig', type: 'uint256' }],
+    name: 'isValidThreshold',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -232,6 +295,13 @@ const ABIBridgeETH = [
     type: 'function',
   },
   {
+    inputs: [],
+    name: 'threshold',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
     inputs: [{ internalType: 'address', name: 'newOwner', type: 'address' }],
     name: 'transferOwnership',
     outputs: [],
@@ -245,6 +315,7 @@ const ABIBridgeETH = [
       { internalType: 'address', name: 'user', type: 'address' },
       { internalType: 'string', name: 'hash', type: 'string' },
       { internalType: 'uint256', name: 'fee', type: 'uint256' },
+      { internalType: 'bytes[]', name: '_signatures', type: 'bytes[]' },
     ],
     name: 'unlock',
     outputs: [],
@@ -254,6 +325,13 @@ const ABIBridgeETH = [
   {
     inputs: [{ internalType: 'string', name: '', type: 'string' }],
     name: 'unlockHash',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'address', name: '', type: 'address' }],
+    name: 'validators',
     outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
     stateMutability: 'view',
     type: 'function',
