@@ -1,6 +1,7 @@
 'use client';
 import { Button, Heading, Image, VStack } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 import useHeaderLogic from '@/components/layouts/header/useHeaderLogic';
 import ROUTES from '@/configs/routes';
@@ -11,8 +12,13 @@ function ClientHome() {
   const { isConnected } = useAppSelector(getWalletSlice);
   const { btnConnectWalletProps } = useHeaderLogic();
 
+  useEffect(() => {
+    if (isConnected) {
+      router.push(ROUTES.HISTORY);
+    }
+  }, [isConnected, router]);
+
   if (isConnected) {
-    router.push(ROUTES.HISTORY);
     return null;
   }
 
