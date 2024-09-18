@@ -1,11 +1,14 @@
 import { useEffect } from 'react';
 
+import useNotifier from './useNotifier';
+
 import { Network } from '@/models/network';
-import { getZKChainIdName } from '@/models/network/network';
-import { Wallet } from '@/models/wallet';
+import { getZKChainIdName, NETWORK_NAME } from '@/models/network/network';
+import { Wallet, WALLET_NAME } from '@/models/wallet';
 import { WALLET_EVENT_NAME } from '@/models/wallet/wallet.abstract';
 import {
   getWalletInstanceSlice,
+  getWalletSlice,
   useAppDispatch,
   useAppSelector,
 } from '@/store';
@@ -16,12 +19,29 @@ export default function useWalletEvents() {
   const { walletInstance, networkInstance } = useAppSelector(
     getWalletInstanceSlice
   );
+  const { walletKey, networkName } = useAppSelector(getWalletSlice);
+
   const dispatch = useAppDispatch();
+  const { sendNotification } = useNotifier();
+
+  const isMinaSnap =
+    walletKey === WALLET_NAME.METAMASK && networkName.src === NETWORK_NAME.MINA;
 
   async function checkMatchedNetwork(wallet: Wallet, nw: Network) {
     const curChain = await wallet.getNetwork(nw.type);
 
-    if (curChain.toLowerCase() !== nw.metadata.chainId.toLowerCase())
+    console.log({
+      curChain,
+      nwChain: nw.metadata.chainId,
+      getZKChainIdName: getZKChainIdName(nw.metadata.chainId),
+    });
+
+    if (
+      isMinaSnap
+        ? curChain.toLowerCase() !==
+          getZKChainIdName(nw.metadata.chainId).toLowerCase()
+        : curChain.toLowerCase() !== nw.metadata.chainId.toLowerCase()
+    )
       return dispatch(
         uiSliceActions.openBanner({
           bannerName: BANNER_NAME.UNMATCHED_CHAIN_ID,
@@ -43,9 +63,18 @@ export default function useWalletEvents() {
     walletInstance.addListener({
       eventName: WALLET_EVENT_NAME.ACCOUNTS_CHANGED,
       handler(accounts) {
-        if (accounts && accounts.length > 0) {
-          return dispatch(walletSliceActions.updateAccount(accounts[0]));
-        }
+        // if (accounts && accounts.length > 0) {
+        //   return dispatch(walletSliceActions.updateAccount(accounts[0]));
+        // }
+        console.log('Lock: ', accounts);
+
+        // Switch account is not admin's address
+        sendNotification({
+          toastType: 'error',
+          options: {
+            title: 'Signature invalid',
+          },
+        });
         return dispatch(walletSliceActions.disconnect());
       },
     });

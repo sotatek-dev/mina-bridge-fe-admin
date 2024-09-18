@@ -199,7 +199,7 @@ export default function ModalCWProvider({
         sendNotification({
           toastType: 'error',
           options: {
-            title: res.error.message,
+            title: 'Signature rejected',
           },
         });
       }

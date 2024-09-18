@@ -1,6 +1,8 @@
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
 
+import { ListFileName, ZkContractType } from '@/configs/constants';
+
 export const isDevelopment = () =>
   process.env.NEXT_PUBLIC_ENV === 'development';
 export const isFnc = <F>(maybeFnc: F | unknown): maybeFnc is F =>
@@ -116,4 +118,42 @@ export function calculateAmountReceived(
   const amountReceived = amountFrom - amountFrom * tipDecimal;
 
   return amountReceived;
+}
+
+export function fetchFiles(type: ZkContractType) {
+  const listFiles = ListFileName[type];
+  return Promise.all(
+    listFiles.map((file) => {
+      return Promise.all([
+        fetch(`/caches/o1js/${file}.header`).then((res) => res.text()),
+        fetch(`/caches/o1js/${file}`).then((res) => res.text()),
+      ]).then(([header, data]) => ({ file, header, data }));
+    })
+  ).then((cacheList) =>
+    cacheList.reduce((acc: any, { file, header, data }) => {
+      acc[file] = { file, header, data };
+      return acc;
+    }, {})
+  );
+}
+
+export function fileSystem(files: any) {
+  return {
+    read({ persistentId, uniqueId, dataType }: any) {
+      // read current uniqueId, return data if it matches
+      if (!files[persistentId]) {
+        return undefined;
+      }
+
+      if (dataType === 'string') {
+        return new TextEncoder().encode(files[persistentId].data);
+      }
+
+      return undefined;
+    },
+    write() {
+      // console.log('write');
+    },
+    canWrite: true,
+  };
 }
