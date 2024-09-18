@@ -153,7 +153,7 @@ export const ZK_CHAINS_METADATA: Record<ZK_CHAIN, NetworkZKChainMetadataType> =
       chainId: ZK_CHAIN.DEVNET,
       chainType: CHAIN_TYPE.DEVNET,
       chainName: 'Mina Devnet',
-      proxyUrl: 'https://proxy.devnet.minaexplorer.com/',
+      proxyUrl: 'https://api.minascan.io/node/devnet/v1/graphql',
       scanUrl: 'https://minascan.io/devnet',
     },
     [ZK_CHAIN.BERKELEY]: {
