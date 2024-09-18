@@ -1,10 +1,19 @@
 'use client';
 import { Heading, VStack } from '@chakra-ui/react';
-
-import ConfigCommon from './partials/form.config.common';
-import ConfigContract from './partials/form.config.contract';
+import dynamic from 'next/dynamic';
 
 import { getWalletSlice, useAppSelector } from '@/store';
+
+const ConfigCommon = dynamic(() => import('./partials/form.config.common'), {
+  ssr: false,
+});
+
+const ConfigContract = dynamic(
+  () => import('./partials/form.config.contract'),
+  {
+    ssr: false,
+  }
+);
 
 export default function ConfigurationContent() {
   const { isConnected } = useAppSelector(getWalletSlice);

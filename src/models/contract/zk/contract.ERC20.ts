@@ -1,7 +1,10 @@
+import { FungibleToken } from 'mina-fungible-token';
 import { Mina, PublicKey, UInt64, fetchAccount } from 'o1js';
 
 import { Bridge } from '@/configs/ABIs/Bridge';
 import Token from '@/configs/ABIs/Erc20_mina';
+import { ZkContractType } from '@/configs/constants';
+import { fetchFiles, fileSystem } from '@/helpers/common';
 
 export default class ERC20Contract {
   bridgeAddress: PublicKey;
@@ -13,9 +16,8 @@ export default class ERC20Contract {
   constructor(bridgeAddress: string, tokenAddress: string) {
     Mina.setActiveInstance(
       Mina.Network({
-        // mina: 'https://api.minascan.io/node/berkeley/v1/graphql',
-        mina: 'https://api.minascan.io/node/berkeley/v1/graphql',
-        archive: 'https://api.minascan.io/archive/berkeley/v1/graphql',
+        mina: 'https://api.minascan.io/node/devnet/v1/graphql',
+        archive: 'https://api.minascan.io/archive/devnet/v1/graphql',
       })
     );
 
@@ -32,10 +34,28 @@ export default class ERC20Contract {
   }
   static async init() {
     // TODO: ZK compile
-    // await Bridge.compile();
-    // console.log('Bridge compile');
-    // await Token.compile();
-    // console.log('Token compile');
+    try {
+      console.log('-----fetch files');
+      console.time('fetch files');
+      const [cacheTokenFiles, cacheBridgeFiles] = await Promise.all([
+        fetchFiles(ZkContractType.TOKEN),
+        fetchFiles(ZkContractType.BRIDGE),
+      ]);
+      console.log('-----fetch files done');
+      console.timeEnd('fetch files');
+      console.time('compile contracts');
+      console.log('-----compile contracts');
+      await Bridge.compile({
+        cache: fileSystem(cacheBridgeFiles),
+      });
+      await FungibleToken.compile({
+        cache: fileSystem(cacheTokenFiles),
+      });
+      console.log('-----compile contracts done');
+      console.timeEnd('compile contracts');
+    } catch (error) {
+      console.log('error', error);
+    }
   }
 
   async fetchInvolveAccount(userAddr: string) {
@@ -67,20 +87,29 @@ export default class ERC20Contract {
     const newMinter = PublicKey.fromBase58(address);
     console.log('🚀 ~ ERC20Contract ~ config ~ address:', newMinter);
     if (!this.contractBridgeInstance || !this.contractTokenInstance) return;
-    return this.contractBridgeInstance.config(
-      newMinter,
-      UInt64.from(min),
-      UInt64.from(max)
-    );
+
+    // TODO:
+    // return this.contractBridgeInstance.config(
+    //   newMinter,
+    //   UInt64.from(min),
+    //   UInt64.from(max)
+    // );
+    return true;
   }
 
   async getMinAmount() {
     if (!this.contractBridgeInstance) return;
-    return this.contractBridgeInstance.minAmount.get();
+
+    // TODO:
+    // return this.contractBridgeInstance.minAmount.get();
+    return 10;
   }
 
   async getMaxAmount() {
     if (!this.contractBridgeInstance) return;
-    return this.contractBridgeInstance.maxAmount.get();
+
+    // TODO:
+    // return this.contractBridgeInstance.maxAmount.get();
+    return 100;
   }
 }
