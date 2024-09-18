@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import useNotifier from './useNotifier';
 
@@ -16,25 +16,20 @@ import { BANNER_NAME, uiSliceActions } from '@/store/slices/uiSlice';
 import { walletSliceActions } from '@/store/slices/walletSlice';
 
 export default function useWalletEvents() {
+  const chainChangedRef = useRef<any>(null);
+  const { sendNotification } = useNotifier();
+
+  const dispatch = useAppDispatch();
+  const { walletKey, networkName } = useAppSelector(getWalletSlice);
   const { walletInstance, networkInstance } = useAppSelector(
     getWalletInstanceSlice
   );
-  const { walletKey, networkName } = useAppSelector(getWalletSlice);
-
-  const dispatch = useAppDispatch();
-  const { sendNotification } = useNotifier();
 
   const isMinaSnap =
     walletKey === WALLET_NAME.METAMASK && networkName.src === NETWORK_NAME.MINA;
 
   async function checkMatchedNetwork(wallet: Wallet, nw: Network) {
     const curChain = await wallet.getNetwork(nw.type);
-
-    console.log({
-      curChain,
-      nwChain: nw.metadata.chainId,
-      getZKChainIdName: getZKChainIdName(nw.metadata.chainId),
-    });
 
     if (
       isMinaSnap
@@ -50,6 +45,7 @@ export default function useWalletEvents() {
           },
         })
       );
+
     return dispatch(
       uiSliceActions.closeBanner({
         bannerName: BANNER_NAME.UNMATCHED_CHAIN_ID,
@@ -60,13 +56,22 @@ export default function useWalletEvents() {
   useEffect(() => {
     if (!walletInstance || !networkInstance.src) return;
 
+    // remove interval listener when wallet or network change
+    if (chainChangedRef.current) {
+      walletInstance.removeListener(
+        WALLET_EVENT_NAME.CHAIN_CHANGED,
+        chainChangedRef.current
+      );
+      chainChangedRef.current = null;
+    }
+
     walletInstance.addListener({
       eventName: WALLET_EVENT_NAME.ACCOUNTS_CHANGED,
       handler(accounts) {
+        if (isMinaSnap) return;
         // if (accounts && accounts.length > 0) {
         //   return dispatch(walletSliceActions.updateAccount(accounts[0]));
         // }
-        console.log('Lock: ', accounts);
 
         // Switch account is not admin's address
         sendNotification({
@@ -80,37 +85,48 @@ export default function useWalletEvents() {
     });
     // display banner when listener was not initialize
     checkMatchedNetwork(walletInstance, networkInstance.src);
+
     // initialize network chain listener
-    walletInstance.addListener({
-      eventName: WALLET_EVENT_NAME.CHAIN_CHANGED,
-      handler(chain) {
-        if (!chain) return dispatch(walletSliceActions.disconnect());
-        if (!networkInstance.src) return;
+    chainChangedRef.current = walletInstance.addListener(
+      {
+        eventName: WALLET_EVENT_NAME.CHAIN_CHANGED,
+        handler(chain) {
+          if (!chain) return dispatch(walletSliceActions.disconnect());
+          if (!networkInstance.src) return;
 
-        const chainId = typeof chain === 'string' ? chain : chain.networkID;
+          // Fix: chain?.chainId or chain?.networkID
+          const chainId = typeof chain === 'string' ? chain : chain?.networkID;
 
-        if (
-          chainId.toLowerCase() !==
-          networkInstance.src.metadata.chainId.toLowerCase()
-        )
+          if (
+            walletKey === WALLET_NAME.AURO
+              ? chainId.toLowerCase() !== networkInstance.src.metadata.chainId
+              : chainId.toLowerCase() !==
+                getZKChainIdName(
+                  networkInstance.src.metadata.chainId
+                ).toLowerCase()
+          )
+            return dispatch(
+              uiSliceActions.openBanner({
+                bannerName: BANNER_NAME.UNMATCHED_CHAIN_ID,
+                payload: {
+                  chainId,
+                },
+              })
+            );
+
           return dispatch(
-            uiSliceActions.openBanner({
+            uiSliceActions.closeBanner({
               bannerName: BANNER_NAME.UNMATCHED_CHAIN_ID,
-              payload: {
-                chainId,
-              },
             })
           );
-        return dispatch(
-          uiSliceActions.closeBanner({
-            bannerName: BANNER_NAME.UNMATCHED_CHAIN_ID,
-          })
-        );
+        },
       },
-    });
+      isMinaSnap ? networkInstance.src.type : undefined
+    );
     walletInstance.addListener({
       eventName: WALLET_EVENT_NAME.DISCONNECT,
       handler(error) {
+        if (isMinaSnap) return;
         console.log('🚀 ~ handler ~ error:', error);
         return dispatch(walletSliceActions.disconnect());
       },
@@ -123,7 +139,12 @@ export default function useWalletEvents() {
     });
     return () => {
       walletInstance.removeListener(WALLET_EVENT_NAME.ACCOUNTS_CHANGED);
-      walletInstance.removeListener(WALLET_EVENT_NAME.CHAIN_CHANGED);
+      walletInstance.removeListener(
+        WALLET_EVENT_NAME.CHAIN_CHANGED,
+        isMinaSnap ? networkInstance.src?.type : undefined,
+        isMinaSnap ? chainChangedRef.current : undefined
+      );
+      chainChangedRef.current = null;
       walletInstance.removeListener(WALLET_EVENT_NAME.DISCONNECT);
       walletInstance.removeListener(WALLET_EVENT_NAME.MESSAGE);
     };
