@@ -196,10 +196,11 @@ export default function ModalCWProvider({
         router.push(ROUTES.HISTORY);
       }
       if (walletSliceActions.connectWallet.rejected.match(res)) {
+        console.log('🚀 ~ Error:', res.error);
         sendNotification({
           toastType: 'error',
           options: {
-            title: 'Signature rejected',
+            title: res.error.message,
           },
         });
       }
