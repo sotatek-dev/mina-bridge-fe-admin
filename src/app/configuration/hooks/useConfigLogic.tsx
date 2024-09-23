@@ -256,8 +256,7 @@ export default function useConfigLogic() {
             fee: Number(0.1) * 1e9,
           },
           async () => {
-            ctr.config(Number(min), Number(max), address);
-            ctr.approveUpdate();
+            await ctr.approveUpdate();
           }
         );
 
@@ -300,8 +299,7 @@ export default function useConfigLogic() {
             fee: Number(0.1) * 1e9,
           },
           async () => {
-            ctr.config(Number(min), Number(max), address);
-            ctr.approveUpdate();
+            await ctr.approveUpdate();
           }
         );
 
@@ -342,8 +340,7 @@ export default function useConfigLogic() {
           fee: Number(0.1) * 1e9,
         },
         async () => {
-          ctr.config(Number(min), Number(max), address);
-          ctr.approveUpdate();
+          await ctr.approveUpdate();
         }
       );
 
