@@ -1,5 +1,5 @@
 import { FungibleToken } from 'mina-fungible-token';
-import { Mina, PublicKey, fetchAccount } from 'o1js';
+import { Mina, PublicKey, UInt64, fetchAccount } from 'o1js';
 
 import { Bridge } from '@/configs/ABIs/Bridge';
 import { ZkContractType } from '@/configs/constants';
@@ -25,33 +25,32 @@ export default class ERC20Contract {
     this.tokenAddress = PublicKey.fromBase58(tokenAddress);
 
     this.contractTokenInstance = new FungibleToken(this.tokenAddress);
-    this.contractBridgeInstance = new Bridge(
-      this.bridgeAddress,
-      //TODO this.contractTokenInstance.token.id
-      this.contractTokenInstance.tokenId
-    );
+    this.contractBridgeInstance = new Bridge(this.bridgeAddress);
   }
   static async init() {
     // TODO: ZK compile
     try {
       console.log('-----fetch files');
-      console.time('fetch files');
+      // console.time('fetch files');
       const [cacheTokenFiles, cacheBridgeFiles] = await Promise.all([
         fetchFiles(ZkContractType.TOKEN),
         fetchFiles(ZkContractType.BRIDGE),
       ]);
-      console.log('-----fetch files done');
-      console.timeEnd('fetch files');
-      console.time('compile contracts');
-      console.log('-----compile contracts');
+      console.log('fetch files done');
+      console.log('compile contracts');
+      // console.timeEnd('fetch files');
+      // console.time('compile contracts');
+
+      console.log('-----compile contracts Bridge');
       await Bridge.compile({
         cache: fileSystem(cacheBridgeFiles),
       });
+      console.log('-----compile contracts FungibleToken');
       await FungibleToken.compile({
         cache: fileSystem(cacheTokenFiles),
       });
       console.log('-----compile contracts done');
-      console.timeEnd('compile contracts');
+      // console.timeEnd('compile contracts');
     } catch (error) {
       console.log('error', error);
     }
@@ -75,24 +74,23 @@ export default class ERC20Contract {
     await fetchAccount({ publicKey: this.tokenAddress });
   }
 
-  async approveUpdate() {
-    if (!this.contractTokenInstance || !this.contractBridgeInstance) return;
-    return await this.contractTokenInstance.approveAccountUpdate(
-      this.contractBridgeInstance.self
-    );
+  async setAmountLimits(min: number, max: number) {
+    if (!this.contractBridgeInstance) return;
+    const minAmount = new UInt64(min);
+    const maxAmount = new UInt64(max);
+    console.log('🚀 ~ setAmountLimits:', { minAmount, maxAmount });
+    return this.contractBridgeInstance?.setAmountLimits(minAmount, maxAmount);
   }
 
   async getMinAmount() {
     if (!this.contractBridgeInstance) return;
 
-    // TODO:
     return this.contractBridgeInstance.minAmount.getAndRequireEquals();
   }
 
   async getMaxAmount() {
     if (!this.contractBridgeInstance) return;
 
-    // TODO:
     return this.contractBridgeInstance.maxAmount.getAndRequireEquals();
   }
 }

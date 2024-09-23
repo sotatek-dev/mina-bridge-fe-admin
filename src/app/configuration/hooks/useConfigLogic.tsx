@@ -256,7 +256,7 @@ export default function useConfigLogic() {
             fee: Number(0.1) * 1e9,
           },
           async () => {
-            await ctr.approveUpdate();
+            await ctr.setAmountLimits(Number(min), Number(max));
           }
         );
 
@@ -299,7 +299,7 @@ export default function useConfigLogic() {
             fee: Number(0.1) * 1e9,
           },
           async () => {
-            await ctr.approveUpdate();
+            await ctr.setAmountLimits(Number(min), Number(max));
           }
         );
 
@@ -340,7 +340,7 @@ export default function useConfigLogic() {
           fee: Number(0.1) * 1e9,
         },
         async () => {
-          await ctr.approveUpdate();
+          await ctr.setAmountLimits(Number(min), Number(max));
         }
       );
 
