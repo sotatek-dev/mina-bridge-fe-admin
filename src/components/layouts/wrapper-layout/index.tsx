@@ -1,6 +1,6 @@
 'use client';
 import { Box, Center, Container, VStack } from '@chakra-ui/react';
-import { redirect, usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { PropsWithChildren, useEffect, useState } from 'react';
 
 import UnmatchedChain from '../banners/unmatchedChain';
@@ -29,6 +29,7 @@ function WrapperLayout({ children }: Props) {
   useDeviceCheck();
 
   const pathname = usePathname();
+  const router = useRouter();
   const isNotHistoryScreen = pathname !== ROUTES.HISTORY;
   const isNotConfigurationScreen = pathname !== ROUTES.CONFIGURATION;
   const isNotHomeScreen = pathname !== ROUTES.HOME;
@@ -42,7 +43,7 @@ function WrapperLayout({ children }: Props) {
 
   useEffect(() => {
     if (!isConnected && PROTECTED_ROUTES.includes(pathname as ROUTES))
-      redirect(ROUTES.HOME);
+      router.replace(ROUTES.HOME);
   }, [isConnected, pathname]);
 
   return (
