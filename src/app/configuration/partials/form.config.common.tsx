@@ -53,7 +53,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
     }
     const posPoint = getDecimalPosition(e.currentTarget.value);
     if (
-      (posPoint <= e.currentTarget.value.length - 2 && posPoint !== -1) ||
+      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
       e.currentTarget.value.length > 79
     ) {
       e.preventDefault();
@@ -68,7 +68,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
     }
     const posPoint = getDecimalPosition(e.currentTarget.value);
     if (
-      (posPoint <= e.currentTarget.value.length - 2 && posPoint !== -1) ||
+      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
       Number(e.currentTarget.value) > 100
     ) {
       e.preventDefault();
