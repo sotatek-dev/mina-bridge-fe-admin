@@ -256,8 +256,7 @@ export default function useConfigLogic() {
             fee: Number(0.1) * 1e9,
           },
           async () => {
-            ctr.config(Number(min), Number(max), address);
-            ctr.approveUpdate();
+            await ctr.setAmountLimits(Number(min), Number(max));
           }
         );
 
@@ -280,6 +279,8 @@ export default function useConfigLogic() {
           default:
             break;
         }
+
+        updateAssetRage([value.min, value.max]);
         sendNotification({
           toastType: 'success',
           options: {
@@ -300,8 +301,7 @@ export default function useConfigLogic() {
             fee: Number(0.1) * 1e9,
           },
           async () => {
-            ctr.config(Number(min), Number(max), address);
-            ctr.approveUpdate();
+            await ctr.setAmountLimits(Number(min), Number(max));
           }
         );
 
@@ -324,6 +324,8 @@ export default function useConfigLogic() {
           default:
             break;
         }
+
+        updateAssetRage([value.min, value.max]);
         sendNotification({
           toastType: 'success',
           options: {
@@ -342,8 +344,7 @@ export default function useConfigLogic() {
           fee: Number(0.1) * 1e9,
         },
         async () => {
-          ctr.config(Number(min), Number(max), address);
-          ctr.approveUpdate();
+          await ctr.setAmountLimits(Number(min), Number(max));
         }
       );
 
@@ -366,6 +367,8 @@ export default function useConfigLogic() {
         default:
           break;
       }
+
+      updateAssetRage([value.min, value.max]);
       sendNotification({
         toastType: 'success',
         options: {
