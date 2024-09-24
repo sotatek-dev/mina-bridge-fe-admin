@@ -79,7 +79,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
 
   const handleUpdateConfig = async () => {
     if (disable) return;
-    if (Number(dailyQuota) < Number(assetRange[1])) {
+    if (!!dailyQuota && Number(dailyQuota) < Number(assetRange[1])) {
       if (notifyRef.current !== null && checkNotifyActive(notifyRef.current))
         return;
       notifyRef.current = sendNotification({

@@ -23,6 +23,7 @@ function Pagination() {
   return (
     <Flex flexDirection={'row'}>
       <ReactPaginateWithChakra
+        forcePage={(state.pagingData.currentPage as number) - 1}
         breakLabel={'...'}
         previousLabel={
           <Flex {...btnNavigateStyles}>

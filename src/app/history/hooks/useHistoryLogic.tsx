@@ -1,7 +1,7 @@
 'use client';
 import { debounce } from 'lodash';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Web3 from 'web3';
 
 import { initPagingDataState, useHistoryState } from '../context';
@@ -19,6 +19,7 @@ export default function useHistoryLogic() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { sendNotification } = useNotifier();
+  const [searchValue, setSearchValue] = useState();
 
   const disconnectWallet = useCallback(() => {
     if (!address) return;
@@ -77,7 +78,8 @@ export default function useHistoryLogic() {
 
   const debounceOnChange = useCallback(
     debounce((value) => {
-      getListHistory(value, 1);
+      setSearchValue(value ? value : undefined);
+      methods.updateMetaData({ ...state.pagingData, currentPage: 1 });
     }, 1000),
     []
   );
@@ -92,12 +94,12 @@ export default function useHistoryLogic() {
   );
   useEffect(() => {
     if (isConnected) {
-      getListHistory();
+      getListHistory(searchValue, state.pagingData.currentPage);
     } else {
       methods.updateMetaData(initPagingDataState.pagingData);
       methods.updateData([]);
     }
-  }, [state.pagingData.currentPage, isConnected]);
+  }, [searchValue, state.pagingData.currentPage, isConnected]);
 
   return {
     handleSearch,
