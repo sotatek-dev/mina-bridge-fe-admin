@@ -18,6 +18,11 @@ type PropsBodyTable = {
   data: HistoryResponse[];
 };
 
+const NETWORK_NAME = {
+  MINA: 'mina',
+  ETHER: 'eth',
+};
+
 function BodyTable({ data }: PropsBodyTable) {
   const { tip } = useHistoryState().state;
   const { networkInstance } = useAppSelector(getWalletInstanceSlice);
@@ -25,6 +30,10 @@ function BodyTable({ data }: PropsBodyTable) {
   return (
     <Tbody>
       {data.map((item) => {
+        const scanUrl =
+          item.networkFrom === NETWORK_NAME.MINA
+            ? process.env.NEXT_PUBLIC_REQUIRED_MINA_SCAN_URL
+            : process.env.NEXT_PUBLIC_REQUIRED_ETH_SCAN_URL;
         return (
           <Tr key={item.id}>
             <Td borderBottom={'solid 1px #E4E4E7'}>
@@ -36,7 +45,7 @@ function BodyTable({ data }: PropsBodyTable) {
                 tokenName={item.tokenFromName}
                 txHash={item.txHashLock}
                 networkName={item.networkFrom}
-                scanUrl={networkInstance.src?.metadata.scanUrl}
+                scanUrl={scanUrl}
               />
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
