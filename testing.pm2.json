@@ -2,7 +2,7 @@
   "apps": [
     {
       "name": "testing-mina-admin",
-      "script": "yarn dev:testing",
+      "script": "yarn start:testing",
       "node_args": "",
       "instances": 1
     }
