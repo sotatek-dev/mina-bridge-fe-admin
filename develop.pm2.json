@@ -2,7 +2,7 @@
   "apps": [
     {
       "name": "develop-mina-admin",
-      "script": "yarn dev",
+      "script": "yarn start",
       "node_args": "",
       "instances": 1
     }
