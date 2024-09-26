@@ -24,7 +24,7 @@ type ConfigContractProps = {
 };
 
 export default function ConfigContract({ isConnected }: ConfigContractProps) {
-  const { value, assetRange } = useConfigState().state;
+  const { value, assetRange, displayedConfig } = useConfigState().state;
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { sendNotification, checkNotifyActive } = useNotifier();
   const notifyRef = useRef<any>(null);
@@ -76,7 +76,13 @@ export default function ConfigContract({ isConnected }: ConfigContractProps) {
 
   const handleUpdateConfig = async () => {
     if (disable || isLoading) return;
-    if (Number(value.min) > Number(value.max) && value.max && value.max) {
+
+    const maxValue = !!value.max ? value.max : assetRange[1];
+    const minValue = !!value.min ? value.min : assetRange[0];
+    if (
+      Number(minValue) > Number(maxValue) ||
+      Number(maxValue) > Number(displayedConfig.dailyQuota)
+    ) {
       if (notifyRef.current !== null && checkNotifyActive(notifyRef.current))
         return;
       notifyRef.current = sendNotification({
@@ -124,6 +130,7 @@ export default function ConfigContract({ isConnected }: ConfigContractProps) {
             type={'number'}
             isDisabled={!isConnected || isLoading}
             onChange={onChangeMinAmount}
+            min={0}
             maxLength={79}
             onKeyDown={handleKeyDown}
             value={value.min}
@@ -139,6 +146,7 @@ export default function ConfigContract({ isConnected }: ConfigContractProps) {
             type={'number'}
             isDisabled={!isConnected || isLoading}
             onChange={onChangeMaxAmount}
+            min={0}
             maxLength={79}
             onKeyDown={handleKeyDown}
             value={value.max}

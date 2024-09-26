@@ -62,13 +62,30 @@ export const getDecimal = (network: string) => {
   }
 };
 
-export function formatNumber(balance: string, decimals: string | number) {
+export function formatNumber(
+  balance: string,
+  decimals: string | number,
+  roundMode: BigNumber.RoundingMode = BigNumber.ROUND_HALF_UP
+) {
   const balBN = new BigNumber(balance);
   const decNum = Number(decimals);
   if (decNum > 4) {
-    return zeroCutterEnd(balBN.toFixed(4));
+    return balBN.dp(4, roundMode).toString(10);
   }
-  return zeroCutterEnd(balBN.toFixed(decNum));
+  return balBN.dp(decNum, roundMode).toString(10);
+}
+
+export function formatAmount(decimals: number, amount: string) {
+  const minimumNumber =
+    decimals > 4 ? new BigNumber(10).pow(-4) : new BigNumber(10).pow(-decimals);
+
+  const amountBN = new BigNumber(amount).div(new BigNumber(10).pow(decimals));
+
+  if (amountBN.lt(minimumNumber)) {
+    return `<${minimumNumber.toString()}`;
+  }
+
+  return formatNumber(amountBN.toString(), decimals);
 }
 
 export const zeroCutterEnd = (value: string) => {
@@ -156,4 +173,16 @@ export function fileSystem(files: any) {
     },
     canWrite: true,
   };
+}
+
+export function getScanUrl(networkName: string) {
+  // response from api not match defined enum NETWORK_NAME
+  const NETWORK_NAME = {
+    MINA: 'mina',
+    ETHER: 'eth',
+  };
+
+  return networkName === NETWORK_NAME.MINA
+    ? process.env.NEXT_PUBLIC_REQUIRED_MINA_SCAN_URL
+    : process.env.NEXT_PUBLIC_REQUIRED_ETH_SCAN_URL;
 }

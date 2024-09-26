@@ -2,38 +2,26 @@
 import { Tbody, Td, Text, Tr } from '@chakra-ui/react';
 import _ from 'lodash';
 import React from 'react';
-import { NumericFormat } from 'react-number-format';
-
-import { useHistoryState } from '../context';
 
 import InfoTransaction from './table.row.infoTx';
-import ReceivedTransaction from './table.row.received';
 import RowStatus from './table.row.status';
 
-import { formWei, formatDateAndTime, getDecimal } from '@/helpers/common';
+import {
+  formatAmount,
+  formatDateAndTime,
+  getDecimal,
+  getScanUrl,
+} from '@/helpers/common';
 import { HistoryResponse } from '@/services/usersService';
-import { getWalletInstanceSlice, useAppSelector } from '@/store';
 
 type PropsBodyTable = {
   data: HistoryResponse[];
 };
 
-const NETWORK_NAME = {
-  MINA: 'mina',
-  ETHER: 'eth',
-};
-
 function BodyTable({ data }: PropsBodyTable) {
-  const { tip } = useHistoryState().state;
-  const { networkInstance } = useAppSelector(getWalletInstanceSlice);
-
   return (
     <Tbody>
       {data.map((item) => {
-        const scanUrl =
-          item.networkFrom === NETWORK_NAME.MINA
-            ? process.env.NEXT_PUBLIC_REQUIRED_MINA_SCAN_URL
-            : process.env.NEXT_PUBLIC_REQUIRED_ETH_SCAN_URL;
         return (
           <Tr key={item.id}>
             <Td borderBottom={'solid 1px #E4E4E7'}>
@@ -45,42 +33,29 @@ function BodyTable({ data }: PropsBodyTable) {
                 tokenName={item.tokenFromName}
                 txHash={item.txHashLock}
                 networkName={item.networkFrom}
-                scanUrl={scanUrl}
+                scanUrl={getScanUrl(item.networkFrom)}
               />
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
-              <ReceivedTransaction
+              <InfoTransaction
                 amount={item.amountReceived!!}
                 tokenName={item.tokenReceivedName!!}
                 txHash={item.txHashUnlock}
                 networkName={item.networkReceived}
-                amountFrom={item.amountFrom}
-                networkFromName={item.networkFrom}
-                status={item.status}
-                tip={tip}
-                scanUrl={networkInstance.tar?.metadata.scanUrl}
+                scanUrl={getScanUrl(item.networkReceived)}
               />
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
-              <NumericFormat
-                value={
+              <Text variant={'lg'} color={'text.900'}>
+                {`${
                   item.protocolFee
-                    ? formWei(
-                        item.protocolFee,
-                        getDecimal(item.networkReceived)
+                    ? formatAmount(
+                        getDecimal(item.networkReceived),
+                        item.protocolFee
                       )
                     : '0.00'
-                }
-                thousandSeparator={','}
-                decimalScale={4}
-                decimalSeparator={'.'}
-                displayType={'text'}
-                renderText={(value) => (
-                  <Text variant={'lg'} color={'text.900'}>
-                    {`${value} ${_.isEmpty(item.tokenReceivedName) ? '' : item.tokenReceivedName}`}
-                  </Text>
-                )}
-              />
+                } ${_.isEmpty(item.tokenReceivedName) ? '' : item.tokenReceivedName}`}
+              </Text>
               <Text variant={'md'} color={'text.500'}>
                 {formatDateAndTime(item.blockTimeLock)}
               </Text>

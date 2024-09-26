@@ -139,6 +139,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
             type={'number'}
             isDisabled={!isConnected}
             value={dailyQuota}
+            min={0}
             onChange={handleChangeDailyQuota}
             onKeyDown={handleKeyDown}
           />
@@ -155,6 +156,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
             value={tip}
             onChange={handleChangeTip}
             maxLength={79}
+            min={0}
             onKeyDown={handleKeyDown}
           />
         </VStack>
