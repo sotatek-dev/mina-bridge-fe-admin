@@ -18,7 +18,7 @@ jobs:
 
       - run: |
           rm -rf .next
+          cp .env.example .env
           yarn
           yarn build
-          cp .env.example .env
           pm2 restart testing.pm2.json
