@@ -5,7 +5,9 @@ const header = [
   'Status',
   'Amount/From (Network)',
   'Amount Received/To (Network)',
-  'Protocol fee/ Create time',
+  'Tip',
+  'Gas Fee',
+  'Create Time',
   'Order ID',
 ];
 
