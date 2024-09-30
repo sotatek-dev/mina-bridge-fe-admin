@@ -280,7 +280,7 @@ export default function useConfigLogic() {
             break;
         }
 
-        updateAssetRage([value.min, value.max]);
+        updateAssetRage([assetRange[0], value.max]);
         sendNotification({
           toastType: 'success',
           options: {
@@ -325,7 +325,7 @@ export default function useConfigLogic() {
             break;
         }
 
-        updateAssetRage([value.min, value.max]);
+        updateAssetRage([value.min, assetRange[1]]);
         sendNotification({
           toastType: 'success',
           options: {
