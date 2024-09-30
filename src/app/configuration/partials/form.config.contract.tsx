@@ -6,6 +6,7 @@ import {
   Heading,
   Image,
   Input,
+  Skeleton,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -24,7 +25,8 @@ type ConfigContractProps = {
 };
 
 export default function ConfigContract({ isConnected }: ConfigContractProps) {
-  const { value, assetRange } = useConfigState().state;
+  const { value, assetRange, displayedConfig, isMinMaxLoading } =
+    useConfigState().state;
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { sendNotification, checkNotifyActive } = useNotifier();
   const notifyRef = useRef<any>(null);
@@ -39,7 +41,7 @@ export default function ConfigContract({ isConnected }: ConfigContractProps) {
     }
     const posPoint = getDecimalPosition(e.currentTarget.value);
     if (
-      (posPoint <= e.currentTarget.value.length - 2 && posPoint !== -1) ||
+      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
       e.currentTarget.value.length > 79
     ) {
       e.preventDefault();
@@ -54,7 +56,7 @@ export default function ConfigContract({ isConnected }: ConfigContractProps) {
     }
     const posPoint = getDecimalPosition(e.currentTarget.value);
     if (
-      (posPoint <= e.currentTarget.value.length - 2 && posPoint !== -1) ||
+      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
       e.currentTarget.value.length > 79
     ) {
       e.preventDefault();
@@ -76,7 +78,13 @@ export default function ConfigContract({ isConnected }: ConfigContractProps) {
 
   const handleUpdateConfig = async () => {
     if (disable || isLoading) return;
-    if (Number(value.min) > Number(value.max) && value.max && value.max) {
+
+    const maxValue = !!value.max ? value.max : assetRange[1];
+    const minValue = !!value.min ? value.min : assetRange[0];
+    if (
+      Number(minValue) > Number(maxValue) ||
+      Number(maxValue) > Number(displayedConfig.dailyQuota)
+    ) {
       if (notifyRef.current !== null && checkNotifyActive(notifyRef.current))
         return;
       notifyRef.current = sendNotification({
@@ -115,47 +123,65 @@ export default function ConfigContract({ isConnected }: ConfigContractProps) {
           <Text textTransform={'capitalize'}>{lastNetworkName}</Text>
         </Badge>
       </VStack>
-      <VStack w={'50%'} alignItems={'flex-end'}>
-        <VStack w={'full'} alignItems={'flex-start'}>
-          <Text variant={'lg_medium'}>Minimum Tokens to bridge</Text>
-          <Input
-            placeholder={assetRange[0]}
-            size={'md_medium'}
-            type={'number'}
-            isDisabled={!isConnected || isLoading}
-            onChange={onChangeMinAmount}
-            maxLength={79}
-            onKeyDown={handleKeyDown}
-            value={value.min}
-          />
+
+      {isMinMaxLoading ? (
+        <VStack w={'50%'} alignItems={'flex-end'}>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Skeleton h={'22.4px'} w={'100%'} />
+            <Skeleton h={12} w={'100%'} />
+          </VStack>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Skeleton h={'22.4px'} w={'100%'} />
+            <Skeleton h={12} w={'100%'} />
+          </VStack>
+          <Skeleton h={10} w={'191px'} />
         </VStack>
-        <VStack w={'full'} alignItems={'flex-start'}>
-          <Text variant={'lg_medium'} mt={'20px'}>
-            Maximum Tokens to bridge
-          </Text>
-          <Input
-            placeholder={assetRange[1]}
-            size={'md_medium'}
-            type={'number'}
-            isDisabled={!isConnected || isLoading}
-            onChange={onChangeMaxAmount}
-            maxLength={79}
-            onKeyDown={handleKeyDown}
-            value={value.max}
-          />
+      ) : (
+        <VStack w={'50%'} alignItems={'flex-end'}>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Text variant={'lg_medium'}>Minimum Tokens to bridge</Text>
+            <Input
+              placeholder={assetRange[0]}
+              size={'md_medium'}
+              type={'number'}
+              isDisabled={!isConnected || isLoading}
+              onChange={onChangeMinAmount}
+              min={0}
+              maxLength={79}
+              onKeyDown={handleKeyDown}
+              value={value.min}
+            />
+          </VStack>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Text variant={'lg_medium'} mt={'20px'}>
+              Maximum Tokens to bridge
+            </Text>
+
+            <Input
+              placeholder={assetRange[1]}
+              size={'md_medium'}
+              type={'number'}
+              isDisabled={!isConnected || isLoading}
+              onChange={onChangeMaxAmount}
+              min={0}
+              maxLength={79}
+              onKeyDown={handleKeyDown}
+              value={value.max}
+            />
+          </VStack>
+          <Button
+            variant={
+              !isConnected || isLoading || disable
+                ? 'ghost'
+                : 'primary.orange.solid'
+            }
+            w={'191px'}
+            onClick={handleUpdateConfig}
+          >
+            Save
+          </Button>
         </VStack>
-        <Button
-          variant={
-            !isConnected || isLoading || disable
-              ? 'ghost'
-              : 'primary.orange.solid'
-          }
-          w={'191px'}
-          onClick={handleUpdateConfig}
-        >
-          Save
-        </Button>
-      </VStack>
+      )}
     </Flex>
   );
 }

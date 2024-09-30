@@ -36,6 +36,7 @@ export type DisplayedConfigType = {
 export type ConfigState = {
   isLoading: boolean;
   isFetching: boolean;
+  isMinMaxLoading: boolean;
   value: ValueType;
   displayedConfig: DisplayedConfigType;
   asset: TokenType | null;
@@ -56,8 +57,9 @@ export type ConfigCtxValueType = {
 export type ConfigProviderProps = React.PropsWithChildren<{}>;
 
 export const initPagingDataState: ConfigState = {
-  isLoading: false,
-  isFetching: false,
+  isLoading: true,
+  isFetching: true,
+  isMinMaxLoading: true,
   value: {
     min: '',
     max: '',
@@ -186,6 +188,19 @@ export default function ConfigProvider({ children }: ConfigProviderProps) {
     [setState]
   );
 
+  const setIsMinMaxLoading = useCallback(
+    (isMinMaxLoading: boolean) =>
+      setState((prev) =>
+        prev.isMinMaxLoading !== isMinMaxLoading
+          ? {
+              ...prev,
+              isMinMaxLoading,
+            }
+          : prev
+      ),
+    [setState]
+  );
+
   // update min max
   const updateAssetRage = useCallback(
     (assetRange: string[]) => {
@@ -213,18 +228,18 @@ export default function ConfigProvider({ children }: ConfigProviderProps) {
   async function getAssetMaxMin(nw: Network, asset: TokenType) {
     switch (nw.type) {
       case NETWORK_TYPE.EVM:
-        if (!bridgeCtr) return ['0', '0'];
+        if (!bridgeCtr) return updateAssetRage(['0', '0']);
         const [min, minError] = await handleRequest(bridgeCtr.getMinAmount());
         const [max, maxError] = await handleRequest(bridgeCtr.getMaxAmount());
+
+        setIsMinMaxLoading(false);
         if (minError || maxError) {
           return updateAssetRage(['0', '0']);
         }
-        return updateAssetRage(
-          [
-            formWei(min!!.toString(), asset.decimals),
-            formWei(max!!.toString(), asset.decimals),
-          ].map((e) => formatNumber(e, asset.decimals))
-        );
+        return updateAssetRage([
+          formWei(min!!.toString(), asset.decimals),
+          formWei(max!!.toString(), asset.decimals),
+        ]);
       case NETWORK_TYPE.ZK:
         if (!asset?.bridgeCtrAddr || !asset?.tokenAddr)
           return updateAssetRage(['0', '0']);
@@ -251,15 +266,16 @@ export default function ConfigProvider({ children }: ConfigProviderProps) {
           console.log('🚀 ~ getMinaConfig ~ minAmount:', minAmount.toBigInt());
           const maxAmount = await ctr.getMaxAmount();
           console.log('🚀 ~ getMinaConfig ~ maxAmount:', maxAmount.toBigInt());
-          return updateAssetRage(
-            [
-              formWei(minAmount, asset.decimals),
-              formWei(maxAmount, asset.decimals),
-            ].map((e) => formatNumber(e, asset.decimals))
-          );
+
+          setIsMinMaxLoading(false);
+          return updateAssetRage([
+            formWei(minAmount, asset.decimals),
+            formWei(maxAmount, asset.decimals),
+          ]);
         } catch (error) {
           console.log('🚀 ~ getMinaConfig ~ error:', error);
-          return updateAssetRage(['0', '0']);
+          updateAssetRage(['0', '0']);
+          return setIsMinMaxLoading(false);
         }
       default:
         break;

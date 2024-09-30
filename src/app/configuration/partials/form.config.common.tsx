@@ -5,6 +5,7 @@ import {
   Heading,
   Image,
   Input,
+  Skeleton,
   Text,
   VStack,
 } from '@chakra-ui/react';
@@ -29,7 +30,8 @@ const initCommonConfig: CommonConfigResponse = {
 };
 
 export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
-  const { isLoading, displayedConfig, assetRange } = useConfigState().state;
+  const { isLoading, isMinMaxLoading, displayedConfig, assetRange } =
+    useConfigState().state;
   const { setDisplayedConfig } = useConfigState().methods;
 
   const { sendNotification, checkNotifyActive } = useNotifier();
@@ -53,7 +55,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
     }
     const posPoint = getDecimalPosition(e.currentTarget.value);
     if (
-      (posPoint <= e.currentTarget.value.length - 2 && posPoint !== -1) ||
+      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
       e.currentTarget.value.length > 79
     ) {
       e.preventDefault();
@@ -68,7 +70,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
     }
     const posPoint = getDecimalPosition(e.currentTarget.value);
     if (
-      (posPoint <= e.currentTarget.value.length - 2 && posPoint !== -1) ||
+      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
       Number(e.currentTarget.value) > 100
     ) {
       e.preventDefault();
@@ -79,7 +81,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
 
   const handleUpdateConfig = async () => {
     if (disable) return;
-    if (Number(dailyQuota) > Number(assetRange[1])) {
+    if (!!dailyQuota && Number(dailyQuota) < Number(assetRange[1])) {
       if (notifyRef.current !== null && checkNotifyActive(notifyRef.current))
         return;
       notifyRef.current = sendNotification({
@@ -130,42 +132,58 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
           </Heading>
         </Flex>
       </VStack>
-      <VStack w={'50%'} alignItems={'flex-end'}>
-        <VStack w={'full'} alignItems={'flex-start'}>
-          <Text variant={'lg_medium'}>Daily Quota</Text>
-          <Input
-            placeholder={displayedConfig.dailyQuota}
-            size={'md_medium'}
-            type={'number'}
-            isDisabled={!isConnected}
-            value={dailyQuota}
-            onChange={handleChangeDailyQuota}
-            onKeyDown={handleKeyDown}
-          />
+      {isMinMaxLoading ? (
+        <VStack w={'50%'} alignItems={'flex-end'}>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Skeleton h={'22.4px'} w={'100%'} />
+            <Skeleton h={12} w={'100%'} />
+          </VStack>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Skeleton h={'22.4px'} w={'100%'} />
+            <Skeleton h={12} w={'100%'} />
+          </VStack>
+          <Skeleton h={10} w={'191px'} />
         </VStack>
-        <VStack w={'full'} alignItems={'flex-start'}>
-          <Text variant={'lg_medium'} mt={'20px'}>
-            Tip (%)
-          </Text>
-          <Input
-            placeholder={displayedConfig.tip}
-            size={'md_medium'}
-            type={'number'}
-            isDisabled={!isConnected}
-            value={tip}
-            onChange={handleChangeTip}
-            maxLength={79}
-            onKeyDown={handleKeyDown}
-          />
+      ) : (
+        <VStack w={'50%'} alignItems={'flex-end'}>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Text variant={'lg_medium'}>Daily Quota</Text>
+            <Input
+              placeholder={displayedConfig.dailyQuota}
+              size={'md_medium'}
+              type={'number'}
+              isDisabled={!isConnected}
+              value={dailyQuota}
+              min={0}
+              onChange={handleChangeDailyQuota}
+              onKeyDown={handleKeyDown}
+            />
+          </VStack>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Text variant={'lg_medium'} mt={'20px'}>
+              Tip (%)
+            </Text>
+            <Input
+              placeholder={displayedConfig.tip}
+              size={'md_medium'}
+              type={'number'}
+              isDisabled={!isConnected}
+              value={tip}
+              onChange={handleChangeTip}
+              maxLength={79}
+              min={0}
+              onKeyDown={handleKeyDown}
+            />
+          </VStack>
+          <Button
+            variant={!isConnected || disable ? 'ghost' : 'primary.orange.solid'}
+            w={'191px'}
+            onClick={handleUpdateConfig}
+          >
+            Save
+          </Button>
         </VStack>
-        <Button
-          variant={!isConnected || disable ? 'ghost' : 'primary.orange.solid'}
-          w={'191px'}
-          onClick={handleUpdateConfig}
-        >
-          Save
-        </Button>
-      </VStack>
+      )}
     </Flex>
   );
 }

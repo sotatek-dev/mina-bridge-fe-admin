@@ -1,7 +1,7 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-import createMDX from '@next/mdx';
+import createMDX from "@next/mdx";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,16 +11,18 @@ const nextConfig = {
   // Configure `pageExtensions` to include markdown and MDX files
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
 
+  serverExternalPackages: ['o1js'],
   webpack(config, { isServer }) {
     if (!isServer) {
       config.resolve.alias = {
         ...config.resolve.alias,
         o1js: path.resolve(__dirname, 'node_modules/o1js/dist/web/index.js'),
       };
+    } else {
+      config.externals.push('o1js') // https://nextjs.org/docs/app/api-reference/next-config-js/serverExternalPackages
     }
-
     config.experiments = { ...config.experiments, topLevelAwait: true };
-
+    config.optimization.minimizer = [];
     return config;
   },
 

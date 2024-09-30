@@ -2,26 +2,22 @@
 import { Tbody, Td, Text, Tr } from '@chakra-ui/react';
 import _ from 'lodash';
 import React from 'react';
-import { NumericFormat } from 'react-number-format';
-
-import { useHistoryState } from '../context';
 
 import InfoTransaction from './table.row.infoTx';
-import ReceivedTransaction from './table.row.received';
 import RowStatus from './table.row.status';
 
-import { formWei, formatDateAndTime, getDecimal } from '@/helpers/common';
+import {
+  formatDateAndTime,
+  getScanUrl,
+  truncatedNumber,
+} from '@/helpers/common';
 import { HistoryResponse } from '@/services/usersService';
-import { getWalletInstanceSlice, useAppSelector } from '@/store';
 
 type PropsBodyTable = {
   data: HistoryResponse[];
 };
 
 function BodyTable({ data }: PropsBodyTable) {
-  const { tip } = useHistoryState().state;
-  const { networkInstance } = useAppSelector(getWalletInstanceSlice);
-
   return (
     <Tbody>
       {data.map((item) => {
@@ -36,42 +32,33 @@ function BodyTable({ data }: PropsBodyTable) {
                 tokenName={item.tokenFromName}
                 txHash={item.txHashLock}
                 networkName={item.networkFrom}
-                scanUrl={networkInstance.src?.metadata.scanUrl}
+                scanUrl={getScanUrl(item.networkFrom)}
               />
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
-              <ReceivedTransaction
+              <InfoTransaction
                 amount={item.amountReceived!!}
                 tokenName={item.tokenReceivedName!!}
                 txHash={item.txHashUnlock}
                 networkName={item.networkReceived}
-                amountFrom={item.amountFrom}
-                networkFromName={item.networkFrom}
-                status={item.status}
-                tip={tip}
-                scanUrl={networkInstance.tar?.metadata.scanUrl}
+                scanUrl={getScanUrl(item.networkReceived)}
               />
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
-              <NumericFormat
-                value={
-                  item.protocolFee
-                    ? formWei(
-                        item.protocolFee,
-                        getDecimal(item.networkReceived)
-                      )
-                    : '0.00'
-                }
-                thousandSeparator={','}
-                decimalScale={4}
-                decimalSeparator={'.'}
-                displayType={'text'}
-                renderText={(value) => (
-                  <Text variant={'lg'} color={'text.900'}>
-                    {`${value} ${_.isEmpty(item.tokenReceivedName) ? '' : item.tokenReceivedName}`}
-                  </Text>
-                )}
-              />
+              <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
+                {`${truncatedNumber(
+                  item.tip ? item.tip : '0.00'
+                )} ${_.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`}
+              </Text>
+            </Td>
+            <Td borderBottom={'solid 1px #E4E4E7'}>
+              <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
+                {`${truncatedNumber(
+                  item.gasFee ? item.gasFee : '0.00'
+                )} ${_.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`}
+              </Text>
+            </Td>
+            <Td borderBottom={'solid 1px #E4E4E7'}>
               <Text variant={'md'} color={'text.500'}>
                 {formatDateAndTime(item.blockTimeLock)}
               </Text>

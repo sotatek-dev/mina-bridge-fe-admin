@@ -5,7 +5,11 @@ import Web3 from 'web3';
 import { ProviderMessage, ProviderRpcError } from 'web3';
 
 import { PROVIDER_TYPE, ProviderType } from '../contract/evm/contract';
-import Network, { NETWORK_NAME, NETWORK_TYPE } from '../network/network';
+import Network, {
+  getZKChainIdName,
+  NETWORK_NAME,
+  NETWORK_TYPE,
+} from '../network/network';
 
 import Wallet, {
   URL_INSTALL_ANDROID,
@@ -16,6 +20,7 @@ import Wallet, {
   WALLET_NAME,
 } from './wallet.abstract';
 
+import ITV from '@/configs/time';
 import { IsServer } from '@/constants';
 import { handleException, handleRequest } from '@/helpers/asyncHandlers';
 import { formWei } from '@/helpers/common';
@@ -102,12 +107,31 @@ export default class WalletMetamask extends Wallet {
     return (await this.getInjectedObject().request<T>(args)) as T;
   }
 
-  addListener(params: WalletMetamaskEvents) {
+  addListener(params: WalletMetamaskEvents, nwType?: NETWORK_TYPE) {
+    const isZK = nwType === NETWORK_TYPE.ZK;
+    const isChainChangedEv =
+      params.eventName === WALLET_EVENT_NAME.CHAIN_CHANGED;
+    if (isZK && isChainChangedEv) {
+      const root = this;
+      async function cb() {
+        const [chainId] = await handleRequest(root.getNetwork(nwType));
+        isChainChangedEv && params.handler(chainId || '');
+      }
+      return setInterval(cb, ITV.S5);
+    }
+
     this.getInjectedObject().on(params.eventName, params.handler as any);
   }
-  removeListener(e: WALLET_EVENT_NAME) {
+
+  removeListener(e: WALLET_EVENT_NAME, nwType?: NETWORK_TYPE, id?: any) {
+    const isZK = nwType === NETWORK_TYPE.ZK;
+    const isChainChangedEv = e === WALLET_EVENT_NAME.CHAIN_CHANGED;
+    if (isZK && isChainChangedEv && id) {
+      return clearInterval(id);
+    }
     this.getInjectedObject().removeAllListeners(e);
   }
+
   async connect(
     network: Network,
     msg: string,
@@ -355,7 +379,7 @@ export default class WalletMetamask extends Wallet {
               request: {
                 method: 'mina_changeNetwork',
                 params: {
-                  networkName: network.metadata.chainId,
+                  networkName: getZKChainIdName(network.metadata.chainId),
                 },
               },
             },

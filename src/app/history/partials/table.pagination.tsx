@@ -20,12 +20,30 @@ function Pagination() {
   const handlePageClick = (value: number) => {
     methods.updateMetaData({ ...state.pagingData, currentPage: value + 1 });
   };
+
+  const btnPrevStyle: FlexProps = {
+    cursor: state.pagingData?.currentPage === 1 ? 'not-allowed' : 'default',
+    opacity: state.pagingData?.currentPage === 1 ? 0.7 : 1,
+  };
+
+  const btnNextStyle: FlexProps = {
+    cursor:
+      state.pagingData?.currentPage === state.pagingData?.totalOfPages
+        ? 'not-allowed'
+        : 'default',
+    opacity:
+      state.pagingData?.currentPage === state.pagingData?.totalOfPages
+        ? 0.7
+        : 1,
+  };
+
   return (
     <Flex flexDirection={'row'}>
       <ReactPaginateWithChakra
+        forcePage={(state.pagingData.currentPage as number) - 1}
         breakLabel={'...'}
         previousLabel={
-          <Flex {...btnNavigateStyles}>
+          <Flex {...btnNavigateStyles} {...btnPrevStyle}>
             <Image src={'/assets/icons/icon.arrow.left.pagination.svg'} />
           </Flex>
         }
@@ -33,7 +51,7 @@ function Pagination() {
         pageRangeDisplayed={2}
         pageCount={state.pagingData.totalOfPages}
         nextLabel={
-          <Flex {...btnNavigateStyles}>
+          <Flex {...btnNavigateStyles} {...btnNextStyle}>
             <Image src={'/assets/icons/icon.arrow.right.pagination.svg'} />
           </Flex>
         }
