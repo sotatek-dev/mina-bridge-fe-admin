@@ -22,6 +22,8 @@ export type HistoryResponse = {
   blockNumber: string;
   blockTimeLock: string;
   protocolFee: string | null;
+  tip: string;
+  gasFee: string;
   event: string;
   returnValues: string;
   errorDetail: string | null;
