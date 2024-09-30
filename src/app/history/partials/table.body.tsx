@@ -7,10 +7,9 @@ import InfoTransaction from './table.row.infoTx';
 import RowStatus from './table.row.status';
 
 import {
-  formatAmount,
   formatDateAndTime,
-  getDecimal,
   getScanUrl,
+  truncatedNumber,
 } from '@/helpers/common';
 import { HistoryResponse } from '@/services/usersService';
 
@@ -46,16 +45,20 @@ function BodyTable({ data }: PropsBodyTable) {
               />
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
-              <Text variant={'lg'} color={'text.900'}>
-                {`${
-                  item.protocolFee
-                    ? formatAmount(
-                        getDecimal(item.networkReceived),
-                        item.protocolFee
-                      )
-                    : '0.00'
-                } ${_.isEmpty(item.tokenReceivedName) ? '' : item.tokenReceivedName}`}
+              <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
+                {`${truncatedNumber(
+                  item.tip ? item.tip : '0.00'
+                )} ${_.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`}
               </Text>
+            </Td>
+            <Td borderBottom={'solid 1px #E4E4E7'}>
+              <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
+                {`${truncatedNumber(
+                  item.gasFee ? item.gasFee : '0.00'
+                )} ${_.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`}
+              </Text>
+            </Td>
+            <Td borderBottom={'solid 1px #E4E4E7'}>
               <Text variant={'md'} color={'text.500'}>
                 {formatDateAndTime(item.blockTimeLock)}
               </Text>

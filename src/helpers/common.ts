@@ -13,6 +13,22 @@ export const truncateMid = (src: string, start: number, end: number) => [
   src.slice(src.length - end, src.length),
 ];
 
+export const truncatedNumber = (value: string, minumumNumber = 0.0001) => {
+  const maxDecimal = minumumNumber.toString().split('.')[1].length;
+
+  if (BigNumber(value).isEqualTo(0)) {
+    return value;
+  }
+
+  if (BigNumber(value).lt(minumumNumber)) {
+    return '<' + minumumNumber;
+  }
+  return new BigNumber(value || 0)
+    .shiftedBy(0)
+    .decimalPlaces(maxDecimal)
+    .toFormat();
+};
+
 export const toWei = (
   amount: string | number,
   decimal: string | number
