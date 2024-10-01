@@ -174,6 +174,15 @@ const ABIBridgeETH = [
     type: 'function',
   },
   {
+    inputs: [
+      { internalType: 'address[]', name: '_validators', type: 'address[]' },
+    ],
+    name: 'addListValidator',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
     inputs: [{ internalType: 'address', name: '_minter', type: 'address' }],
     name: 'changeMinter',
     outputs: [],
@@ -286,6 +295,16 @@ const ABIBridgeETH = [
   },
   {
     inputs: [
+      { internalType: 'uint256', name: 'min', type: 'uint256' },
+      { internalType: 'uint256', name: 'max', type: 'uint256' },
+    ],
+    name: 'setMinMaxAmount',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
       { internalType: 'address', name: 'token', type: 'address' },
       { internalType: 'bool', name: 'whitelist', type: 'bool' },
     ],
@@ -341,6 +360,13 @@ const ABIBridgeETH = [
     name: 'whitelistTokens',
     outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [{ internalType: 'uint256', name: 'amount', type: 'uint256' }],
+    name: 'withdrawETH',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
 ] as const;

@@ -1,8 +1,10 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { useCallback } from 'react';
 
 import { useConfigState } from '../context';
 
+import ROUTES from '@/configs/routes';
 import { handleRequest } from '@/helpers/asyncHandlers';
 import { toWei } from '@/helpers/common';
 import useETHBridgeContract from '@/hooks/useETHBridgeContract';
@@ -13,8 +15,10 @@ import adminService from '@/services/adminService';
 import {
   getWalletInstanceSlice,
   getWalletSlice,
+  useAppDispatch,
   useAppSelector,
 } from '@/store';
+import { walletSliceActions } from '@/store/slices/walletSlice';
 
 export type CommonConfigBody = {
   id: number;
@@ -27,6 +31,8 @@ export default function useConfigLogic() {
   const { setIsLoading, setDisplayedConfig, updateAssetRage } =
     useConfigState().methods;
 
+  const router = useRouter();
+  const dispatch = useAppDispatch();
   const { value, asset, displayedConfig, assetRange } = useConfigState().state;
   // console.log('🚀 ~ useConfigLogic ~ asset:', {
   //   bridgeCtr: asset?.bridgeCtrAddr,
@@ -52,6 +58,11 @@ export default function useConfigLogic() {
     if (!isConnected) return null;
     const [res, error] = await handleRequest(adminService.getCommonConfig());
     if (error) {
+      if (error.response.data.statusCode === 401) {
+        dispatch(walletSliceActions.disconnect());
+        router.push(ROUTES.HOME);
+        return;
+      }
       sendNotification({
         toastType: 'error',
         options: {
@@ -106,122 +117,38 @@ export default function useConfigLogic() {
   async function handleEVMBridge(): Promise<boolean> {
     if ((!value.min && !value.max) || !bridgeEVMCtr || !address) return false;
 
-    if (value.max && !value.min) {
-      const [valueMax, errorMax] = await handleRequest(
-        bridgeEVMCtr.setMaxAmount({
-          amount: value.max,
-          userAddr: address,
-          asset: asset!!,
-        })
-      );
+    const minAmount = !!value.min ? value.min : assetRange[0];
+    const maxAmount = !!value.max ? value.max : assetRange[1];
 
-      if (errorMax) {
-        sendNotification({
-          toastType: 'error',
-          options: {
-            title: 'Transaction rejected',
-          },
-        });
-        return false;
-      }
-      if (valueMax) {
-        sendNotification({
-          toastType: 'success',
-          options: {
-            title: 'Update successfully',
-          },
-        });
-        updateAssetRage([assetRange[0], value.max]);
-        return true;
-      }
+    const [amount, error] = await handleRequest(
+      bridgeEVMCtr.setMinMaxAmount({
+        min: minAmount,
+        max: maxAmount,
+        userAddr: address,
+        asset: asset!!,
+      })
+    );
+
+    if (error) {
+      sendNotification({
+        toastType: 'error',
+        options: {
+          title: 'Transaction rejected',
+        },
+      });
+      return false;
     }
-    if (value.min && !value.max) {
-      const [valueMin, errorMin] = await handleRequest(
-        bridgeEVMCtr.setMinAmount({
-          amount: value.min,
-          userAddr: address,
-          asset: asset!!,
-        })
-      );
-
-      if (errorMin) {
-        sendNotification({
-          toastType: 'error',
-          options: {
-            title: 'Transaction rejected',
-          },
-        });
-        return false;
-      }
-      if (valueMin) {
-        sendNotification({
-          toastType: 'success',
-          options: {
-            title: 'Update successfully',
-          },
-        });
-        updateAssetRage([value.min, assetRange[1]]);
-
-        return true;
-      }
-    }
-    if (value.max && value.min) {
-      const [valueMax, errorMax] = await handleRequest(
-        bridgeEVMCtr.setMaxAmount({
-          amount: value.max,
-          userAddr: address,
-          asset: asset!!,
-        })
-      );
-
-      if (errorMax) {
-        sendNotification({
-          toastType: 'error',
-          options: {
-            title: 'Transaction rejected',
-          },
-        });
-        setIsLoading(false);
-        return false;
-      }
-      if (valueMax) {
-        sendNotification({
-          toastType: 'success',
-          options: {
-            title: 'Update successfully',
-          },
-        });
-        updateAssetRage([assetRange[0], value.max]);
-      }
-      const [valueMin, errorMin] = await handleRequest(
-        bridgeEVMCtr.setMinAmount({
-          amount: value.min,
-          userAddr: address,
-          asset: asset!!,
-        })
-      );
-
-      if (errorMin) {
-        sendNotification({
-          toastType: 'error',
-          options: {
-            title: 'Transaction rejected',
-          },
-        });
-        setIsLoading(false);
-        return false;
-      }
-      if (valueMin) {
-        sendNotification({
-          toastType: 'success',
-          options: {
-            title: 'Update successfully',
-          },
-        });
-        updateAssetRage([value.min, assetRange[1]]);
-      }
+    if (amount) {
+      sendNotification({
+        toastType: 'success',
+        options: {
+          title: 'Update successfully',
+        },
+      });
+      updateAssetRage([minAmount, maxAmount]);
       return true;
     }
+
     return false;
   }
 

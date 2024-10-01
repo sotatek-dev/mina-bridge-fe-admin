@@ -14,8 +14,9 @@ export type EVMBridgeCtrLockPayload = {
   isNativeToken?: boolean;
 };
 
-export type EVMBridgeConfigPayload = {
-  amount: string;
+export type AmountConfigPayload = {
+  min: string;
+  max: string;
   userAddr: string;
   asset: TokenType;
 };
@@ -43,20 +44,15 @@ export default class BridgeContract extends Contract<ABIType> {
     });
   }
 
-  setMaxAmount({ amount, userAddr, asset }: EVMBridgeConfigPayload) {
-    const max = toWei(amount, asset.decimals);
-    return this.contractInstance.methods.setMaxAmount(max).send({
-      from: userAddr,
-      gas: '300000',
-    });
-  }
-
-  setMinAmount({ amount, userAddr, asset }: EVMBridgeConfigPayload) {
-    const min = toWei(amount, asset.decimals);
-    return this.contractInstance.methods.setMinAmount(min).send({
-      from: userAddr,
-      gas: '300000',
-    });
+  setMinMaxAmount({ min, max, userAddr, asset }: AmountConfigPayload) {
+    const minAmount = toWei(min, asset.decimals);
+    const maxAmount = toWei(max, asset.decimals);
+    return this.contractInstance.methods
+      .setMinMaxAmount(minAmount, maxAmount)
+      .send({
+        from: userAddr,
+        gas: '300000',
+      });
   }
 
   getMaxAmount() {
