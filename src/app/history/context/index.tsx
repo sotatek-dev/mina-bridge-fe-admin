@@ -91,6 +91,7 @@ export default function HistoryProvider({ children }: HistoryProviderProps) {
     const [res, error] = await handleRequest(adminService.getCommonConfig());
     if (error) {
       console.log('🚀 ~ getCommonConfig ~ error:', error);
+      return false;
     }
     updateTip(res!!.tip);
     return true;
