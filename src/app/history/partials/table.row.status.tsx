@@ -40,7 +40,9 @@ function RowStatus({ status, networkName }: RowStatusProps) {
   if (status === STATUS.PROCESSING)
     return (
       <Flex align={'center'}>
-        <Box {...boxStyle} bg={'yellow.500'} />
+        <Box>
+          <Box {...boxStyle} bg={'yellow.500'} />
+        </Box>
         <Text as={'span'}>
           {networkName === 'eth'
             ? 'Minting WETH in Mina network'
