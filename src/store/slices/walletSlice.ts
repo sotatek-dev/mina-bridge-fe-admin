@@ -154,7 +154,13 @@ const connectWallet = createAppThunk<{
         address: account,
       })
     );
-    Cookie.set('address', account);
+    const expirationDate = new Date();
+    expirationDate.setDate(
+      expirationDate.getDate() + Number(process.env.NEXT_PUBLIC_EXPIRE_COOKIE)
+    );
+    Cookie.set('address', account, {
+      expires: expirationDate,
+    });
 
     // store wallet and network instance which contain non-serialize data that couldn't use persist
     dispatch(

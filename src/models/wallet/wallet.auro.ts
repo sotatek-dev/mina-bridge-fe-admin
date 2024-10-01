@@ -56,7 +56,7 @@ export default class WalletAuro extends Wallet {
           checked: '/assets/logos/logo.auro.circle.svg',
           supported: '/assets/logos/logo.auro.circle.svg',
           unchecked: '/assets/logos/logo.auro.circle.svg',
-          unsupported: '/assets/logos/logo.auro.unsupported.svg',
+          unsupported: '/assets/logos/logo.auro.circle.svg',
         },
         installationURL: {
           pc: URL_INSTALL_EXTENSION.AURO,
