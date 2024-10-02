@@ -1,7 +1,6 @@
 'use client';
 import { useMemo } from 'react';
 
-import CONTRACT_ADDRESSES from '@/configs/contractAddresses';
 import { IsServer } from '@/constants';
 import { PROVIDER_TYPE, ProviderType } from '@/models/contract/evm/contract';
 import BridgeContract from '@/models/contract/evm/contract.bridge';
@@ -40,7 +39,7 @@ export default function useETHBridgeContract({
       !walletInstance
       ? null
       : new BridgeContract({
-          address: ctr.addr || CONTRACT_ADDRESSES.BRIDGE_ETH || '',
+          address: ctr.addr || '',
           provider,
         });
   }, [network, provider, ctr, walletInstance]);
