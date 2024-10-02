@@ -23,7 +23,7 @@ export default function Configuration() {
           w={'full'}
           h={'395px'}
           bgOpacity={0}
-          label={'Waiting compile contract!'}
+          label={'Waiting to compile contract!'}
         />
       ) : (
         <ConfigurationContent />
