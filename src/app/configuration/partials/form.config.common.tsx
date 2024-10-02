@@ -125,12 +125,12 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
   return (
     <Flex bg={'text.25'} w={'full'} padding={'22px 35px'}>
       <VStack w={'50%'} alignItems={'flex-start'}>
-        <Flex alignItems={'center'} mb={'15px'}>
+        {/* <Flex alignItems={'center'} mb={'15px'}>
           <Image src={'/assets/logos/logo.ethereum.circle.svg'} mr={'10px'} />
           <Heading as={'h4'} variant={'h4'}>
             ETH
           </Heading>
-        </Flex>
+        </Flex> */}
       </VStack>
       {isMinMaxLoading ? (
         <VStack w={'50%'} alignItems={'flex-end'}>
@@ -149,7 +149,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
           <VStack w={'full'} alignItems={'flex-start'}>
             <Text variant={'lg_medium'}>Daily Quota</Text>
             <Input
-              placeholder={displayedConfig.dailyQuota}
+              placeholder={String(Number(displayedConfig.dailyQuota))}
               size={'md_medium'}
               type={'number'}
               isDisabled={!isConnected}
@@ -164,7 +164,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
               Tip (%)
             </Text>
             <Input
-              placeholder={displayedConfig.tip}
+              placeholder={String(Number(displayedConfig.tip))}
               size={'md_medium'}
               type={'number'}
               isDisabled={!isConnected}
