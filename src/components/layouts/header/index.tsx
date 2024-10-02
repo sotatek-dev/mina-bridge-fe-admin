@@ -99,6 +99,7 @@ export default function Header({}: Props) {
               bottom={'-120%'}
               right={0}
               onClick={disconnectWallet}
+              zIndex={100}
               leftIcon={
                 <Image
                   src={'/assets/icons/icon.link-broken.svg'}
