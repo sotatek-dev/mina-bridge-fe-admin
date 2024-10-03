@@ -30,18 +30,22 @@ function InfoTransaction({
 
   return (
     <>
-      <NumericFormat
-        value={amount ? formWei(amount, getDecimal(networkName)) : '0.00'}
-        thousandSeparator={','}
-        decimalScale={4}
-        decimalSeparator={'.'}
-        displayType={'text'}
-        renderText={(value) => (
-          <Text variant={'lg'} color={'text.900'}>
-            {`${zeroCutterEnd(value)} ${_.isEmpty(tokenName) ? '' : tokenName}`}
-          </Text>
-        )}
-      />
+      {amount ? (
+        <NumericFormat
+          value={formWei(amount, getDecimal(networkName))}
+          thousandSeparator={','}
+          decimalScale={4}
+          decimalSeparator={'.'}
+          displayType={'text'}
+          renderText={(value) => (
+            <Text variant={'lg'} color={'text.900'}>
+              {`${zeroCutterEnd(value)} ${_.isEmpty(tokenName) ? '' : tokenName}`}
+            </Text>
+          )}
+        />
+      ) : (
+        '0.00'
+      )}
 
       {txHash && scanUrl && (
         <Link href={`${scanUrl}/tx/${txHash}`} target={'_blank'}>
