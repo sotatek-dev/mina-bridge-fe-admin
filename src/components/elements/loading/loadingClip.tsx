@@ -9,11 +9,11 @@ export default function LoadingClip({ id, w = 100, h = 100, tn = 5 }: Props) {
   const a = 100 / w; // aspect
   return (
     <svg
-      xmlns={"http://www.w3.org/2000/svg"}
+      xmlns={'http://www.w3.org/2000/svg'}
       width={w}
       height={h}
       viewBox={`0 0 ${w} ${h}`}
-      fill={"none"}
+      fill={'none'}
     >
       <defs>
         <clipPath id={id}>
@@ -34,7 +34,7 @@ export default function LoadingClip({ id, w = 100, h = 100, tn = 5 }: Props) {
             height={tn / a}
             rx={3 / a}
             ry={3 / a}
-            transform={"rotate(-45)"}
+            transform={'rotate(-45)'}
           />
 
           {/* right */}
@@ -54,7 +54,7 @@ export default function LoadingClip({ id, w = 100, h = 100, tn = 5 }: Props) {
             height={tn / a}
             rx={3 / a}
             ry={3 / a}
-            transform={"rotate(-135)"}
+            transform={'rotate(-135)'}
           />
           {/* bottom */}
           <rect
@@ -72,7 +72,7 @@ export default function LoadingClip({ id, w = 100, h = 100, tn = 5 }: Props) {
             height={tn / a}
             rx={3 / a}
             ry={3 / a}
-            transform={"rotate(135)"}
+            transform={'rotate(135)'}
           />
           {/* left */}
           <rect
@@ -91,7 +91,7 @@ export default function LoadingClip({ id, w = 100, h = 100, tn = 5 }: Props) {
             height={tn / a}
             rx={3 / a}
             ry={3 / a}
-            transform={"rotate(45)"}
+            transform={'rotate(45)'}
           />
         </clipPath>
       </defs>

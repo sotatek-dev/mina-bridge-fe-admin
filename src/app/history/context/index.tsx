@@ -90,7 +90,7 @@ export default function HistoryProvider({ children }: HistoryProviderProps) {
     if (!isConnected) return null;
     const [res, error] = await handleRequest(adminService.getCommonConfig());
     if (error) {
-      console.log('🚀 ~ getCommonConfig ~ error:', error);
+      // console.log('🚀 ~ getCommonConfig ~ error:', error);
       return false;
     }
     updateTip(res!!.tip);

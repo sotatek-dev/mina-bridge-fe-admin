@@ -1,5 +1,5 @@
-"use client";
-import { useRef } from "react";
+'use client';
+import { useRef } from 'react';
 
 function useIsFirstRender(): boolean {
   const isFirst = useRef(true);

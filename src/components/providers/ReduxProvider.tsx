@@ -1,8 +1,8 @@
-"use client";
-import React, { PropsWithChildren } from "react";
-import { Provider } from "react-redux";
+'use client';
+import React, { PropsWithChildren } from 'react';
+import { Provider } from 'react-redux';
 
-import { store } from "@/store";
+import { store } from '@/store';
 
 const ReduxProvider = ({children}: PropsWithChildren) => {
   return (

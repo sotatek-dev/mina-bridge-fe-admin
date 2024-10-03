@@ -60,7 +60,7 @@ export default function Card({ nwKey }: CardProps) {
             toastType: 'warning',
             options: {
               title:
-                "Your wallet doesn't support this network. Please change the wallet connected",
+                'Your wallet doesn\'t support this network. Please change the wallet connected',
             },
           });
           return;

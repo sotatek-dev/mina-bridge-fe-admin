@@ -6,10 +6,10 @@ type Props = ImageProps;
 export default function Logo(props: Props) {
   return (
     <Image
-      width={"88px"}
-      height={"25px"}
+      width={'88px'}
+      height={'25px'}
       {...props}
-      src={"/assets/logos/logo.mina.text.svg"}
+      src={'/assets/logos/logo.mina.text.svg'}
     />
   );
 }
