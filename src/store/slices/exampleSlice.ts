@@ -39,7 +39,6 @@ export const ExampleSlice = createSlice({
       state: ExampleState,
       action: PayloadAction<UpdateExampleSlice>
     ) => {
-      console.log(state);
       state.keyName = action.payload.newValue;
     },
   },

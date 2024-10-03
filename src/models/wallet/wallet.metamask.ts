@@ -51,11 +51,11 @@ export default class WalletMetamask extends Wallet {
     WALLET_CONNECT_FAILED: 'Fail to connect wallet',
     WALLET_CONNECT_REJECTED: 'Signature rejected.',
     WALLET_USER_REJECTED: 'User rejected',
-    WALLET_GET_BALANCE_FAIL: "Can't get the current balance",
+    WALLET_GET_BALANCE_FAIL: 'Can\'t get the current balance',
     MINA_UNKNOWN_SEND_ERROR: 'Unknown mina transaction error',
   };
   errorMessageList = {
-    UNKNOWN_MINA_SEND_TX: "Couldn't send zkApp command",
+    UNKNOWN_MINA_SEND_TX: 'Couldn\'t send zkApp command',
   };
 
   constructor() {
@@ -178,14 +178,12 @@ export default class WalletMetamask extends Wallet {
         const snap = await this.sendRequest<GetSnapResponse>({
           method: 'wallet_getSnaps',
         });
-        console.log('🚀 ~ WalletMetamask ~ snap:', snap);
+        // console.log('🚀 ~ WalletMetamask ~ snap:', snap);
         const snapId: string = process.env.NEXT_PUBLIC_REQUIRED_SNAP_ID || '';
         const version: string =
           process.env.NEXT_PUBLIC_REQUIRED_SNAP_VERSION || '';
 
         if (!snap.hasOwnProperty(snapId) || snap[snapId].version !== version) {
-          console.log('run');
-
           onStart && onStart();
           const [req, reqError] = await handleRequest(
             this.sendRequest({
@@ -427,6 +425,5 @@ export default class WalletMetamask extends Wallet {
     ) {
       throw new Error(this.errorList.MINA_UNKNOWN_SEND_ERROR);
     }
-    console.log('🚀 ~ WalletMetamask ~ res ~ res:', res);
   }
 }

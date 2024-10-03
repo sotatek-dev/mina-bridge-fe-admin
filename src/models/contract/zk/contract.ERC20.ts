@@ -28,18 +28,17 @@ export default class ERC20Contract {
     this.contractBridgeInstance = new Bridge(this.bridgeAddress);
   }
   static async init() {
-    // TODO: ZK compile
     try {
       console.log('-----fetch files');
-      // console.time('fetch files');
+      console.time('fetch files');
       const [cacheTokenFiles, cacheBridgeFiles] = await Promise.all([
         fetchFiles(ZkContractType.TOKEN),
         fetchFiles(ZkContractType.BRIDGE),
       ]);
       console.log('fetch files done');
       console.log('compile contracts');
-      // console.timeEnd('fetch files');
-      // console.time('compile contracts');
+      console.timeEnd('fetch files');
+      console.time('compile contracts');
 
       console.log('-----compile contracts Bridge');
       await Bridge.compile({
@@ -52,7 +51,7 @@ export default class ERC20Contract {
       console.log('-----compile contracts done');
       // console.timeEnd('compile contracts');
     } catch (error) {
-      console.log('error', error);
+      console.error(error);
     }
   }
 
@@ -61,12 +60,11 @@ export default class ERC20Contract {
     const data = await fetchAccount({
       publicKey: PublicKey.fromBase58(userAddr),
     });
-    console.log('🚀 ~ ERC20Contract ~ fetchInvolveAccount ~ data:', data);
+    // console.log('🚀 ~ ERC20Contract ~ fetchInvolveAccount ~ data:', data);
 
     console.log('-----fetch bridge account');
     await fetchAccount({
       publicKey: this.bridgeAddress,
-      //TODO tokenId: this.contractTokenInstance?.token.id,
       tokenId: this.contractTokenInstance?.tokenId,
     });
 
@@ -78,7 +76,7 @@ export default class ERC20Contract {
     if (!this.contractBridgeInstance) return;
     const minAmount = new UInt64(min);
     const maxAmount = new UInt64(max);
-    console.log('🚀 ~ setAmountLimits:', { minAmount, maxAmount });
+    // console.log('🚀 ~ setAmountLimits:', { minAmount, maxAmount });
     return this.contractBridgeInstance?.setAmountLimits(minAmount, maxAmount);
   }
 

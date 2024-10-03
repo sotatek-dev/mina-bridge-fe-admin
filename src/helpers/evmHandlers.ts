@@ -1,9 +1,9 @@
-import Web3 from "web3";
+import Web3 from 'web3';
 
-import { IsServer } from "@/constants";
-import { PROVIDER_TYPE, ProviderType } from "@/models/contract/evm/contract";
-import { WALLET_NAME } from "@/models/wallet";
-import { RootState, store } from "@/store";
+import { IsServer } from '@/constants';
+import { PROVIDER_TYPE, ProviderType } from '@/models/contract/evm/contract';
+import { WALLET_NAME } from '@/models/wallet';
+import { RootState, store } from '@/store';
 
 const getWalletObjState = (wallet: WALLET_NAME) => {
   const globalState = store.getState() as RootState;

@@ -1,8 +1,8 @@
-"use client";
-import { useEffect } from "react";
+'use client';
+import { useEffect } from 'react';
 
-import { useAppDispatch } from "@/store";
-import { persistSliceActions } from "@/store/slices/persistSlice";
+import { useAppDispatch } from '@/store';
+import { persistSliceActions } from '@/store/slices/persistSlice';
 
 export default function useDeviceCheck() {
   const dispatch = useAppDispatch();

@@ -81,7 +81,7 @@ export type GetDailyQuotaResponse = {
 
 class UsersService {
   readonly service: AxiosService;
-  readonly baseURL: string = `/users`;
+  readonly baseURL: string = '/users';
 
   constructor() {
     this.service = axiosService;

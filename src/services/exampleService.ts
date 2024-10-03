@@ -4,7 +4,7 @@ import { USERS_ENDPOINT } from '@/services/config';
 
 class ExampleService {
   readonly service: AxiosService;
-  readonly baseURL: string = `example`;
+  readonly baseURL: string = 'example';
 
   constructor() {
     this.service = axiosService;
