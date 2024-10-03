@@ -1,5 +1,5 @@
-import MinaProvider from "@aurowallet/mina-provider";
-import { MetaMaskInpageProvider } from "@metamask/providers";
+import MinaProvider from '@aurowallet/mina-provider';
+import { MetaMaskInpageProvider } from '@metamask/providers';
 
 declare global {
   interface Window{

@@ -40,17 +40,17 @@ export default function Loading({
     <Flex
       w={w}
       h={h}
-      alignItems={"center"}
-      justifyContent={"center"}
+      alignItems={'center'}
+      justifyContent={'center'}
       bg={`rgba(0,0,0,${bgOpacity})`}
     >
       <Box
         w={`${spinnerSize}px`}
         h={`${spinnerSize}px`}
         clipPath={`url(#${id})`}
-        position={"relative"}
+        position={'relative'}
         _after={{
-          content: "''",
+          content: '\'\'',
           position: 'absolute',
           w: 'full',
           h: 'full',
@@ -61,7 +61,7 @@ export default function Loading({
         }}
       >
       </Box>
-      <Box position={"absolute"}>
+      <Box position={'absolute'}>
         <LoadingClip
           id={id}
           w={spinnerSize}

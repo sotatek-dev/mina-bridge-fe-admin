@@ -1,5 +1,5 @@
-"use client";
-import { useEffect } from "react";
+'use client';
+import { useEffect } from 'react';
 
 export function useOutsideCheck(ref: any, callback: any) {
   useEffect(() => {

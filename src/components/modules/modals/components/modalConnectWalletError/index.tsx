@@ -54,11 +54,11 @@ export default function ModalConnectWalletError({}: ModalConnectWalletProps) {
           fontSize={'14px'}
           fontWeight={'400'}
         >
-          Looks like you don&apos;t have the {` `}
+          Looks like you don&apos;t have the {' '}
           <span style={{ textTransform: 'capitalize' }}>
             {walletInstance?.name || ''}
           </span>{' '}
-          {` `}
+          {' '}
           Wallet installed yet. Head over to the Chrome Extension to quickly
           install the extension.
         </Text>
