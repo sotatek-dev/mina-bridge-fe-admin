@@ -163,12 +163,11 @@ export default class WalletAuro extends Wallet {
       this.InjectedObject.sendTransaction({ transaction: payload })
     );
     if (error) throw error;
-    console.log('🚀 ~ WalletAuro ~ sendTx ~ res:', res);
+    // console.log('🚀 ~ WalletAuro ~ sendTx ~ res:', res);
   }
 
   async getNetwork() {
     const res = await this.InjectedObject.requestNetwork();
-    // TODO: return res.name;
     return res.networkID;
   }
 
@@ -177,7 +176,6 @@ export default class WalletAuro extends Wallet {
     if (walletChainId === network.metadata.chainId) return true;
     const [_, error] = await this.handleRequestWithError(
       this.InjectedObject.switchChain({
-        //TODO: chainId: network.metadata.chainId.toLowerCase(),
         networkID: network.metadata.chainId.toLowerCase(),
       })
     );

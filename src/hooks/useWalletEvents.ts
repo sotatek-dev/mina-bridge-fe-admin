@@ -127,14 +127,15 @@ export default function useWalletEvents() {
       eventName: WALLET_EVENT_NAME.DISCONNECT,
       handler(error) {
         if (isMinaSnap) return;
-        console.log('🚀 ~ handler ~ error:', error);
+        console.error(error);
         return dispatch(walletSliceActions.disconnect());
       },
     });
     walletInstance.addListener({
       eventName: WALLET_EVENT_NAME.MESSAGE,
       handler(message) {
-        console.log('🚀 ~ handler ~ error:', message);
+        // console.log('🚀 ~ handler ~ error:', message);
+        console.log(message);
       },
     });
     return () => {

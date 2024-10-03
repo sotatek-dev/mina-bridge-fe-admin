@@ -95,7 +95,7 @@ export default function ModalCWProvider({
     async (wallet: Wallet, network: Network) => {
       const [res, error] = await handleRequest(wallet.switchNetwork(network));
       if (error) {
-        console.log(error);
+        console.error(error);
         return;
       }
     },
@@ -174,7 +174,7 @@ export default function ModalCWProvider({
           isSign: true,
           onCnStart: () => {
             if (needSnapInstall) {
-              console.log('start loading install');
+              // console.log('start loading install');
 
               updateSnapLoading(true);
             }
@@ -196,7 +196,7 @@ export default function ModalCWProvider({
         router.push(ROUTES.HISTORY);
       }
       if (walletSliceActions.connectWallet.rejected.match(res)) {
-        console.log('🚀 ~ Error:', res.error);
+        console.error(res.error);
         sendNotification({
           toastType: 'error',
           options: {

@@ -273,7 +273,7 @@ export default function ConfigProvider({ children }: ConfigProviderProps) {
             formWei(maxAmount, asset.decimals),
           ]);
         } catch (error) {
-          console.log('🚀 ~ getMinaConfig ~ error:', error);
+          // console.log('🚀 ~ getMinaConfig ~ error:', error);
           updateAssetRage(['0', '0']);
           return setIsMinMaxLoading(false);
         }
