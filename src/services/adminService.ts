@@ -66,7 +66,7 @@ export type CommonConfigResponse = {
 
 class AdminService {
   readonly service: AxiosService;
-  readonly baseURL: string = `admin`;
+  readonly baseURL: string = 'admin';
 
   constructor() {
     this.service = axiosService;

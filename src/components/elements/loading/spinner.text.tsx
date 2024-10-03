@@ -25,10 +25,10 @@ export default function LoadingWithText({
     <VStack
       w={w}
       h={h}
-      alignItems={"center"}
-      justifyContent={"center"}
+      alignItems={'center'}
+      justifyContent={'center'}
       bg={`rgba(0,0,0,${bgOpacity})`}
-      gap={"20px"}
+      gap={'20px'}
     >
       <Spinner
         id={id}
@@ -38,12 +38,12 @@ export default function LoadingWithText({
         bgOpacity={0}
       />
       {label && (
-        <Heading as={"h3"} w={"full"} variant={"h3"} color={"black"} textAlign={"center"}>
+        <Heading as={'h3'} w={'full'} variant={'h3'} color={'black'} textAlign={'center'}>
           {label}
         </Heading>
       )}
       {desc && (
-        <Text variant={"md"} color={"text.500"} textAlign={"center"}>
+        <Text variant={'md'} color={'text.500'} textAlign={'center'}>
           {desc}
         </Text>
       )}

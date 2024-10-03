@@ -41,7 +41,7 @@ export default class WalletAuro extends Wallet {
     WALLET_WRONG_CHAIN: 'You have connected to unsupported chain',
     WALLET_CONNECT_FAILED: 'Fail to connect wallet',
     WALLET_CONNECT_REJECTED: 'Signature rejected.',
-    WALLET_GET_BALANCE_FAIL: "Can't get the current balance",
+    WALLET_GET_BALANCE_FAIL: 'Can\'t get the current balance',
   };
 
   constructor() {

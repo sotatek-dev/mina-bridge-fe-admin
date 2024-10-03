@@ -51,11 +51,11 @@ export default class WalletMetamask extends Wallet {
     WALLET_CONNECT_FAILED: 'Fail to connect wallet',
     WALLET_CONNECT_REJECTED: 'Signature rejected.',
     WALLET_USER_REJECTED: 'User rejected',
-    WALLET_GET_BALANCE_FAIL: "Can't get the current balance",
+    WALLET_GET_BALANCE_FAIL: 'Can\'t get the current balance',
     MINA_UNKNOWN_SEND_ERROR: 'Unknown mina transaction error',
   };
   errorMessageList = {
-    UNKNOWN_MINA_SEND_TX: "Couldn't send zkApp command",
+    UNKNOWN_MINA_SEND_TX: 'Couldn\'t send zkApp command',
   };
 
   constructor() {

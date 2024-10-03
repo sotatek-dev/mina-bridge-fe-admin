@@ -43,7 +43,7 @@ export default function UnmatchedChain() {
       >
         <Center>
           <Text variant={'lg'} color={'white'}>
-            {`dApp network doesn't match with network selected in wallet.`}
+            {'dApp network doesn\'t match with network selected in wallet.'}
             <Button
               display={'inline-block'}
               verticalAlign={'baseline'}

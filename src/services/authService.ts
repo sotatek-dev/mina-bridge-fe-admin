@@ -23,7 +23,7 @@ export type BodyAuthTokenMina = {
 
 class AuthService {
   readonly service: AxiosService;
-  readonly baseURL: string = `auth`;
+  readonly baseURL: string = 'auth';
 
   constructor() {
     this.service = axiosService;

@@ -13,6 +13,7 @@
   ],
   "rules": {
     // eslint rules
+    "quotes": ["warn", "single"],
     "import/order": [
       "error",
       {
