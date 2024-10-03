@@ -48,14 +48,14 @@ function BodyTable({ data }: PropsBodyTable) {
               <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
                 {`${truncatedNumber(
                   item.tip ? item.tip : '0.00'
-                )} ${_.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`}
+                )} ${!item?.tip || _.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`}
               </Text>
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
               <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
                 {`${truncatedNumber(
                   item.gasFee ? item.gasFee : '0.00'
-                )} ${_.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`}
+                )} ${!item?.gasFee || _.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`}
               </Text>
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
