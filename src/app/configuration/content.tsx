@@ -19,11 +19,23 @@ export default function ConfigurationContent() {
   const { isConnected } = useAppSelector(getWalletSlice);
   return (
     <VStack w={'full'} alignItems={'flex-start'}>
-      <Heading as={'h1'} variant={'h1'} color={'text.900'} mb={'30px'}>
+      <Heading
+        as={'h1'}
+        variant={'h1'}
+        color={'text.900'}
+        mt={'36px'}
+        mb={'28px'}
+      >
         Assets
       </Heading>
       <ConfigContract isConnected={isConnected} />
-      <Heading as={'h1'} variant={'h1'} color={'text.900'} mb={'30px'}>
+      <Heading
+        as={'h1'}
+        variant={'h1'}
+        color={'text.900'}
+        mt={'36px'}
+        mb={'28px'}
+      >
         Common Configuration
       </Heading>
       <ConfigCommon isConnected={isConnected} />
