@@ -1,7 +1,9 @@
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
 import useNotifier from './useNotifier';
 
+import ROUTES from '@/configs/routes';
 import { Network } from '@/models/network';
 import { getZKChainIdName, NETWORK_NAME } from '@/models/network/network';
 import { Wallet, WALLET_NAME } from '@/models/wallet';
@@ -20,6 +22,7 @@ export default function useWalletEvents() {
   const { sendNotification } = useNotifier();
 
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const { walletKey, networkName } = useAppSelector(getWalletSlice);
   const { walletInstance, networkInstance } = useAppSelector(
     getWalletInstanceSlice
@@ -80,7 +83,8 @@ export default function useWalletEvents() {
             title: 'Signature invalid',
           },
         });
-        return dispatch(walletSliceActions.disconnect());
+        dispatch(walletSliceActions.disconnect());
+        return router.replace(ROUTES.HOME);
       },
     });
     // display banner when listener was not initialize
