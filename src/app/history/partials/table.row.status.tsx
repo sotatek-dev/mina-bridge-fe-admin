@@ -8,7 +8,7 @@ const boxStyle: BoxProps = {
   mr: '10px',
 };
 
-const STATUS = {
+export const STATUS = {
   WAITING: 'waiting',
   PROCESSING: 'processing',
   COMPLETED: 'completed',

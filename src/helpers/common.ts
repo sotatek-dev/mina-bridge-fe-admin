@@ -62,6 +62,10 @@ export const formatDateAndTime = (timestamp: string) => {
   return date.format('YYYY-MM-DD HH:mm:ss');
 };
 
+export const formatDateTime = (datetime: string) => {
+  return moment(datetime).format('YYYY-MM-DD HH:mm:ss');
+};
+
 export const getDecimal = (network: string) => {
   // response from api not match defined enum NETWORK_NAME
   const NETWORK_NAME = {
@@ -162,7 +166,9 @@ export function fetchFiles(type: ZkContractType) {
     return Promise.all(
       listFiles.map((file) => {
         return Promise.all([
-          fetch(`${publicStaticUri}/o1js/${file}.header`).then((res) => res.text()),
+          fetch(`${publicStaticUri}/o1js/${file}.header`).then((res) =>
+            res.text()
+          ),
           fetch(`${publicStaticUri}/o1js/${file}`).then((res) => res.text()),
         ]).then(([header, data]) => ({ file, header, data }));
       })
