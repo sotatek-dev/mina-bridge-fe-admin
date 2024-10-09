@@ -161,7 +161,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
           </VStack>
           <VStack w={'full'} alignItems={'flex-start'}>
             <Text variant={'lg_medium'} mt={'20px'}>
-              Tip (%)
+              Bridging Fee (%)
             </Text>
             <Input
               placeholder={String(Number(displayedConfig.tip))}
