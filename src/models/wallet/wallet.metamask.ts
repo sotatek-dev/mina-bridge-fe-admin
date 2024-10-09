@@ -63,7 +63,7 @@ export default class WalletMetamask extends Wallet {
       name: WALLET_NAME.METAMASK,
       metadata: {
         displayName: 'Metamask',
-        supportedNetwork: [NETWORK_NAME.MINA, NETWORK_NAME.ETHEREUM],
+        supportedNetwork: [NETWORK_NAME.ETHEREUM],
         InjectedObject: WALLET_INJECT_OBJ.METAMASK,
         logo: {
           base: '/assets/logos/logo.metamask.png',
