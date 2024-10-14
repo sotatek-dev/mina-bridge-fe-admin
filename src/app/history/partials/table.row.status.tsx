@@ -31,7 +31,9 @@ function RowStatus({ status, networkName }: RowStatusProps) {
   if (status === STATUS.WAITING)
     return (
       <Flex align={'center'}>
-        <Box {...boxStyle} bg={'yellow.500'} />
+        <Box>
+          <Box {...boxStyle} bg={'yellow.500'} />
+        </Box>
         <Text as={'span'}>
           {networkName === 'eth' ? 'ETH Locked' : 'WETH burned'}
         </Text>

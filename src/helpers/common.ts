@@ -62,8 +62,12 @@ export const formatDateAndTime = (timestamp: string) => {
   return date.format('YYYY-MM-DD HH:mm:ss');
 };
 
-export const formatDateTime = (datetime: string) => {
-  return moment(datetime).format('YYYY-MM-DD HH:mm:ss');
+export const formatDate = (datetime: string | number) => {
+  return moment(datetime).format('YYYY-MM-DD');
+};
+
+export const formatTime = (datetime: string | number) => {
+  return moment(datetime).format('HH:mm:ss');
 };
 
 export const getDecimal = (network: string) => {
