@@ -81,10 +81,7 @@ export default function ConfigContract({ isConnected }: ConfigContractProps) {
 
     const maxValue = !!value.max ? value.max : assetRange[1];
     const minValue = !!value.min ? value.min : assetRange[0];
-    if (
-      Number(minValue) > Number(maxValue) ||
-      Number(maxValue) > Number(displayedConfig.dailyQuota)
-    ) {
+    if (Number(minValue) > Number(maxValue)) {
       if (notifyRef.current !== null && checkNotifyActive(notifyRef.current))
         return;
       notifyRef.current = sendNotification({

@@ -81,17 +81,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
 
   const handleUpdateConfig = async () => {
     if (disable) return;
-    if (!!dailyQuota && Number(dailyQuota) < Number(assetRange[1])) {
-      if (notifyRef.current !== null && checkNotifyActive(notifyRef.current))
-        return;
-      notifyRef.current = sendNotification({
-        toastType: 'error',
-        options: {
-          title: 'Invalid amount',
-        },
-      });
-      return;
-    }
+
     const res = await updateCommonConfig({
       id: currentConfig.id,
       tip,
@@ -161,7 +151,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
           </VStack>
           <VStack w={'full'} alignItems={'flex-start'}>
             <Text variant={'lg_medium'} mt={'20px'}>
-              Tip (%)
+              Bridging Fee (%)
             </Text>
             <Input
               placeholder={String(Number(displayedConfig.tip))}

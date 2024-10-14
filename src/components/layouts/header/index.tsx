@@ -1,13 +1,5 @@
 import { Link } from '@chakra-ui/next-js';
-import {
-  Box,
-  Button,
-  Flex,
-  HStack,
-  Image,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
+import { Box, Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
 import { usePathname } from 'next/navigation';
 import { PropsWithChildren, useRef } from 'react';
 
@@ -15,6 +7,7 @@ import useHeaderLogic from './useHeaderLogic';
 
 import Logo from '@/components/elements/logo';
 import ROUTES from '@/configs/routes';
+import { getEnvNetwork } from '@/constants';
 import { useOutsideCheck } from '@/hooks/useOutsideCheck';
 import { getWalletSlice, useAppSelector } from '@/store';
 
@@ -45,20 +38,11 @@ export default function Header({}: Props) {
       }}
       bg={'white'}
     >
-      {/* <Container
-        maxW={{
-          sm: 'container.sm',
-          md: 'container.md',
-          lg: 'container.lg',
-          xl: 'container.xl',
-        }}
-      >
-        <Flex> */}
-      <VStack justifyContent={'center'} gap={0}>
-        <Link href={ROUTES.HISTORY}>
+      <HStack justifyContent={'center'} gap={1}>
+        <Link href={ROUTES.HOME}>
           <Logo />
         </Link>
-      </VStack>
+      </HStack>
       <HStack ml={'auto'}>
         {isConnected && (
           <>
@@ -116,9 +100,14 @@ export default function Header({}: Props) {
             </Button>
           ) : null}
         </Box>
+
+        <HStack gap={1} ml={3}>
+          <Image width={'22px'} src={'/assets/icons/icon.env.network.svg'} />
+          <Text color={'text.500'}>
+            {getEnvNetwork(process.env.NEXT_PUBLIC_ENV!)}
+          </Text>
+        </HStack>
       </HStack>
-      {/* </Flex>
-      </Container> */}
     </Flex>
   );
 }

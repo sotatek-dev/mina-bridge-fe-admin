@@ -1,5 +1,5 @@
 'use client';
-import { Flex, Heading, Table, Text, VStack } from '@chakra-ui/react';
+import { Box, Flex, Heading, Table, Text, VStack } from '@chakra-ui/react';
 
 import { useHistoryState } from './context';
 import EmptyHistoryData from './partials/empty.historyData';
@@ -25,10 +25,15 @@ function HistoryContent() {
         <SearchBar />
       </Flex>
       <VStack w={'full'} bg={'text.25'} pb={'33px'} mt={'12px'}>
-        <Table>
-          <HeaderTable />
-          {state.data.length !== 0 && <BodyTable data={state.data} />}
-        </Table>
+        <Box
+          width={'full'}
+          overflowX={state.data.length > 0 ? 'auto' : 'hidden'}
+        >
+          <Table minW={'1140px'}>
+            <HeaderTable />
+            {state.data.length !== 0 && <BodyTable data={state.data} />}
+          </Table>
+        </Box>
         {!state.data.length ? <EmptyHistoryData /> : <Pagination />}
       </VStack>
     </VStack>

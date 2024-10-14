@@ -4,16 +4,18 @@
     "plugin:react/recommended"
     // "plugin:prettier/recommended",
   ],
-  "plugins": [
-    "react",
-    "prettier"
-  ],
-  "ignorePatterns": [
-    "src/configs/ABIs/**/*.js"
-  ],
+  "plugins": ["react", "prettier"],
+  "ignorePatterns": ["src/configs/ABIs/**/*.js"],
   "rules": {
     // eslint rules
-    "quotes": ["warn", "single"],
+    "quotes": [
+      "warn",
+      "single",
+      {
+        "avoidEscape": true,
+        "allowTemplateLiterals": true
+      }
+    ],
     "import/order": [
       "error",
       {
@@ -62,17 +64,8 @@
         "when": "multiline"
       }
     ],
-    "react/jsx-closing-bracket-location": [
-      2,
-      "tag-aligned"
-    ],
-    "react/jsx-closing-tag-location": [
-      2,
-      "tag-aligned"
-    ],
-    "jsx-quotes": [
-      "error",
-      "prefer-double"
-    ]
+    "react/jsx-closing-bracket-location": [2, "tag-aligned"],
+    "react/jsx-closing-tag-location": [2, "tag-aligned"],
+    "jsx-quotes": ["error", "prefer-double"]
   }
 }
