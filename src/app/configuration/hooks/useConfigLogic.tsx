@@ -11,7 +11,7 @@ import useETHBridgeContract from '@/hooks/useETHBridgeContract';
 import useNotifier from '@/hooks/useNotifier';
 import { NETWORK_TYPE } from '@/models/network/network';
 import { WALLET_NAME } from '@/models/wallet';
-import adminService from '@/services/adminService';
+import adminService, { ParamCommonConfig } from '@/services/adminService';
 import {
   getWalletInstanceSlice,
   getWalletSlice,
@@ -24,6 +24,8 @@ export type CommonConfigBody = {
   id: number;
   tip: string;
   dailyQuota: string;
+  feeUnlockMina: string;
+  feeUnlockEth: string;
 };
 
 export default function useConfigLogic() {
@@ -75,21 +77,37 @@ export default function useConfigLogic() {
     setDisplayedConfig({
       dailyQuota: res!!.dailyQuota,
       tip: res!!.tip,
+      feeUnlockEth: res!!.feeUnlockEth,
+      feeUnlockMina: res!!.feeUnlockMina,
     });
     return res;
   }, [sendNotification, isConnected]);
 
   const updateCommonConfig = useCallback(
-    async ({ id, tip, dailyQuota }: CommonConfigBody) => {
+    async ({
+      id,
+      tip,
+      dailyQuota,
+      feeUnlockEth,
+      feeUnlockMina,
+    }: CommonConfigBody) => {
       setIsLoading(true);
+      const configData: ParamCommonConfig = {
+        id,
+        tip: !!tip ? Number(tip) : Number(displayedConfig.tip),
+        dailyQuota: !!dailyQuota
+          ? Number(dailyQuota)
+          : Number(displayedConfig.dailyQuota),
+        feeUnlockEth: !!feeUnlockEth
+          ? feeUnlockEth
+          : displayedConfig.feeUnlockEth,
+        feeUnlockMina: !!feeUnlockMina
+          ? feeUnlockMina
+          : displayedConfig.feeUnlockMina,
+      };
+
       const [res, error] = await handleRequest(
-        adminService.updateCommonConfig({
-          id,
-          tip: tip ? Number(tip) : Number(displayedConfig.tip),
-          dailyQuota: dailyQuota
-            ? Number(dailyQuota)
-            : Number(displayedConfig.dailyQuota),
-        })
+        adminService.updateCommonConfig(configData)
       );
       if (error) {
         sendNotification({

@@ -99,8 +99,13 @@ export default function ConfigContract({ isConnected }: ConfigContractProps) {
   };
 
   return (
-    <Flex bg={'text.25'} w={'full'} padding={'22px 35px'}>
-      <VStack w={'50%'} alignItems={'flex-start'}>
+    <Flex
+      bg={'text.25'}
+      w={'full'}
+      padding={'22px 35px'}
+      justifyContent={'space-between'}
+    >
+      <VStack w={'49%'} alignItems={'flex-start'}>
         <Flex alignItems={'center'} mb={'15px'}>
           <Image
             src={`/assets/logos/logo.${lastNetworkName}.circle.svg`}
@@ -122,7 +127,7 @@ export default function ConfigContract({ isConnected }: ConfigContractProps) {
       </VStack>
 
       {isMinMaxLoading ? (
-        <VStack w={'50%'} alignItems={'flex-end'}>
+        <VStack w={'49%'} alignItems={'flex-end'}>
           <VStack w={'full'} alignItems={'flex-start'}>
             <Skeleton h={'22.4px'} w={'100%'} />
             <Skeleton h={12} w={'100%'} />
@@ -134,7 +139,7 @@ export default function ConfigContract({ isConnected }: ConfigContractProps) {
           <Skeleton h={10} w={'191px'} />
         </VStack>
       ) : (
-        <VStack w={'50%'} alignItems={'flex-end'}>
+        <VStack w={'49%'} alignItems={'flex-end'}>
           <VStack w={'full'} alignItems={'flex-start'}>
             <Text variant={'lg_medium'}>Minimum Tokens to bridge</Text>
             <Input

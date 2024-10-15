@@ -31,6 +31,8 @@ export type ValueType = {
 export type DisplayedConfigType = {
   dailyQuota: string;
   tip: string;
+  feeUnlockMina: string;
+  feeUnlockEth: string;
 };
 
 export type ConfigState = {
@@ -67,6 +69,8 @@ export const initPagingDataState: ConfigState = {
   displayedConfig: {
     dailyQuota: '',
     tip: '',
+    feeUnlockMina: '',
+    feeUnlockEth: '',
   },
   asset: null,
   assetRange: ['0', '0'],
