@@ -61,10 +61,10 @@ function BodyTable({ data }: PropsBodyTable) {
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'} width={100}>
               <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
-                {formatDate(Number(item.blockTimeLock))}
+                {formatDate(Number(item.blockTimeLock) * 1000)}
               </Text>
               <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
-                {formatTime(Number(item.blockTimeLock))}
+                {formatTime(Number(item.blockTimeLock) * 1000)}
               </Text>
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
