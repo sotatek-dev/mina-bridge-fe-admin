@@ -18,7 +18,7 @@ const ConfigContract = dynamic(
 export default function ConfigurationContent() {
   const { isConnected } = useAppSelector(getWalletSlice);
   return (
-    <VStack w={'full'} alignItems={'flex-start'}>
+    <VStack w={'full'} alignItems={'flex-start'} mb={10}>
       <Heading
         as={'h1'}
         variant={'h1'}
