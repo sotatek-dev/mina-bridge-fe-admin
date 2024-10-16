@@ -186,7 +186,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
     >
       <VStack w={'49%'} alignItems={'flex-start'}>
         <VStack w={'full'} alignItems={'flex-start'}>
-          <Text variant={'lg_medium'}>ETH Unlock Fee</Text>
+          <Text variant={'lg_medium'}>Unlocking Fee</Text>
           <Input
             placeholder={displayedConfig.feeUnlockEth}
             size={'md_medium'}
@@ -201,7 +201,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
         </VStack>
         <VStack w={'full'} alignItems={'flex-start'}>
           <Text variant={'lg_medium'} mt={'20px'}>
-            MINA Unlock Fee
+            Minting Fee
           </Text>
           <Input
             placeholder={displayedConfig.feeUnlockMina}
