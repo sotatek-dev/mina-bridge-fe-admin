@@ -118,16 +118,14 @@ export default function useConfigLogic() {
         });
         return false;
       }
-      if (res.affected) {
-        sendNotification({
-          toastType: 'success',
-          options: {
-            title: 'Update successfully',
-          },
-        });
-        return true;
-      }
+      sendNotification({
+        toastType: 'success',
+        options: {
+          title: 'Update successfully',
+        },
+      });
       setIsLoading(false);
+      return true;
     },
     [sendNotification, setIsLoading, displayedConfig]
   );
