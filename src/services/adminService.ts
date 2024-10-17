@@ -55,6 +55,8 @@ export type ParamCommonConfig = {
   id: number;
   tip: number;
   dailyQuota: number;
+  feeUnlockMina: string;
+  feeUnlockEth: string;
 };
 
 export type CommonConfigResponse = {
@@ -62,6 +64,8 @@ export type CommonConfigResponse = {
   dailyQuota: string;
   tip: string;
   asset: string;
+  feeUnlockMina: string;
+  feeUnlockEth: string;
 };
 
 class AdminService {
@@ -87,10 +91,10 @@ class AdminService {
     );
   }
 
-  updateCommonConfig({ id, dailyQuota, tip }: ParamCommonConfig) {
+  updateCommonConfig({ id, ...config }: ParamCommonConfig) {
     return this.service.putAuth<any>(
       `${this.baseURL}/${ADMIN_ENDPOINT.UPDATE_COMMON_CONFIG}/${id}`,
-      { tip, dailyQuota }
+      config
     );
   }
 }

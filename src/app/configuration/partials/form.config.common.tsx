@@ -1,21 +1,11 @@
 'use client';
-import {
-  Button,
-  Flex,
-  Heading,
-  Image,
-  Input,
-  Skeleton,
-  Text,
-  VStack,
-} from '@chakra-ui/react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Button, Flex, Input, Skeleton, Text, VStack } from '@chakra-ui/react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { useConfigState } from '../context';
 import useConfigLogic from '../hooks/useConfigLogic';
 
 import { getDecimalPosition } from '@/helpers/common';
-import useNotifier from '@/hooks/useNotifier';
 import { CommonConfigResponse } from '@/services/adminService';
 
 type ConfigCommonProps = {
@@ -27,15 +17,14 @@ const initCommonConfig: CommonConfigResponse = {
   dailyQuota: '0',
   tip: '0',
   asset: 'ETH',
+  feeUnlockMina: '0',
+  feeUnlockEth: '0',
 };
 
 export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
-  const { isLoading, isMinMaxLoading, displayedConfig, assetRange } =
+  const { isLoading, isMinMaxLoading, displayedConfig } =
     useConfigState().state;
   const { setDisplayedConfig } = useConfigState().methods;
-
-  const { sendNotification, checkNotifyActive } = useNotifier();
-  const notifyRef = useRef<any>(null);
 
   const { updateCommonConfig, getCommonConfig } = useConfigLogic();
 
@@ -43,11 +32,13 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
     useState<CommonConfigResponse>(initCommonConfig);
   const [dailyQuota, setDailyQuota] = useState<string>('');
   const [tip, setTip] = useState<string>('');
+  const [feeUnlockMina, setFeeUnlockMina] = useState<string>('');
+  const [feeUnlockEth, setFeeUnlockEth] = useState<string>('');
 
   const disable = useMemo(() => {
-    if (!tip && !dailyQuota) return true;
+    if (!tip && !dailyQuota && !feeUnlockEth && !feeUnlockMina) return true;
     return false;
-  }, [tip, dailyQuota]);
+  }, [tip, dailyQuota, feeUnlockEth, feeUnlockMina]);
 
   const handleChangeDailyQuota = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isLoading || !isConnected) {
@@ -79,6 +70,38 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
     setTip(e.currentTarget.value);
   };
 
+  const handleChangeFeeUnlockMina = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (isLoading || !isConnected) {
+      e.preventDefault();
+    }
+    const posPoint = getDecimalPosition(e.currentTarget.value);
+    if (
+      (posPoint <= e.currentTarget.value.length - 10 && posPoint !== -1) ||
+      Number(e.currentTarget.value) > 100
+    ) {
+      e.preventDefault();
+      return;
+    }
+    setFeeUnlockMina(e.currentTarget.value);
+  };
+
+  const handleChangeFeeUnlockEth = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isLoading || !isConnected) {
+      e.preventDefault();
+    }
+    const posPoint = getDecimalPosition(e.currentTarget.value);
+    if (
+      (posPoint <= e.currentTarget.value.length - 19 && posPoint !== -1) ||
+      Number(e.currentTarget.value) > 100
+    ) {
+      e.preventDefault();
+      return;
+    }
+    setFeeUnlockEth(e.currentTarget.value);
+  };
+
   const handleUpdateConfig = async () => {
     if (disable) return;
 
@@ -86,14 +109,24 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
       id: currentConfig.id,
       tip,
       dailyQuota,
+      feeUnlockEth,
+      feeUnlockMina,
     });
     if (res) {
       setDisplayedConfig({
-        tip: tip ? tip : displayedConfig.tip,
-        dailyQuota: dailyQuota ? dailyQuota : displayedConfig.dailyQuota,
+        tip: !!tip ? tip : displayedConfig.tip,
+        dailyQuota: !!dailyQuota ? dailyQuota : displayedConfig.dailyQuota,
+        feeUnlockEth: !!feeUnlockEth
+          ? feeUnlockEth
+          : displayedConfig.feeUnlockEth,
+        feeUnlockMina: !!feeUnlockMina
+          ? feeUnlockMina
+          : displayedConfig.feeUnlockMina,
       });
       setTip('');
       setDailyQuota('');
+      setFeeUnlockEth('');
+      setFeeUnlockMina('');
     }
   };
 
@@ -112,18 +145,87 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
     getCurrentConfig();
   }, []);
 
+  if (isMinMaxLoading)
+    return (
+      <Flex
+        bg={'text.25'}
+        w={'full'}
+        padding={'22px 35px'}
+        justifyContent={'space-between'}
+      >
+        <VStack w={'49%'} alignItems={'flex-end'}>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Skeleton h={'22.4px'} w={'100%'} />
+            <Skeleton h={12} w={'100%'} />
+          </VStack>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Skeleton h={'22.4px'} w={'100%'} />
+            <Skeleton h={12} w={'100%'} />
+          </VStack>
+        </VStack>
+        <VStack w={'49%'} alignItems={'flex-end'}>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Skeleton h={'22.4px'} w={'100%'} />
+            <Skeleton h={12} w={'100%'} />
+          </VStack>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Skeleton h={'22.4px'} w={'100%'} />
+            <Skeleton h={12} w={'100%'} />
+          </VStack>
+          <Skeleton h={10} w={'191px'} />
+        </VStack>
+      </Flex>
+    );
+
   return (
-    <Flex bg={'text.25'} w={'full'} padding={'22px 35px'}>
-      <VStack w={'50%'} alignItems={'flex-start'}>
-        {/* <Flex alignItems={'center'} mb={'15px'}>
-          <Image src={'/assets/logos/logo.ethereum.circle.svg'} mr={'10px'} />
-          <Heading as={'h4'} variant={'h4'}>
-            ETH
-          </Heading>
-        </Flex> */}
+    <Flex
+      bg={'text.25'}
+      w={'full'}
+      padding={'22px 35px'}
+      justifyContent={'space-between'}
+    >
+      <VStack w={'49%'} alignItems={'flex-start'}>
+        <VStack w={'full'} alignItems={'flex-start'}>
+          <Text variant={'lg_medium'}>Unlocking Fee</Text>
+          <Input
+            placeholder={displayedConfig.feeUnlockEth}
+            size={'md_medium'}
+            type={'number'}
+            isDisabled={!isConnected}
+            value={feeUnlockEth}
+            onChange={handleChangeFeeUnlockEth}
+            maxLength={79}
+            min={0}
+            onKeyDown={handleKeyDown}
+          />
+        </VStack>
+        <VStack w={'full'} alignItems={'flex-start'}>
+          <Text variant={'lg_medium'} mt={'20px'}>
+            Minting Fee
+          </Text>
+          <Input
+            placeholder={displayedConfig.feeUnlockMina}
+            size={'md_medium'}
+            type={'number'}
+            isDisabled={!isConnected}
+            value={feeUnlockMina}
+            onChange={handleChangeFeeUnlockMina}
+            maxLength={79}
+            min={0}
+            onKeyDown={handleKeyDown}
+          />
+        </VStack>
       </VStack>
       {isMinMaxLoading ? (
-        <VStack w={'50%'} alignItems={'flex-end'}>
+        <VStack w={'48%'} alignItems={'flex-end'}>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Skeleton h={'22.4px'} w={'100%'} />
+            <Skeleton h={12} w={'100%'} />
+          </VStack>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Skeleton h={'22.4px'} w={'100%'} />
+            <Skeleton h={12} w={'100%'} />
+          </VStack>
           <VStack w={'full'} alignItems={'flex-start'}>
             <Skeleton h={'22.4px'} w={'100%'} />
             <Skeleton h={12} w={'100%'} />
@@ -135,7 +237,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
           <Skeleton h={10} w={'191px'} />
         </VStack>
       ) : (
-        <VStack w={'50%'} alignItems={'flex-end'}>
+        <VStack w={'49%'} alignItems={'flex-end'}>
           <VStack w={'full'} alignItems={'flex-start'}>
             <Text variant={'lg_medium'}>Daily Quota</Text>
             <Input
