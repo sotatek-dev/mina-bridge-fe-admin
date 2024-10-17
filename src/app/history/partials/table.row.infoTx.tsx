@@ -1,14 +1,12 @@
 'use client';
 import { Link, Text } from '@chakra-ui/react';
 import _ from 'lodash';
-import React from 'react';
-import { NumericFormat } from 'react-number-format';
 
 import {
   formWei,
   getDecimal,
+  truncatedNumber,
   truncateMid,
-  zeroCutterEnd,
 } from '@/helpers/common';
 
 type InfoTransactionProps = {
@@ -27,25 +25,13 @@ function InfoTransaction({
   scanUrl,
 }: InfoTransactionProps) {
   const [fSlice, sSlice] = !txHash ? ['', ''] : truncateMid(txHash, 4, 4);
+  const value = amount ? formWei(amount, getDecimal(networkName)) : '0.00';
 
   return (
     <>
-      {amount ? (
-        <NumericFormat
-          value={formWei(amount, getDecimal(networkName))}
-          thousandSeparator={','}
-          decimalScale={4}
-          decimalSeparator={'.'}
-          displayType={'text'}
-          renderText={(value) => (
-            <Text variant={'lg'} color={'text.900'}>
-              {`${zeroCutterEnd(value)} ${_.isEmpty(tokenName) ? '' : tokenName}`}
-            </Text>
-          )}
-        />
-      ) : (
-        '0.00'
-      )}
+      <Text variant={'lg'} color={'text.900'}>
+        {`${truncatedNumber(value, 0.0001)} ${_.isEmpty(tokenName) ? '' : tokenName}`}
+      </Text>
 
       {txHash && scanUrl && (
         <Link href={`${scanUrl}/tx/${txHash}`} target={'_blank'}>
