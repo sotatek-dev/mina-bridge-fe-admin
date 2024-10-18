@@ -49,11 +49,6 @@ export default function Card({ nwKey }: CardProps) {
     }
 
     handleCloseCurModal();
-    // TODO: Remove event
-    // walletInstance!!.removeListener(WALLET_EVENT_NAME.ACCOUNTS_CHANGED);
-    // walletInstance!!.removeListener(WALLET_EVENT_NAME.CHAIN_CHANGED);
-    // walletInstance!!.removeListener(WALLET_EVENT_NAME.DISCONNECT);
-    // walletInstance!!.removeListener(WALLET_EVENT_NAME.MESSAGE);
 
     // retry get wallet account
     const res = await dispatch(
@@ -70,7 +65,6 @@ export default function Card({ nwKey }: CardProps) {
     );
     //  when fail to connect
     if (walletSliceActions.connectWallet.rejected.match(res)) {
-      await dispatch(walletSliceActions.disconnect());
       sendNotification({
         toastType: 'error',
         options: {

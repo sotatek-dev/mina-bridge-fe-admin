@@ -254,13 +254,7 @@ const changeNetwork = createAppThunk()(
 
 const disconnect = createAppThunk()(
   'wallet/disconnect',
-  async (_, { dispatch, getState }) => {
-    // Remove all older event
-    const { walletInstance } = getState().walletInstance;
-    walletInstance!!.removeListener(WALLET_EVENT_NAME.ACCOUNTS_CHANGED);
-    walletInstance!!.removeListener(WALLET_EVENT_NAME.CHAIN_CHANGED);
-    walletInstance!!.removeListener(WALLET_EVENT_NAME.DISCONNECT);
-    walletInstance!!.removeListener(WALLET_EVENT_NAME.MESSAGE);
+  async (_, { dispatch }) => {
     dispatch(walletSlicePrvActions.disconnectWallet());
     dispatch(walletInstanceSliceActions.removeInstances());
     StorageUtils.setToken('');
