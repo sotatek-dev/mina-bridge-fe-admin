@@ -1,5 +1,5 @@
 import { Link } from '@chakra-ui/next-js';
-import { Box, Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
+import { Button, Flex, HStack, Image, Text } from '@chakra-ui/react';
 import { usePathname } from 'next/navigation';
 import { PropsWithChildren, useRef } from 'react';
 
@@ -17,7 +17,6 @@ export default function Header({}: Props) {
   const { isConnected } = useAppSelector(getWalletSlice);
   const disconnectBtnRef = useRef<any>(null);
   const {
-    isMenuOpened,
     disconnectWallet,
     btnConnectWalletProps,
     btnSelectNetworkProps,
@@ -72,35 +71,13 @@ export default function Header({}: Props) {
         )}
         <Button {...btnSelectNetworkProps} />
 
-        <Box position={'relative'}>
-          <Button {...btnConnectWalletProps} />
-          {isMenuOpened ? (
-            <Button
-              ref={disconnectBtnRef}
-              variant={'disconnect.solid'}
-              position={'absolute'}
-              h={'42px'}
-              bottom={'-120%'}
-              right={0}
-              onClick={disconnectWallet}
-              zIndex={100}
-              leftIcon={
-                <Image
-                  src={'/assets/icons/icon.link-broken.svg'}
-                  w={'24px'}
-                  h={'24px'}
-                />
-              }
-              gap={'0'}
-              alignItems={'center'}
-            >
-              <Text as={'span'} variant={'md_medium'} lineHeight={1} pt={'3px'}>
-                Disconnect
-              </Text>
-            </Button>
-          ) : null}
-        </Box>
+        <Button {...btnConnectWalletProps} />
 
+        {isConnected && (
+          <Button w={10} p={'10px'} onClick={disconnectWallet}>
+            <Image width={'22px'} src={'/assets/icons/icon.log-out.svg'} />
+          </Button>
+        )}
         <HStack gap={1} ml={3}>
           <Image width={'22px'} src={'/assets/icons/icon.env.network.svg'} />
           <Text color={'text.500'}>
