@@ -1,8 +1,8 @@
 // font configs
 const fonts = {
-  primary: 'Figtree, sans-serif',
-  body: 'Figtree, sans-serif',
-  heading: 'Figtree, sans-serif',
+  primary: 'IBM Plex Sans, sans-serif',
+  body: 'IBM Plex Sans, sans-serif',
+  heading: 'IBM Plex Sans, sans-serif',
 };
 
 export default fonts;
