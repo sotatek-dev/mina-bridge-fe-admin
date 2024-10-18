@@ -7,20 +7,21 @@ import {
   Image,
   Text,
 } from '@chakra-ui/react';
-import { useRef } from 'react';
 
 import { useModalSNState } from '../context';
 
 import useNotifier from '@/hooks/useNotifier';
 import NETWORKS, { NETWORK_NAME } from '@/models/network';
-import { WALLET_NAME } from '@/models/wallet';
+import WALLETS, { WALLET_NAME } from '@/models/wallet';
+import { WALLET_EVENT_NAME } from '@/models/wallet/wallet.abstract';
 import {
   getWalletInstanceSlice,
   getWalletSlice,
   useAppDispatch,
   useAppSelector,
 } from '@/store';
-import { NETWORK_KEY, walletSliceActions } from '@/store/slices/walletSlice';
+import { persistSliceActions } from '@/store/slices/persistSlice';
+import { walletSliceActions } from '@/store/slices/walletSlice';
 
 type CardProps = { nwKey: NETWORK_NAME };
 
@@ -30,15 +31,10 @@ export default function Card({ nwKey }: CardProps) {
   const { walletInstance } = useAppSelector(getWalletInstanceSlice);
 
   const { curNetworkKey } = useModalSNState().constants;
-  const {
-    hasSupportedNetwork,
-    handleCloseCurModal,
-    handleCloseLoadingModal,
-    handleOpenLoadingModal,
-  } = useModalSNState().methods;
+  const { hasSupportedNetwork, handleCloseCurModal } =
+    useModalSNState().methods;
 
-  const { sendNotification, checkNotifyActive } = useNotifier();
-  const curNotifyRef = useRef<any>(null);
+  const { sendNotification } = useNotifier();
 
   const network = NETWORKS[nwKey];
   const isSelected = networkName[curNetworkKey] === nwKey;
@@ -46,54 +42,35 @@ export default function Card({ nwKey }: CardProps) {
   async function handleSelectNetwork() {
     if (isSelected) return handleCloseCurModal();
 
-    if (!hasSupportedNetwork(nwKey)) {
-      switch (curNetworkKey) {
-        case NETWORK_KEY.SRC:
-          // prevent duplicate toast
-          if (
-            curNotifyRef.current !== null &&
-            checkNotifyActive(curNotifyRef.current)
-          )
-            return;
-
-          curNotifyRef.current = sendNotification({
-            toastType: 'warning',
-            options: {
-              title:
-                'Your wallet doesn\'t support this network. Please change the wallet connected',
-            },
-          });
-          return;
-        default:
-          return;
-      }
+    if (!isConnected) {
+      handleCloseCurModal();
+      dispatch(persistSliceActions.setLastNetworkName(network.name));
+      return;
     }
 
     handleCloseCurModal();
-    if (walletInstance && walletInstance.name === WALLET_NAME.METAMASK) {
-      handleOpenLoadingModal();
 
-      // retry get wallet account
-      const res = await dispatch(
-        walletSliceActions.connectWallet({
-          wallet: walletInstance,
-          network: network,
-          isSign: true,
-        })
-      );
-      if (walletSliceActions.connectWallet.rejected.match(res)) {
-        sendNotification({
-          toastType: 'error',
-          options: {
-            title: res.error.message || null,
-          },
-        });
-        handleCloseLoadingModal();
-        return;
-      }
-      handleCloseLoadingModal();
-      //  add logic for connection fail please, ex: user rejected
-      return;
+    // retry get wallet account
+    const res = await dispatch(
+      walletSliceActions.connectWallet({
+        wallet:
+          WALLETS[
+            network.name === NETWORK_NAME.ETHEREUM
+              ? WALLET_NAME.METAMASK
+              : WALLET_NAME.AURO
+          ]!,
+        network,
+        isSign: true,
+      })
+    );
+    //  when fail to connect
+    if (walletSliceActions.connectWallet.rejected.match(res)) {
+      sendNotification({
+        toastType: 'error',
+        options: {
+          title: res.error.message || null,
+        },
+      });
     }
   }
 
@@ -104,12 +81,9 @@ export default function Card({ nwKey }: CardProps) {
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: '10px',
-    cursor: hasSupportedNetwork(nwKey) ? 'pointer' : 'not-allowed',
-    bg: !hasSupportedNetwork(nwKey)
-      ? 'text.100'
-      : !isSelected
-        ? 'text.500'
-        : 'linear-gradient(270deg, #DE622E 0%, #8271F0 100%)',
+    bg: !isSelected
+      ? 'text.500'
+      : 'linear-gradient(270deg, #DE622E 0%, #8271F0 100%)',
     mb: '22px',
     onClick: handleSelectNetwork,
     _active: {
