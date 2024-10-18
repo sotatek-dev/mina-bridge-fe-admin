@@ -10,6 +10,7 @@ import { handleRequest } from '@/helpers/asyncHandlers';
 import StorageUtils from '@/helpers/handleBrowserStorage';
 import NETWORKS, { Network, NETWORK_NAME } from '@/models/network';
 import WALLETS, { Wallet, WALLET_NAME } from '@/models/wallet';
+import { WALLET_EVENT_NAME } from '@/models/wallet/wallet.abstract';
 import authService, { ResponseAuthToken } from '@/services/authService';
 
 export enum NETWORK_KEY {
@@ -236,7 +237,7 @@ const changeNetwork = createAppThunk()(
         const isCurSrcMatchTar = curSrcNetwork === network.name;
         // throw error if src network is equal tar network
         if (isCurSrcMatchTar)
-          throw new Error('Source network couldn\'t be Target network');
+          throw new Error("Source network couldn't be Target network");
         // change tar network
         const payload = { key, value: network.name };
 
@@ -253,7 +254,13 @@ const changeNetwork = createAppThunk()(
 
 const disconnect = createAppThunk()(
   'wallet/disconnect',
-  async (_, { dispatch }) => {
+  async (_, { dispatch, getState }) => {
+    // Remove all older event
+    const { walletInstance } = getState().walletInstance;
+    walletInstance!!.removeListener(WALLET_EVENT_NAME.ACCOUNTS_CHANGED);
+    walletInstance!!.removeListener(WALLET_EVENT_NAME.CHAIN_CHANGED);
+    walletInstance!!.removeListener(WALLET_EVENT_NAME.DISCONNECT);
+    walletInstance!!.removeListener(WALLET_EVENT_NAME.MESSAGE);
     dispatch(walletSlicePrvActions.disconnectWallet());
     dispatch(walletInstanceSliceActions.removeInstances());
     StorageUtils.setToken('');
@@ -268,7 +275,7 @@ const reconnectWallet = createAppThunk()(
     const { walletKey, networkName } = getState().wallet;
     if (!walletKey)
       throw new Error(
-        'You haven\'t connected to any wallet or network just yet'
+        "You haven't connected to any wallet or network just yet"
       );
     dispatch(
       walletInstanceSliceActions.initializeInstance({
