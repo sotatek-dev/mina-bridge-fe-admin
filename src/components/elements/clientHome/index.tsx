@@ -1,26 +1,14 @@
 'use client';
 import { Button, Heading, Image, VStack } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 
 import useHeaderLogic from '@/components/layouts/header/useHeaderLogic';
-import ROUTES from '@/configs/routes';
 import { getWalletSlice, useAppSelector } from '@/store';
 
 function ClientHome() {
-  const router = useRouter();
-  const { isConnected } = useAppSelector(getWalletSlice);
   const { btnConnectWalletProps } = useHeaderLogic();
+  const { isConnected } = useAppSelector(getWalletSlice);
 
-  useEffect(() => {
-    if (isConnected) {
-      router.push(ROUTES.HISTORY);
-    }
-  }, [isConnected, router]);
-
-  if (isConnected) {
-    return null;
-  }
+  if (isConnected) return <></>;
 
   return (
     <VStack
@@ -34,11 +22,9 @@ function ClientHome() {
       <Heading m={'35px 0'} as={'h3'} variant={'h3'} color={'text.900'}>
         Mina Bridge Admin Portal
       </Heading>
-      {!isConnected && (
-        <Button {...btnConnectWalletProps} w={'290px'}>
-          Connect Wallet
-        </Button>
-      )}
+      <Button {...btnConnectWalletProps} w={'290px'}>
+        Connect Wallet
+      </Button>
     </VStack>
   );
 }
