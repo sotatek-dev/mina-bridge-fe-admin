@@ -98,7 +98,7 @@ export default function Card({ nwKey }: CardProps) {
     h: `calc(100% - ${borderWidth * 2}px)`,
     padding: '16px 19px',
     borderRadius: 10 - borderWidth + 'px',
-    bg: hasSupportedNetwork(nwKey) ? 'white' : 'text.100',
+    bg: 'text.25',
     justifyContent: 'space-between',
     alignItems: 'center',
     _hover: {
