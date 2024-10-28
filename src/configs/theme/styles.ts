@@ -11,7 +11,7 @@ const styles: Record<string, Record<string, StyleProps>> = {
       h: '5px',
     },
     '::-webkit-scrollbar-thumb': {
-      bgColor: 'primary.purple.05',
+      bgColor: 'text.300',
       borderRadius: '5px',
     },
   },
