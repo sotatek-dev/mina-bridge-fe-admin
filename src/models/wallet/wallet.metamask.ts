@@ -25,6 +25,7 @@ import { IsServer } from '@/constants';
 import { handleException, handleRequest } from '@/helpers/asyncHandlers';
 import { formWei } from '@/helpers/common';
 import { getWeb3Instance } from '@/helpers/evmHandlers';
+import { store } from '@/store';
 import { TokenType } from '@/store/slices/persistSlice';
 
 export type WalletMetamaskEvents =
@@ -51,11 +52,11 @@ export default class WalletMetamask extends Wallet {
     WALLET_CONNECT_FAILED: 'Fail to connect wallet',
     WALLET_CONNECT_REJECTED: 'Signature rejected.',
     WALLET_USER_REJECTED: 'User rejected',
-    WALLET_GET_BALANCE_FAIL: 'Can\'t get the current balance',
+    WALLET_GET_BALANCE_FAIL: "Can't get the current balance",
     MINA_UNKNOWN_SEND_ERROR: 'Unknown mina transaction error',
   };
   errorMessageList = {
-    UNKNOWN_MINA_SEND_TX: 'Couldn\'t send zkApp command',
+    UNKNOWN_MINA_SEND_TX: "Couldn't send zkApp command",
   };
 
   constructor() {
@@ -89,14 +90,14 @@ export default class WalletMetamask extends Wallet {
     if (IsServer) {
       throw new Error('Server rendering error');
     }
-    // const metadata = store.getState().walletObj.metamask;
-    // if (!metadata.isInjected)
-    //   throw new Error(this.errorList.WALLET_NOT_INSTALLED);
-    // return metadata.ethereum!!;
-    if (!window || !window?.ethereum) {
+    const metadata = store.getState().walletObj.metamask;
+    if (!metadata.isInjected)
       throw new Error(this.errorList.WALLET_NOT_INSTALLED);
-    }
-    return window.ethereum;
+    return metadata.ethereum!!;
+    // if (!window || !window?.ethereum) {
+    //   throw new Error(this.errorList.WALLET_NOT_INSTALLED);
+    // }
+    // return window.ethereum;
   }
 
   getProvider() {
