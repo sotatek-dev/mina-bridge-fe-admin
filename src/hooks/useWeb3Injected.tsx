@@ -1,3 +1,4 @@
+import { EIP6963ProviderInfo } from '@metamask/providers';
 import { useEffect, useRef } from 'react';
 
 import ITV from '@/configs/time';
@@ -7,6 +8,10 @@ import { walletObjSliceActions } from '@/store/slices/walletObjSlice';
 const maxIntervalPeriod = 5000;
 const ANNOUNCE_PROVIDER_EVENT = 'eip6963:announceProvider';
 const REQUEST_PROVIDER_EVENT = 'eip6963:requestProvider';
+const RDNS = {
+  METAMASK: ['io.metamask', 'io.metamask.mobile'],
+  // ...define rdns of other wallet
+};
 
 export default function useWeb3Injected() {
   const dispatch = useAppDispatch();
@@ -14,26 +19,11 @@ export default function useWeb3Injected() {
   const interval = useRef<any>(null);
   const intervalPeriod = useRef<number>(0);
 
-  // Multi inject provider (Metamask / Trust wallet / ...)
+  //   Check multi wallet injected provider (Metamask / Trust wallet / ...)
   useEffect(() => {
     const handleProvider = (event: any) => {
-      const provider = event.detail.provider;
-
-      if (
-        provider.isPhantom ||
-        provider.isRabby ||
-        provider.isTrust ||
-        provider.isCoinbaseWallet ||
-        provider.isStarKeyWallet ||
-        provider.isRainbow ||
-        provider.isBraveWallet ||
-        provider.isOpera
-      ) {
-        return;
-      }
-
-      if (provider.isMetaMask) {
-        console.log('🚀 ~ Exist metamask inject provider! ~:', provider);
+      const { provider, info } = event?.detail;
+      if (RDNS.METAMASK.includes((info as EIP6963ProviderInfo).rdns)) {
         dispatch(walletObjSliceActions.injectMetamask({ ethereum: provider }));
         return;
       }
