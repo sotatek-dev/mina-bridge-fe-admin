@@ -6,4 +6,5 @@ export enum MODAL_NAME {
   SELECT_TOKEN = 'select_token',
   CONFIRM_BRIDGE = 'confirm_bridge',
   LOADING = 'loading',
+  LOADING_DEPLOY = 'loading_deploy',
 }
