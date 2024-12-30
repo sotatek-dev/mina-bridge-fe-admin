@@ -144,10 +144,6 @@ const initialState: UIState = {
       isOpen: false,
       modalName: MODAL_NAME.LOADING,
     },
-    [MODAL_NAME.LOADING_DEPLOY]: {
-      isOpen: false,
-      modalName: MODAL_NAME.LOADING_DEPLOY,
-    },
   },
   toast: initialToastState,
   banners: {

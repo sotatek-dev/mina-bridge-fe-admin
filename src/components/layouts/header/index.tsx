@@ -55,16 +55,6 @@ export default function Header({}: Props) {
                 History
               </Text>
             </Link>
-            <Link href={ROUTES.ASSETS} mr={'32px'}>
-              <Text
-                variant={'lg_semiBold'}
-                color={
-                  pathname === ROUTES.ASSETS ? 'primary.purple' : 'text.700'
-                }
-              >
-                Asset
-              </Text>
-            </Link>
             <Link href={ROUTES.CONFIGURATION} mr={'32px'}>
               <Text
                 variant={'lg_semiBold'}

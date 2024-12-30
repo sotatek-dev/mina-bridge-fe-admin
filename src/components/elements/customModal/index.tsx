@@ -2,15 +2,15 @@
 import {
   Heading,
   HeadingProps,
-  ModalBody,
   Modal as ModalChakra,
+  ModalBody,
   ModalCloseButton,
   ModalContent,
   ModalFooter,
   ModalFooterProps,
   ModalHeader,
   ModalOverlay,
-  ModalProps,
+  ModalProps
 } from '@chakra-ui/react';
 import { useEffect, useMemo } from 'react';
 

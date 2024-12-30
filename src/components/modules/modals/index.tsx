@@ -1,7 +1,6 @@
 import ModalConnectWallet from './components/modalConnectWallet';
 import ModalConnectWalletError from './components/modalConnectWalletError';
 import ModalLoading from './components/modalLoading';
-import ModalLoadingDeploy from './components/modalLoadingDeploy';
 import ModalSelectNetwork from './components/modalSelectNetwork';
 import ModalSuccessAction from './components/modalSuccessAction';
 
@@ -15,7 +14,6 @@ export default function Modals({}: Props) {
       <ModalSelectNetwork />
       <ModalSuccessAction />
       <ModalLoading />
-      <ModalLoadingDeploy />
     </>
   );
 }
