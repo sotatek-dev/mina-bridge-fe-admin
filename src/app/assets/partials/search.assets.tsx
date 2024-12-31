@@ -7,13 +7,16 @@ import {
   InputGroup,
   InputRightElement,
 } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
 
 import useAssetsLogic from '../hooks/useAssetsLogic';
+import { Action } from '../page';
 
 import useModalLoadingDeployLogic from '@/components/modules/modals/components/modalLoadingDeploy/hooks/useModalLoadingDeployLogic';
 
 function SearchBar() {
   const { handleSearch } = useAssetsLogic();
+  const router = useRouter();
   const { modalLoadingDeployProps } = useModalLoadingDeployLogic();
 
   return (
@@ -37,6 +40,7 @@ function SearchBar() {
         w={'190px'}
         h={'48px'}
         variant={'primary.orange.solid'}
+        onClick={() => router.push(`?action=${Action.CREATE}`)}
       >
         Create new asset
       </Button>

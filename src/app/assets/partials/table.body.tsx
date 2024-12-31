@@ -1,7 +1,10 @@
 'use client';
 import { Switch, Tbody, Td, Text, Tr } from '@chakra-ui/react';
 import _ from 'lodash';
+import { useRouter } from 'next/navigation';
 import React from 'react';
+
+import { Action } from '../page';
 
 import InfoTransaction from './table.row.infoTx';
 import RowStatus, { STATUS } from './table.row.status';
@@ -19,11 +22,16 @@ type PropsBodyTable = {
 };
 
 function BodyTable({ data }: PropsBodyTable) {
+  const router = useRouter();
   return (
     <Tbody>
       {data.map((item) => {
         return (
-          <Tr key={item.id}>
+          <Tr
+            key={item.id}
+            cursor={'pointer'}
+            onClick={() => router.push(`?action=${Action.DETAIL}`)}
+          >
             <Td borderBottom={'solid 1px #E4E4E7'}>
               <RowStatus status={item.status} networkName={item.networkFrom} />
             </Td>

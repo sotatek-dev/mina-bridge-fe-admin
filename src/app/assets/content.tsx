@@ -1,15 +1,29 @@
 'use client';
 import { Box, Flex, Heading, Table, Text, VStack } from '@chakra-ui/react';
+import { useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
 
 import { useAssetsState } from './context';
+import { Action } from './page';
 import EmptyHistoryData from './partials/empty.assetsData';
 import SearchBar from './partials/search.assets';
 import BodyTable from './partials/table.body';
 import HeaderTable from './partials/table.header';
 import Pagination from './partials/table.pagination';
 
+import AssetDeploy from '@/components/modules/assets/deploy';
+import AssetDetail from '@/components/modules/assets/detail';
+
 function AssetsContent() {
   const { state } = useAssetsState();
+  const params = useSearchParams();
+
+  const action = useMemo(() => {
+    return params.get('action');
+  }, [params]);
+
+  if (action === Action.CREATE) return <AssetDeploy />;
+  if (action === Action.DETAIL) return <AssetDetail />;
 
   return (
     <VStack
