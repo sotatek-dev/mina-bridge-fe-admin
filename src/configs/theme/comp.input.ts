@@ -11,7 +11,7 @@ const { definePartsStyle, defineMultiStyleConfig } =
 
 const baseStyle = definePartsStyle({
   field: {
-    h: '48px',
+    h: '44px',
     p: '12px',
     border: '1px solid',
     borderColor: 'text.200',
