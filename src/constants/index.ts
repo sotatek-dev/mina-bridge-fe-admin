@@ -7,3 +7,8 @@ export function getEnvNetwork(env: string) {
   const index = envs.indexOf(env);
   return index !== -1 ? networks[index] : 'Unknown';
 }
+
+export enum Action {
+  CREATE = 'create',
+  DETAIL = 'detail',
+}

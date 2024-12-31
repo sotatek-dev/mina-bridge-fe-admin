@@ -4,7 +4,6 @@ import { useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 
 import { useAssetsState } from './context';
-import { Action } from './page';
 import EmptyHistoryData from './partials/empty.assetsData';
 import SearchBar from './partials/search.assets';
 import BodyTable from './partials/table.body';
@@ -13,6 +12,7 @@ import Pagination from './partials/table.pagination';
 
 import AssetDeploy from '@/components/modules/assets/deploy';
 import AssetDetail from '@/components/modules/assets/detail';
+import { Action } from '@/constants';
 
 function AssetsContent() {
   const { state } = useAssetsState();

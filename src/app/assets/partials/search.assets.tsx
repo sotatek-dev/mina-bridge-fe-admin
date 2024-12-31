@@ -10,9 +10,9 @@ import {
 import { useRouter } from 'next/navigation';
 
 import useAssetsLogic from '../hooks/useAssetsLogic';
-import { Action } from '../page';
 
 import useModalLoadingDeployLogic from '@/components/modules/modals/components/modalLoadingDeploy/hooks/useModalLoadingDeployLogic';
+import { Action } from '@/constants';
 
 function SearchBar() {
   const { handleSearch } = useAssetsLogic();
