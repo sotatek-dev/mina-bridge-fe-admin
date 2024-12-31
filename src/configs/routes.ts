@@ -4,6 +4,7 @@ enum ROUTES {
   HISTORY = '/history',
   ASSETS = '/assets',
   CONFIGURATION = '/configuration',
+  ASSETS = '/assets',
 }
 
 export const PROTECTED_ROUTES = [ROUTES.HISTORY];
