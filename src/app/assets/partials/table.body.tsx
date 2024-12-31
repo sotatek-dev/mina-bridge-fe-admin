@@ -4,11 +4,10 @@ import _ from 'lodash';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
-import { Action } from '../page';
-
 import InfoTransaction from './table.row.infoTx';
 import RowStatus, { STATUS } from './table.row.status';
 
+import { Action } from '@/constants';
 import {
   formatDate,
   formatTime,
