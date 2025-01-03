@@ -90,6 +90,8 @@ export default function Card(props: CardProps) {
         : props.data.logo[props.status],
     w: '40px',
     h: '40px',
+    filter:
+      props.status === CARD_STATUS.UNSUPPORTED ? 'grayscale(100%)' : undefined,
   };
 
   const labelStyle: TextProps = {

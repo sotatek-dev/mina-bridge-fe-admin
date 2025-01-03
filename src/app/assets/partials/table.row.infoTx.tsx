@@ -34,7 +34,11 @@ function InfoTransaction({
       </Text>
 
       {txHash && scanUrl && (
-        <Link href={`${scanUrl}/tx/${txHash}`} target={'_blank'}>
+        <Link
+          href={`${scanUrl}/tx/${txHash}`}
+          target={'_blank'}
+          onClick={(e) => e.stopPropagation()}
+        >
           <Text variant={'md'} color={'primary.purple'} whiteSpace={'nowrap'}>
             {`${fSlice}...${sSlice} (${networkName.toUpperCase()})`}
           </Text>
