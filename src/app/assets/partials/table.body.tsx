@@ -1,5 +1,5 @@
 'use client';
-import { Switch, Tbody, Td, Text, Tr } from '@chakra-ui/react';
+import { Box, Switch, Tbody, Td, Text, Tr } from '@chakra-ui/react';
 import _ from 'lodash';
 import { useRouter } from 'next/navigation';
 import React from 'react';
@@ -29,10 +29,15 @@ function BodyTable({ data }: PropsBodyTable) {
           <Tr
             key={item.id}
             cursor={'pointer'}
-            onClick={() => router.push(`?action=${Action.DETAIL}`)}
+            onClick={(e) => router.push(`?action=${Action.DETAIL}`)}
           >
             <Td borderBottom={'solid 1px #E4E4E7'}>
-              <RowStatus status={item.status} networkName={item.networkFrom} />
+              <div onClick={(e) => e.stopPropagation()}>
+                <RowStatus
+                  status={item.status}
+                  networkName={item.networkFrom}
+                />
+              </div>
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
               <InfoTransaction
@@ -78,13 +83,15 @@ function BodyTable({ data }: PropsBodyTable) {
               )}
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
-              <Switch
-                sx={{
-                  '.chakra-switch__track[data-checked]': {
-                    backgroundColor: 'primary.purple',
-                  },
-                }}
-              />
+              <Box onClick={(e) => e.stopPropagation()} w={'fit-content'}>
+                <Switch
+                  sx={{
+                    '.chakra-switch__track[data-checked]': {
+                      backgroundColor: 'primary.purple',
+                    },
+                  }}
+                />
+              </Box>
             </Td>
           </Tr>
         );

@@ -1,9 +1,8 @@
 'use client';
-import { Box, Flex, Heading, Table, Text, VStack } from '@chakra-ui/react';
-import { useSearchParams } from 'next/navigation';
-import { useMemo } from 'react';
+import { Box, Flex, Heading, Table, VStack } from '@chakra-ui/react';
 
 import { useAssetsState } from './context';
+import useCheckRouter from './hooks/useCheckRouter';
 import EmptyHistoryData from './partials/empty.assetsData';
 import SearchBar from './partials/search.assets';
 import BodyTable from './partials/table.body';
@@ -16,15 +15,10 @@ import { Action } from '@/constants';
 
 function AssetsContent() {
   const { state } = useAssetsState();
-  const params = useSearchParams();
-
-  const action = useMemo(() => {
-    return params.get('action');
-  }, [params]);
+  const { action } = useCheckRouter();
 
   if (action === Action.CREATE) return <AssetDeploy />;
   if (action === Action.DETAIL) return <AssetDetail />;
-
   return (
     <VStack
       gap={'0'}
