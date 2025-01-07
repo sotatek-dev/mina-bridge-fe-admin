@@ -9,7 +9,7 @@ import RowStatus from './table.row.status';
 
 import { Action } from '@/constants';
 import { NETWORK_NAME } from '@/models/network';
-import { TokenResponse } from '@/services/adminService';
+import { STATUS, TokenResponse } from '@/services/adminService';
 
 type PropsBodyTable = {
   data: TokenResponse[];
@@ -17,15 +17,21 @@ type PropsBodyTable = {
 
 function BodyTable({ data }: PropsBodyTable) {
   const router = useRouter();
+
+  const handleRow = (data: TokenResponse) => {
+    if (data.status === STATUS.ENABLE || data.status === STATUS.DISABLE) {
+      router.push(`?action=${Action.DETAIL}&&address=${data.fromAddress}`);
+      return;
+    }
+    if (data.status === STATUS.DEPLOY_FAILED) {
+      router.push(`?action=${Action.RE_DEPLOY}&&address=${data.fromAddress}`);
+    }
+  };
   return (
     <Tbody>
       {data.map((item) => {
         return (
-          <Tr
-            key={item.id}
-            cursor={'pointer'}
-            onClick={(e) => router.push(`?action=${Action.DETAIL}`)}
-          >
+          <Tr key={item.id} cursor={'pointer'} onClick={() => handleRow(item)}>
             <Td borderBottom={'solid 1px #E4E4E7'}>
               <div onClick={(e) => e.stopPropagation()}>
                 <RowStatus status={item.status} />

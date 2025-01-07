@@ -8,7 +8,11 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { useEffect, useRef } from 'react';
+
+import { useDetailState } from '../context';
+import useScLogic from '../hooks/useScLogic';
+
+import { getDecimalPosition } from '@/helpers/common';
 
 type ConfigContractProps = {
   isConnected: boolean;
@@ -17,19 +21,59 @@ type ConfigContractProps = {
 export default function ConfigDetailContract({
   isConnected,
 }: ConfigContractProps) {
-  const isLoading = false;
-  const addressInputRef = useRef<HTMLInputElement>(null);
+  const { viewValue, minMaxValue, isLoading, isInitLoading } =
+    useDetailState().state;
+  const { setMinMaxValue } = useDetailState().methods;
+  const { minMaxDisable, handleUpdateMinMax } = useScLogic();
 
-  useEffect(() => {
-    if (addressInputRef) {
-      addressInputRef?.current?.focus();
+  const handleChangeMinAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isLoading || !isConnected) {
+      e.preventDefault();
+      return;
     }
-  }, [addressInputRef]);
+    const posPoint = getDecimalPosition(e.currentTarget.value);
+    if (
+      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
+      e.currentTarget.value.length > 79
+    ) {
+      e.preventDefault();
+      return;
+    }
+    setMinMaxValue({
+      ...minMaxValue,
+      minAmountToBridge: e.currentTarget.value,
+    });
+  };
+
+  const handleChangeMaxAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isConnected) {
+      e.preventDefault();
+      return;
+    }
+    const posPoint = getDecimalPosition(e.currentTarget.value);
+    if (
+      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
+      e.currentTarget.value.length > 79
+    ) {
+      e.preventDefault();
+      return;
+    }
+    setMinMaxValue({
+      ...minMaxValue,
+      maxAmountToBridge: e.currentTarget.value,
+    });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+      e.preventDefault();
+    }
+  };
 
   return (
     <VStack w={'full'}>
       <Grid bg={'text.25'} w={'full'} px={9} py={8} gridRowGap={4}>
-        {isLoading ? (
+        {isInitLoading ? (
           <>
             <Grid gridTemplateColumns={'repeat(3, 1fr)'} gridColumnGap={8}>
               {Array.from({ length: 3 }).map((_, index) => (
@@ -56,10 +100,10 @@ export default function ConfigDetailContract({
                   Asset address on Ethereum
                 </Text>
                 <Input
-                  ref={addressInputRef}
                   placeholder={'Please fill in contract address on Ethereum'}
-                  min={0}
-                  maxLength={79}
+                  value={viewValue.evmAddress}
+                  opacity={'1 !important'}
+                  isDisabled
                 />
               </GridItem>
               <GridItem>
@@ -68,8 +112,9 @@ export default function ConfigDetailContract({
                 </Text>
                 <Input
                   placeholder={'Please fill in contract address on Mina'}
-                  min={0}
-                  maxLength={79}
+                  value={viewValue.minaAddress}
+                  opacity={'1 !important'}
+                  isDisabled
                 />
               </GridItem>
               <GridItem>
@@ -78,9 +123,9 @@ export default function ConfigDetailContract({
                 </Text>
                 <Input
                   placeholder={'Asset name'}
-                  type={'number'}
-                  min={0}
-                  maxLength={79}
+                  value={viewValue.assetName}
+                  opacity={'1 !important'}
+                  isDisabled
                 />
               </GridItem>
             </Grid>
@@ -94,6 +139,10 @@ export default function ConfigDetailContract({
                   type={'number'}
                   min={0}
                   maxLength={79}
+                  isDisabled={!isConnected || isLoading}
+                  value={minMaxValue.minAmountToBridge}
+                  onChange={handleChangeMinAmount}
+                  onKeyDown={handleKeyDown}
                 />
               </GridItem>
               <GridItem>
@@ -105,6 +154,10 @@ export default function ConfigDetailContract({
                   type={'number'}
                   min={0}
                   maxLength={79}
+                  isDisabled={!isConnected || isLoading}
+                  value={minMaxValue.maxAmountToBridge}
+                  onChange={handleChangeMaxAmount}
+                  onKeyDown={handleKeyDown}
                 />
               </GridItem>
             </Grid>
@@ -112,7 +165,25 @@ export default function ConfigDetailContract({
         )}
       </Grid>
       <VStack w={'full'} alignItems={'flex-end'} mt={4} mb={2}>
-        <Button w={'140px'} variant={'primary.orange.solid'}>
+        <Button
+          w={'140px'}
+          variant={
+            !isConnected || isLoading || minMaxDisable
+              ? 'ghost'
+              : 'primary.orange.solid'
+          }
+          // isLoading={isLoading}
+          isDisabled={!isConnected || isLoading || minMaxDisable}
+          onClick={handleUpdateMinMax}
+          _hover={{
+            background:
+              !isConnected || isLoading || minMaxDisable
+                ? 'ghost'
+                : 'primary.orange.solid',
+            opacity: 0.4,
+            border: 'none',
+          }}
+        >
           Save
         </Button>
       </VStack>

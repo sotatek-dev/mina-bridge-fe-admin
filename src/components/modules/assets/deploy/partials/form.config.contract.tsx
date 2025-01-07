@@ -7,10 +7,12 @@ import {
   Skeleton,
   Text,
 } from '@chakra-ui/react';
-import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useDeployState } from '../context';
 
+import { Action } from '@/constants';
 import { getDecimalPosition } from '@/helpers/common';
 import { validateAddress } from '@/helpers/validateField';
 
@@ -29,8 +31,14 @@ export default function ConfigDeployContract({
     }
   }, [addressInputRef]);
 
-  const { value, isLoading } = useDeployState().state;
-  const { setValue } = useDeployState().methods;
+  const { value, fetchedValue, isLoading, isInitLoading } =
+    useDeployState().state;
+  const { setValue, setIsError } = useDeployState().methods;
+  const params = useSearchParams();
+
+  const action = useMemo(() => {
+    return params.get('action');
+  }, [params]);
 
   const [addressError, setAddressError] = useState('');
 
@@ -43,13 +51,28 @@ export default function ConfigDeployContract({
   };
 
   const handleBlurAddress = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const error = await validateAddress(e.currentTarget.value);
-    setAddressError(error);
+    const skipAddress =
+      action === Action.RE_DEPLOY ? fetchedValue.assetAddress : undefined;
+    const error = await validateAddress(e.currentTarget.value, skipAddress);
+    if (error) {
+      setAddressError(error);
+      setIsError(true);
+    } else {
+      setAddressError('');
+      setIsError(false);
+    }
+  };
+
+  const handleKeyDownAddress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if ([' '].includes(e.key)) {
+      e.preventDefault();
+    }
   };
 
   const handleChangeMinAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isLoading || !isConnected) {
       e.preventDefault();
+      return;
     }
     const posPoint = getDecimalPosition(e.currentTarget.value);
     if (
@@ -65,8 +88,8 @@ export default function ConfigDeployContract({
   const handleChangeMaxAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!isConnected) {
       e.preventDefault();
+      return;
     }
-    setValue({ ...value, maxAmountToBridge: e.currentTarget.value });
     const posPoint = getDecimalPosition(e.currentTarget.value);
     if (
       (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
@@ -75,6 +98,7 @@ export default function ConfigDeployContract({
       e.preventDefault();
       return;
     }
+    setValue({ ...value, maxAmountToBridge: e.currentTarget.value });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -94,7 +118,7 @@ export default function ConfigDeployContract({
         gridRowGap={4}
         gridColumnGap={8}
       >
-        {isLoading ? (
+        {isInitLoading ? (
           Array.from({ length: 4 }).map((_, index) => (
             <GridItem key={index}>
               <Skeleton h={'22.4px'} w={'100%'} mb={1} />
@@ -116,6 +140,7 @@ export default function ConfigDeployContract({
                 value={value.assetAddress}
                 onChange={handleChangeAddress}
                 onBlur={handleBlurAddress}
+                onKeyDown={handleKeyDownAddress}
               />
               {!!addressError && (
                 <Text variant={'md'} color={'red.500'} mb={1}>

@@ -1,79 +1,79 @@
 'use client';
 import { isEqual } from 'lodash';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
-import { handleRequest } from '@/helpers/asyncHandlers';
-import { formWei } from '@/helpers/common';
-import useETHBridgeContract from '@/hooks/useETHBridgeContract';
-import { Network } from '@/models/network';
-import { NETWORK_TYPE } from '@/models/network/network';
-import {
-  getPersistSlice,
-  getWalletInstanceSlice,
-  getWalletSlice,
-  useAppDispatch,
-  useAppSelector,
-} from '@/store';
-import { TokenType } from '@/store/slices/persistSlice';
-import { uiSliceActions } from '@/store/slices/uiSlice';
-import { walletSliceActions } from '@/store/slices/walletSlice';
-
-export type ValueType = {
-  min: string;
-  max: string;
+export type ViewValue = {
+  id: number;
+  evmAddress: string;
+  minaAddress: string;
+  assetName: string;
 };
-export type DisplayedDetailType = {
+
+export type MinMaxValue = {
+  minAmountToBridge: string;
+  maxAmountToBridge: string;
+};
+
+export type ConfigValue = {
   dailyQuota: string;
-  tip: string;
-  feeUnlockMina: string;
-  feeUnlockEth: string;
+  bridgeFee: string;
+  unlockingFee: string;
+  mintingFee: string;
 };
 
 export type DetailState = {
+  viewValue: ViewValue;
+  minMaxValue: MinMaxValue;
+  fetchedMinMaxValue: MinMaxValue;
+  configValue: ConfigValue;
+  fetchedConfigValue: ConfigValue;
   isLoading: boolean;
-  isFetching: boolean;
-  isMinMaxLoading: boolean;
-  value: ValueType;
-  displayedConfig: DisplayedDetailType;
-  asset: TokenType | null;
-  assetRange: string[];
+  isInitLoading: boolean;
 };
 
 export type DetailCtxValueType = {
   state: DetailState;
   methods: {
+    setIsInitLoading: (loading: boolean) => void;
     setIsLoading: (loading: boolean) => void;
-    setIsFetching: (loading: boolean) => void;
-    updateAsset: (asset: TokenType) => void;
-    setValue: (value: ValueType) => void;
-    setDisplayedConfig: (displayedConfig: DisplayedDetailType) => void;
-    updateAssetRage: (assetRange: string[]) => void;
+    setInitValue: (value: DetailState) => void;
+    setMinMaxValue: (value: MinMaxValue) => void;
+    setFetchedMinMaxValue: (value: MinMaxValue) => void;
+    setConfigValue: (value: ConfigValue) => void;
+    setFetchedConfigValue: (value: ConfigValue) => void;
   };
 };
 export type DetailProviderProps = React.PropsWithChildren<{}>;
 
 export const initPagingDataState: DetailState = {
-  isLoading: true,
-  isFetching: true,
-  isMinMaxLoading: true,
-  value: {
-    min: '',
-    max: '',
+  isLoading: false,
+  isInitLoading: false,
+  viewValue: {
+    id: 0,
+    evmAddress: '',
+    minaAddress: '',
+    assetName: '',
   },
-  displayedConfig: {
-    dailyQuota: '',
-    tip: '',
-    feeUnlockMina: '',
-    feeUnlockEth: '',
+  minMaxValue: {
+    minAmountToBridge: '0',
+    maxAmountToBridge: '0',
   },
-  asset: null,
-  assetRange: ['0', '0'],
+  fetchedMinMaxValue: {
+    minAmountToBridge: '0',
+    maxAmountToBridge: '0',
+  },
+  configValue: {
+    dailyQuota: '0',
+    bridgeFee: '0',
+    unlockingFee: '0',
+    mintingFee: '0',
+  },
+  fetchedConfigValue: {
+    dailyQuota: '0',
+    bridgeFee: '0',
+    unlockingFee: '0',
+    mintingFee: '0',
+  },
 };
 
 export const DetailContext = React.createContext<DetailCtxValueType | null>(
@@ -85,33 +85,22 @@ export function useDetailState() {
 }
 
 export default function DetailProvider({ children }: DetailProviderProps) {
-  const dispatch = useAppDispatch();
-
-  const { networkInstance } = useAppSelector(getWalletInstanceSlice);
-  const { asset, address } = useAppSelector(getWalletSlice);
-  const { listAsset } = useAppSelector(getPersistSlice);
-
-  const initCount = useRef<number>(0);
-
   const [state, setState] = useState<DetailState>(initPagingDataState);
 
-  const nwMetaData = networkInstance.src?.metadata;
+  const setInitValue = useCallback(
+    (value: DetailState) => {
+      setState(value);
+    },
+    [setState]
+  );
 
-  const bridgeCtr = useETHBridgeContract({
-    network: networkInstance.src,
-    provider:
-      nwMetaData && 'provider' in nwMetaData ? nwMetaData.provider : undefined,
-    ctr: asset ? { addr: asset.bridgeCtrAddr, network: asset.network } : null,
-  });
-
-  // update partial state
-  const updateAsset = useCallback(
-    (asset: TokenType) => {
+  const setMinMaxValue = useCallback(
+    (minMaxValue: MinMaxValue) => {
       setState((prev) =>
-        !isEqual(prev.asset, asset)
+        !isEqual(prev.minMaxValue, value)
           ? {
               ...prev,
-              asset,
+              minMaxValue,
             }
           : prev
       );
@@ -119,13 +108,13 @@ export default function DetailProvider({ children }: DetailProviderProps) {
     [setState]
   );
 
-  const setValue = useCallback(
-    (value: ValueType) => {
+  const setFetchedMinMaxValue = useCallback(
+    (fetchedMinMaxValue: MinMaxValue) => {
       setState((prev) =>
-        prev.value !== value
+        !isEqual(prev.fetchedMinMaxValue, value)
           ? {
               ...prev,
-              value,
+              fetchedMinMaxValue,
             }
           : prev
       );
@@ -133,13 +122,18 @@ export default function DetailProvider({ children }: DetailProviderProps) {
     [setState]
   );
 
-  const setDisplayedConfig = useCallback(
-    (displayedConfig: DisplayedDetailType) => {
+  const setConfigValue = useCallback(
+    (configValue: ConfigValue) => {
+      console.log({
+        value,
+        default: state.configValue,
+        equal: !isEqual(state.configValue, value),
+      });
       setState((prev) =>
-        prev.displayedConfig !== displayedConfig
+        !isEqual(prev.configValue, value)
           ? {
               ...prev,
-              displayedConfig,
+              configValue,
             }
           : prev
       );
@@ -147,24 +141,19 @@ export default function DetailProvider({ children }: DetailProviderProps) {
     [setState]
   );
 
-  // init assets
-  useEffect(() => {
-    if (!networkInstance.src || listAsset[networkInstance.src.name].length < 1)
-      return;
-    const assets = listAsset[networkInstance.src.name].filter(
-      (asset) => asset.des === 'src'
-    );
-    if (!asset || asset.network !== networkInstance.src.name) {
-      dispatch(
-        walletSliceActions.changeAsset(
-          assets.length > 0 ? assets[0] : undefined
-        )
+  const setFetchedConfigValue = useCallback(
+    (fetchedConfigValue: ConfigValue) => {
+      setState((prev) =>
+        !isEqual(prev.fetchedConfigValue, value)
+          ? {
+              ...prev,
+              fetchedConfigValue,
+            }
+          : prev
       );
-      return;
-    }
-
-    updateAsset(asset);
-  }, [dispatch, asset, listAsset, networkInstance.src]);
+    },
+    [setState]
+  );
 
   const setIsLoading = useCallback(
     (loading: boolean) =>
@@ -179,139 +168,41 @@ export default function DetailProvider({ children }: DetailProviderProps) {
     [setState]
   );
 
-  const setIsFetching = useCallback(
-    (fetching: boolean) =>
+  const setIsInitLoading = useCallback(
+    (loading: boolean) =>
       setState((prev) =>
-        prev.isFetching !== fetching
+        prev.isInitLoading !== loading
           ? {
               ...prev,
-              isFetching: fetching,
+              isInitLoading: loading,
             }
           : prev
       ),
     [setState]
   );
-
-  const setIsMinMaxLoading = useCallback(
-    (isMinMaxLoading: boolean) =>
-      setState((prev) =>
-        prev.isMinMaxLoading !== isMinMaxLoading
-          ? {
-              ...prev,
-              isMinMaxLoading,
-            }
-          : prev
-      ),
-    [setState]
-  );
-
-  // update min max
-  const updateAssetRage = useCallback(
-    (assetRange: string[]) => {
-      setState((prev) =>
-        !isEqual(prev.assetRange, assetRange)
-          ? {
-              ...prev,
-              assetRange,
-            }
-          : prev
-      );
-    },
-    [setState]
-  );
-
-  // get asset min max
-
-  async function handleInitCtr() {
-    const { default: ERC20Contract } = await import(
-      '@/models/contract/zk/contract.ERC20'
-    );
-    await ERC20Contract.init();
-  }
-
-  async function getAssetMaxMin(nw: Network, asset: TokenType) {
-    switch (nw.type) {
-      case NETWORK_TYPE.EVM:
-        if (!bridgeCtr) return updateAssetRage(['0', '0']);
-        const [min, minError] = await handleRequest(bridgeCtr.getMinAmount());
-        const [max, maxError] = await handleRequest(bridgeCtr.getMaxAmount());
-
-        setIsMinMaxLoading(false);
-        if (minError || maxError) {
-          return updateAssetRage(['0', '0']);
-        }
-        return updateAssetRage([
-          formWei(min!!.toString(), asset.decimals),
-          formWei(max!!.toString(), asset.decimals),
-        ]);
-      case NETWORK_TYPE.ZK:
-        if (!asset?.bridgeCtrAddr || !asset?.tokenAddr)
-          return updateAssetRage(['0', '0']);
-        console.log('--------start init----------');
-        if (initCount.current < 1) {
-          dispatch(uiSliceActions.startLoading());
-          await handleInitCtr();
-          initCount.current += 1;
-          console.log('--------finish init----------');
-          dispatch(uiSliceActions.endLoading());
-        }
-        try {
-          const { default: ERC20Contract } = await import(
-            '@/models/contract/zk/contract.ERC20'
-          );
-          const ctr = await new ERC20Contract(
-            asset?.bridgeCtrAddr,
-            asset?.tokenAddr
-          );
-          console.log('🚀 ~ getMinaConfig ~ ctr:', ctr);
-          await ctr.fetchInvolveAccount(address!!);
-          console.log('🚀 ~ getAssetMaxMin ~ address:', address);
-          const minAmount = await ctr.getMinAmount();
-          console.log('🚀 ~ getMinaConfig ~ minAmount:', minAmount.toBigInt());
-          const maxAmount = await ctr.getMaxAmount();
-          console.log('🚀 ~ getMinaConfig ~ maxAmount:', maxAmount.toBigInt());
-
-          setIsMinMaxLoading(false);
-          return updateAssetRage([
-            formWei(minAmount, asset.decimals),
-            formWei(maxAmount, asset.decimals),
-          ]);
-        } catch (error) {
-          // console.log('🚀 ~ getMinaConfig ~ error:', error);
-          updateAssetRage(['0', '0']);
-          return setIsMinMaxLoading(false);
-        }
-      default:
-        break;
-    }
-  }
-
-  // get asset max min when have network and change asset
-  useEffect(() => {
-    if (!networkInstance.src || !asset) return;
-    getAssetMaxMin(networkInstance.src, asset);
-  }, [bridgeCtr, networkInstance.src, asset]);
 
   const value = useMemo<DetailCtxValueType>(
     () => ({
       state,
       methods: {
+        setInitValue,
+        setIsInitLoading,
+        setMinMaxValue,
+        setFetchedMinMaxValue,
+        setConfigValue,
+        setFetchedConfigValue,
         setIsLoading,
-        setIsFetching,
-        updateAsset,
-        setValue,
-        setDisplayedConfig,
-        updateAssetRage,
       },
     }),
     [
       state,
       setIsLoading,
-      setIsFetching,
-      setValue,
-      updateAsset,
-      setDisplayedConfig,
-      updateAssetRage,
+      setIsInitLoading,
+      setInitValue,
+      setMinMaxValue,
+      setFetchedMinMaxValue,
+      setConfigValue,
+      setFetchedConfigValue,
     ]
   );
 

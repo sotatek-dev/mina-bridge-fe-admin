@@ -1,12 +1,15 @@
-import { useRouter } from 'next/navigation';
+import { isEqual } from 'lodash';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 
-import { useDeployState } from '../context';
+import { DeployValue, useDeployState } from '../context';
 
 import ABITokenErc20 from '@/configs/ABIs/TokenErc20';
 import ROUTES from '@/configs/routes';
+import { Action } from '@/constants';
 import { handleRequest } from '@/helpers/asyncHandlers';
 import { isValidAddress } from '@/helpers/common';
+import useNotifier from '@/hooks/useNotifier';
 import Contract from '@/models/contract/evm/contract';
 import adminService, { TokenDetail } from '@/services/adminService';
 import {
@@ -16,16 +19,28 @@ import {
 } from '@/store';
 
 function useDeployLogic() {
-  const { value, isLoading } = useDeployState().state;
-  const { setValue, setIsLoading } = useDeployState().methods;
+  const { value, fetchedValue, isLoading, isError } = useDeployState().state;
+  const { setValue, setFetchedValue, setIsLoading } = useDeployState().methods;
+
+  const { sendNotification } = useNotifier();
 
   const { isConnected } = useAppSelector(getWalletSlice);
   const { networkInstance } = useAppSelector(getWalletInstanceSlice);
 
   const router = useRouter();
+  const params = useSearchParams();
+
+  const action = useMemo(() => {
+    return params.get('action');
+  }, [params]);
+
+  const address = useMemo(() => {
+    return params.get('address');
+  }, [params]);
 
   const isDisabled = useMemo(() => {
     return (
+      isError ||
       !value.assetAddress ||
       !value.assetName ||
       !value.minAmountToBridge ||
@@ -33,20 +48,33 @@ function useDeployLogic() {
       !value.dailyQuota ||
       !value.bridgeFee ||
       !value.unlockingFee ||
-      !value.mintingFee
+      !value.mintingFee ||
+      isEqual(value, fetchedValue)
     );
-  }, [value]);
+  }, [value, fetchedValue, isError]);
 
   const handleDeploy = async () => {
-    if (isLoading || !isConnected) return;
+    if (isError || isLoading || !isConnected) return;
 
-    // Validate...
+    const min = Number(value.minAmountToBridge);
+    const max = Number(value.maxAmountToBridge);
+    const dailyQuota = Number(value.dailyQuota);
+    if (min >= max || dailyQuota < max || dailyQuota < min) {
+      sendNotification({
+        toastType: 'error',
+        options: {
+          title: 'Invalid amount',
+        },
+      });
+      return;
+    }
+
     const formatValue: TokenDetail = {
       ...value,
       dailyQuota: Number(value.dailyQuota),
       bridgeFee: Number(value.bridgeFee),
     };
-    console.log('VALUE', formatValue);
+
     setIsLoading(true);
     const [res, error] = await handleRequest(
       adminService.addAssetToken(formatValue)
@@ -56,8 +84,49 @@ function useDeployLogic() {
       return;
     }
     setIsLoading(false);
+    sendNotification({
+      toastType: 'success',
+      options: {
+        title: 'Success',
+      },
+    });
     router.replace(ROUTES.ASSETS);
   };
+
+  const getTokenDetail = async (address: string) => {
+    setIsLoading(true);
+    const [res, error] = await handleRequest(
+      adminService.getAssetTokens({ tokenAddress: address })
+    );
+    if (!res || error) {
+      console.log('Error: ', error);
+      return;
+    }
+    if (res?.data?.length > 0) {
+      const data = res.data[0];
+      const formValue: DeployValue = {
+        ...value,
+        assetAddress: data?.fromAddress,
+        assetName: data?.asset,
+        bridgeFee: data?.bridgeFee && String(Number(data?.bridgeFee)),
+        dailyQuota: data?.dailyQuota && String(Number(data?.dailyQuota)),
+        mintingFee: data?.mintingFee,
+        unlockingFee: data?.unlockingFee,
+        // TODO: MIN AND MAX
+        // minAmountToBridge: '0',
+        // maxAmountToBridge: '0'
+      };
+      setValue(formValue);
+      setFetchedValue(formValue);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    if (action === Action.CREATE) return;
+    if (!address || !isValidAddress(address)) return;
+    getTokenDetail(address);
+  }, []);
 
   useEffect(() => {
     if (!value.assetAddress || !isValidAddress(value.assetAddress)) {
@@ -75,7 +144,6 @@ function useDeployLogic() {
         const assetName = await contract.contractInstance.methods
           .symbol()
           .call();
-        console.log('Symbol: ', assetName);
         setValue({ ...value, assetName });
       } catch (error) {
         console.log('Get Symbol Error: ', error);
@@ -84,7 +152,7 @@ function useDeployLogic() {
     getValue();
   }, [value.assetAddress]);
 
-  return { isDisabled, handleDeploy };
+  return { isDisabled, action, handleDeploy };
 }
 
 export default useDeployLogic;

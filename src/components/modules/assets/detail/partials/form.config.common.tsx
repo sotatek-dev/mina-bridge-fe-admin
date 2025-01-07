@@ -9,6 +9,11 @@ import {
   VStack,
 } from '@chakra-ui/react';
 
+import { useDetailState } from '../context';
+import useConfigLogic from '../hooks/useConfigLogic';
+
+import { getDecimalPosition } from '@/helpers/common';
+
 type ConfigContractProps = {
   isConnected: boolean;
 };
@@ -16,7 +21,86 @@ type ConfigContractProps = {
 export default function ConfigDetailCommon({
   isConnected,
 }: ConfigContractProps) {
-  const isLoading = false;
+  const { configValue, isLoading, isInitLoading } = useDetailState().state;
+  const { setConfigValue } = useDetailState().methods;
+
+  const { configDisable, handleUpdateConfig } = useConfigLogic();
+
+  const handleChangeDailyQuota = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isConnected) {
+      e.preventDefault();
+      return;
+    }
+    const posPoint = getDecimalPosition(e.currentTarget.value);
+    console.log('Zo day 1: ', e?.currentTarget?.value);
+    if (
+      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
+      e.currentTarget.value.length > 79
+    ) {
+      e.preventDefault();
+      return;
+    }
+    console.log('Zo day 2: ', e?.currentTarget?.value);
+
+    setConfigValue({ ...configValue, dailyQuota: e.currentTarget.value });
+  };
+
+  const handleChangeBridgeFee = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isConnected) {
+      e.preventDefault();
+      return;
+    }
+    const posPoint = getDecimalPosition(e.currentTarget.value);
+    if (
+      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
+      e.currentTarget.value.length > 79
+    ) {
+      e.preventDefault();
+      return;
+    }
+    setConfigValue({ ...configValue, bridgeFee: e.currentTarget.value });
+  };
+
+  const handleChangeFeeUnlockMina = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (isLoading || !isConnected) {
+      e.preventDefault();
+      return;
+    }
+    const posPoint = getDecimalPosition(e.currentTarget.value);
+    if (
+      (posPoint <= e.currentTarget.value.length - 10 && posPoint !== -1) ||
+      Number(e.currentTarget.value) > 100
+    ) {
+      e.preventDefault();
+      return;
+    }
+    setConfigValue({ ...configValue, mintingFee: e.currentTarget.value });
+  };
+
+  const handleChangeFeeUnlockEth = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isLoading || !isConnected) {
+      e.preventDefault();
+      return;
+    }
+    const posPoint = getDecimalPosition(e.currentTarget.value);
+    if (
+      (posPoint <= e.currentTarget.value.length - 19 && posPoint !== -1) ||
+      Number(e.currentTarget.value) > 100
+    ) {
+      e.preventDefault();
+      return;
+    }
+    setConfigValue({ ...configValue, unlockingFee: e.currentTarget.value });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+      e.preventDefault();
+    }
+  };
+
   return (
     <VStack w={'full'}>
       <Grid
@@ -28,7 +112,7 @@ export default function ConfigDetailCommon({
         gridRowGap={4}
         gridColumnGap={8}
       >
-        {isLoading ? (
+        {isInitLoading ? (
           Array.from({ length: 4 }).map((_, index) => (
             <GridItem key={index}>
               <Skeleton h={'22.4px'} w={'100%'} mb={1} />
@@ -41,31 +125,82 @@ export default function ConfigDetailCommon({
               <Text variant={'lg_medium'} color={'text.700'} mb={1}>
                 Daily Quota
               </Text>
-              <Input placeholder={'0'} type={'number'} min={0} maxLength={79} />
+              <Input
+                placeholder={'0'}
+                type={'number'}
+                min={0}
+                maxLength={79}
+                isDisabled={!isConnected || isLoading}
+                value={configValue.dailyQuota}
+                onChange={handleChangeDailyQuota}
+                onKeyDown={handleKeyDown}
+              />
             </GridItem>
             <GridItem>
               <Text variant={'lg_medium'} color={'text.700'} mb={1}>
                 Bridge fee %
               </Text>
-              <Input placeholder={'0'} type={'number'} min={0} maxLength={79} />
+              <Input
+                placeholder={'0'}
+                type={'number'}
+                min={0}
+                maxLength={79}
+                isDisabled={!isConnected || isLoading}
+                value={configValue.bridgeFee}
+                onChange={handleChangeBridgeFee}
+              />
             </GridItem>
             <GridItem>
               <Text variant={'lg_medium'} color={'text.700'} mb={1}>
                 Unlocking fee
               </Text>
-              <Input placeholder={'0'} type={'number'} min={0} maxLength={79} />
+              <Input
+                placeholder={'0'}
+                type={'number'}
+                min={0}
+                maxLength={79}
+                isDisabled={!isConnected || isLoading}
+                value={configValue.unlockingFee}
+                onChange={handleChangeFeeUnlockEth}
+              />
             </GridItem>
             <GridItem>
               <Text variant={'lg_medium'} color={'text.700'} mb={1}>
                 Minting fee
               </Text>
-              <Input placeholder={'0'} type={'number'} min={0} maxLength={79} />
+              <Input
+                placeholder={'0'}
+                type={'number'}
+                min={0}
+                maxLength={79}
+                isDisabled={!isConnected || isLoading}
+                value={configValue.mintingFee}
+                onChange={handleChangeFeeUnlockMina}
+              />
             </GridItem>
           </>
         )}
       </Grid>
       <VStack w={'full'} alignItems={'flex-end'} mt={4}>
-        <Button w={'140px'} variant={'primary.orange.solid'}>
+        <Button
+          w={'140px'}
+          variant={
+            !isConnected || isLoading || configDisable
+              ? 'ghost'
+              : 'primary.orange.solid'
+          }
+          isLoading={isLoading}
+          isDisabled={!isConnected || isLoading || configDisable}
+          onClick={handleUpdateConfig}
+          _hover={{
+            background:
+              !isConnected || isLoading || configDisable
+                ? 'ghost'
+                : 'primary.orange.solid',
+            opacity: 0.4,
+            border: 'none',
+          }}
+        >
           Save
         </Button>
       </VStack>
