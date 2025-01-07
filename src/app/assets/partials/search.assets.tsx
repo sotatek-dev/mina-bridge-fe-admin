@@ -15,7 +15,7 @@ import useModalLoadingDeployLogic from '@/components/modules/modals/components/m
 import { Action } from '@/constants';
 
 function SearchBar() {
-  const { handleSearch } = useAssetsLogic();
+  useAssetsLogic();
   const router = useRouter();
   const { modalLoadingDeployProps } = useModalLoadingDeployLogic();
 
@@ -26,7 +26,7 @@ function SearchBar() {
           <Input
             pr={'40px'}
             size={'md_medium'}
-            onChange={handleSearch}
+            // onChange={handleSearch}
             placeholder={'Search by asset name'}
             onWheel={(e) => e.currentTarget.blur()}
           />

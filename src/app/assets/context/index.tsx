@@ -1,15 +1,11 @@
 'use client';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
-import { handleRequest } from '@/helpers/asyncHandlers';
-import adminService from '@/services/adminService';
 import { HistoryResponse, MetaDataHistory } from '@/services/usersService';
-import { getWalletSlice, useAppSelector } from '@/store';
 
 export type AssetsState = {
   pagingData: MetaDataHistory;
-  data: HistoryResponse[];
-  tip: string;
+  data: any[];
   loading: boolean;
 };
 
@@ -18,7 +14,6 @@ export type AssetsCtxValueType = {
   methods: {
     updateMetaData: (newMetaData: MetaDataHistory) => void;
     updateData: (newData: HistoryResponse[]) => void;
-    updateTip: (tip: string) => void;
   };
 };
 export type AssetsProviderProps = React.PropsWithChildren<{}>;
@@ -33,7 +28,6 @@ export const initPagingDataState: AssetsState = {
     perPage: 0,
   },
   data: [],
-  tip: '0',
   loading: false,
 };
 
@@ -47,7 +41,6 @@ export function useAssetsState() {
 
 export default function AssetsProvider({ children }: AssetsProviderProps) {
   const [state, setState] = useState<AssetsState>(initPagingDataState);
-  const { isConnected } = useAppSelector(getWalletSlice);
 
   const updateMetaData = useCallback(
     (newMetaData: MetaDataHistory) =>
@@ -75,40 +68,12 @@ export default function AssetsProvider({ children }: AssetsProviderProps) {
     [setState]
   );
 
-  const updateTip = useCallback(
-    (tip: string) =>
-      setState((prev) =>
-        prev.tip !== tip
-          ? {
-              ...prev,
-              tip,
-            }
-          : prev
-      ),
-    [setState]
-  );
-
-  const getCommonConfig = useCallback(async () => {
-    if (!isConnected) return null;
-    const [res, error] = await handleRequest(adminService.getCommonConfig());
-    if (error) {
-      // console.log('🚀 ~ getCommonConfig ~ error:', error);
-      return false;
-    }
-    updateTip(res!!.tip);
-    return true;
-  }, [isConnected]);
-
-  useEffect(() => {
-    getCommonConfig();
-  }, []);
-
   const value = useMemo<AssetsCtxValueType>(
     () => ({
       state,
-      methods: { updateMetaData, updateData, updateTip },
+      methods: { updateMetaData, updateData },
     }),
-    [state, updateMetaData, updateData, updateTip]
+    [state, updateMetaData, updateData]
   );
 
   return (

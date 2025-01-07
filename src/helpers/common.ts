@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js';
 import moment from 'moment';
+import Web3 from 'web3';
 
 import { ListFileName, ZkContractType } from '@/configs/constants';
 
@@ -231,3 +232,7 @@ export function getScanUrl(networkName: string) {
     ? process.env.NEXT_PUBLIC_REQUIRED_MINA_SCAN_URL
     : process.env.NEXT_PUBLIC_REQUIRED_ETH_SCAN_URL;
 }
+
+export const isValidAddress = (address: string) => {
+  return Web3.utils.isAddress(address);
+};
