@@ -7,6 +7,7 @@ export enum STATUS {
   DISABLE = 'disable',
   CREATED = 'created',
   DEPLOYING = 'deploying',
+  DEPLOY_FAILED = 'deploy_failed',
 }
 
 export type HistoryResponse = {
@@ -91,6 +92,8 @@ export type ParamHistory = {
 export type ParamTokens = {
   limit?: number;
   page?: number;
+  tokenAddress?: string;
+  assetName?: string;
 };
 
 export type ParamCommonConfig = {
@@ -115,6 +118,14 @@ export type TokenDetail = {
   assetName: string;
   minAmountToBridge: string;
   maxAmountToBridge: string;
+  dailyQuota: number;
+  bridgeFee: number;
+  unlockingFee: string;
+  mintingFee: string;
+};
+
+export type ParamTokenConfig = {
+  id: number;
   dailyQuota: number;
   bridgeFee: number;
   unlockingFee: string;
@@ -151,8 +162,8 @@ class AdminService {
     );
   }
 
-  getAssetTokens(params: ParamHistory) {
-    return this.service.getAuth<any>(
+  getAssetTokens(params: ParamTokens) {
+    return this.service.getAuth<ListTokenResponse>(
       `${this.baseURL}/${ADMIN_ENDPOINT.GET_TOKENS}`,
       {
         params,
@@ -164,6 +175,20 @@ class AdminService {
     return this.service.postAuth<ListTokenResponse>(
       `${this.baseURL}/${ADMIN_ENDPOINT.ADD_TOKEN}`,
       body
+    );
+  }
+
+  updateAssetToken({ id, ...body }: ParamTokenConfig) {
+    return this.service.putAuth<any>(
+      `${this.baseURL}/${ADMIN_ENDPOINT.UPDATE_TOKEN}/${id}`,
+      body
+    );
+  }
+
+  reDeployAssetToken(id: string) {
+    return this.service.putAuth<any>(
+      `${this.baseURL}/${ADMIN_ENDPOINT.RE_DEPLOY}/${id}`,
+      {}
     );
   }
 }

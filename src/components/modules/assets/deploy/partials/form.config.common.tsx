@@ -19,21 +19,22 @@ type ConfigContractProps = {
 export default function ConfigDeployCommon({
   isConnected,
 }: ConfigContractProps) {
-  const { value, isLoading } = useDeployState().state;
+  const { value, isLoading, isInitLoading } = useDeployState().state;
   const { setValue } = useDeployState().methods;
 
   const handleChangeDailyQuota = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!isConnected) {
       e.preventDefault();
+      return;
     }
-    // const posPoint = getDecimalPosition(e.currentTarget.value);
-    // if (
-    //   (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
-    //   e.currentTarget.value.length > 79
-    // ) {
-    //   e.preventDefault();
-    //   return;
-    // }
+    const posPoint = getDecimalPosition(e.currentTarget.value);
+    if (
+      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
+      e.currentTarget.value.length > 79
+    ) {
+      e.preventDefault();
+      return;
+    }
     setValue({ ...value, dailyQuota: e.currentTarget.value });
   };
 
@@ -49,6 +50,7 @@ export default function ConfigDeployCommon({
   ) => {
     if (isLoading || !isConnected) {
       e.preventDefault();
+      return;
     }
     const posPoint = getDecimalPosition(e.currentTarget.value);
     if (
@@ -93,7 +95,7 @@ export default function ConfigDeployCommon({
         gridRowGap={4}
         gridColumnGap={8}
       >
-        {isLoading ? (
+        {isInitLoading ? (
           Array.from({ length: 4 }).map((_, index) => (
             <GridItem key={index}>
               <Skeleton h={'22.4px'} w={'100%'} mb={1} />

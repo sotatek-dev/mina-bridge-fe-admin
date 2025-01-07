@@ -8,14 +8,15 @@ import ConfigDeployCommon from './partials/form.config.common';
 import ConfigDeployContract from './partials/form.config.contract';
 
 import ROUTES from '@/configs/routes';
+import { Action } from '@/constants';
 import { getWalletSlice, useAppSelector } from '@/store';
 
 export default function DeployContent() {
   const { isConnected } = useAppSelector(getWalletSlice);
   const router = useRouter();
-  const { isLoading } = useDeployState().state;
+  const { fetchedValue, isLoading } = useDeployState().state;
 
-  const { isDisabled, handleDeploy } = useDeployLogic();
+  const { isDisabled, action, handleDeploy } = useDeployLogic();
 
   return (
     <VStack w={'full'} mb={10} gap={5} alignItems={'flex-start'}>
@@ -29,7 +30,11 @@ export default function DeployContent() {
         <Box cursor={'pointer'} onClick={() => router.replace(ROUTES.ASSETS)}>
           <Image src={'/assets/icons/icon.arrow.left.svg'} />
         </Box>
-        <Text>Create new asset</Text>
+        <Text>
+          {action === Action.CREATE
+            ? 'Create new asset'
+            : fetchedValue.assetName}
+        </Text>
       </HStack>
       <ConfigDeployContract isConnected={isConnected} />
       <ConfigDeployCommon isConnected={isConnected} />
@@ -43,7 +48,16 @@ export default function DeployContent() {
               : 'primary.orange.solid'
           }
           isLoading={isLoading}
+          isDisabled={!isConnected || isLoading || isDisabled}
           onClick={handleDeploy}
+          _hover={{
+            background:
+              !isConnected || isLoading || isDisabled
+                ? 'ghost'
+                : 'primary.orange.solid',
+            opacity: 0.4,
+            border: 'none',
+          }}
         >
           Deploy
         </Button>

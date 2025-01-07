@@ -17,7 +17,8 @@ function AssetsContent() {
   const { state } = useAssetsState();
   const { action } = useCheckRouter();
 
-  if (action === Action.CREATE) return <AssetDeploy />;
+  if (action === Action.CREATE || action === Action.RE_DEPLOY)
+    return <AssetDeploy />;
   if (action === Action.DETAIL) return <AssetDetail />;
   return (
     <VStack
