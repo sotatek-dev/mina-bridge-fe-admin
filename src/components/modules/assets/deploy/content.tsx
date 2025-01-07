@@ -2,6 +2,8 @@
 import { Box, Button, HStack, Image, Text, VStack } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 
+import { useDeployState } from './context';
+import useDeployLogic from './hooks/useDeployLogic';
 import ConfigDeployCommon from './partials/form.config.common';
 import ConfigDeployContract from './partials/form.config.contract';
 
@@ -11,6 +13,9 @@ import { getWalletSlice, useAppSelector } from '@/store';
 export default function DeployContent() {
   const { isConnected } = useAppSelector(getWalletSlice);
   const router = useRouter();
+  const { isLoading } = useDeployState().state;
+
+  const { isDisabled, handleDeploy } = useDeployLogic();
 
   return (
     <VStack w={'full'} mb={10} gap={5} alignItems={'flex-start'}>
@@ -32,10 +37,13 @@ export default function DeployContent() {
       <VStack w={'full'} alignItems={'flex-end'}>
         <Button
           w={'140px'}
-          variant={'primary.orange.solid'}
-          //  !isConnected || isLoading || disable
-          //  ? 'ghost'
-          //  : 'primary.orange.solid'
+          variant={
+            !isConnected || isLoading || isDisabled
+              ? 'ghost'
+              : 'primary.orange.solid'
+          }
+          isLoading={isLoading}
+          onClick={handleDeploy}
         >
           Deploy
         </Button>

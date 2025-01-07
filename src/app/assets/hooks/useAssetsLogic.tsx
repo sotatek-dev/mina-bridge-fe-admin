@@ -13,47 +13,37 @@ import adminService from '@/services/adminService';
 import { getWalletSlice, useAppDispatch, useAppSelector } from '@/store';
 import { walletSliceActions } from '@/store/slices/walletSlice';
 
-export default function useHistoryLogic() {
+export default function useAssetLogic() {
   const { methods, state } = useAssetsState();
-  const { isConnected, address } = useAppSelector(getWalletSlice);
+  const { isConnected } = useAppSelector(getWalletSlice);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { sendNotification } = useNotifier();
-  const [searchValue, setSearchValue] = useState();
+  const [searchValue, setSearchValue] = useState('');
 
   const disconnectWallet = useCallback(() => {
-    if (!address) return;
     dispatch(walletSliceActions.disconnect());
     router.push(ROUTES.HOME);
-  }, [dispatch, address, router]);
+  }, [dispatch, router]);
 
-  const getListHistory = useCallback(
-    async (address?: string, page = 1) => {
-      // let addressArg = '';
-      let param = {};
-      let addressArgs = '';
-      if (!address) {
-        param = {
+  const getListAssets = useCallback(
+    async (searchValue: string, page = 1) => {
+      let params = {};
+      if (!searchValue) {
+        params = {
           page,
           limit: 10,
         };
-      }
-      if (address) {
-        const [emitVal, evmError] = handleException(
-          address,
-          Web3.utils.toChecksumAddress
-        );
-        if (evmError) addressArgs = address;
-        if (emitVal!!!) addressArgs = emitVal;
-        param = {
-          address: addressArgs,
+      } else {
+        params = {
+          // address: addressArgs,
           page,
           limit: 10,
         };
       }
 
       const [res, error] = await handleRequest(
-        adminService.getAdminHistory(param)
+        adminService.getAssetTokens(params)
       );
       if (error || !res) {
         if (error.response.data.statusCode === 401) {
@@ -69,32 +59,31 @@ export default function useHistoryLogic() {
         return;
       }
 
-      // const { data, meta } = await ;
       methods.updateMetaData(res.meta);
       methods.updateData(res.data);
     },
     [methods, disconnectWallet, sendNotification]
   );
 
-  const debounceOnChange = useCallback(
-    debounce((value) => {
-      setSearchValue(value ? value : undefined);
-      methods.updateMetaData({ ...state.pagingData, currentPage: 1 });
-    }, 1000),
-    []
-  );
+  // const debounceOnChange = useCallback(
+  //   debounce((value) => {
+  //     setSearchValue(value ? value : undefined);
+  //     methods.updateMetaData({ ...state.pagingData, currentPage: 1 });
+  //   }, 1000),
+  //   []
+  // );
 
-  const handleSearch = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (isConnected) {
-        debounceOnChange(e.currentTarget.value);
-      }
-    },
-    [isConnected, debounceOnChange]
-  );
+  // const handleSearch = useCallback(
+  //   (e: React.ChangeEvent<HTMLInputElement>) => {
+  //     if (isConnected) {
+  //       debounceOnChange(e.currentTarget.value);
+  //     }
+  //   },
+  //   [isConnected, debounceOnChange]
+  // );
   useEffect(() => {
     if (isConnected) {
-      getListHistory(searchValue, state.pagingData.currentPage);
+      getListAssets(searchValue, state.pagingData.currentPage);
     } else {
       methods.updateMetaData(initPagingDataState.pagingData);
       methods.updateData([]);
@@ -102,6 +91,6 @@ export default function useHistoryLogic() {
   }, [searchValue, state.pagingData.currentPage, isConnected]);
 
   return {
-    handleSearch,
+    // handleSearch,
   };
 }

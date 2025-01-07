@@ -33,6 +33,9 @@ enum ADMIN_ENDPOINT {
   HISTORY = 'history',
   COMMON_CONFIG = 'common-config',
   UPDATE_COMMON_CONFIG = 'update-common-config',
+  GET_TOKENS = 'tokens',
+  UPDATE_TOKEN = 'token',
+  ADD_TOKEN = 'new-token',
 }
 
 enum AUTH {

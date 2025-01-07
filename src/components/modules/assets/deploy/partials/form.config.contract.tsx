@@ -7,7 +7,12 @@ import {
   Skeleton,
   Text,
 } from '@chakra-ui/react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+import { useDeployState } from '../context';
+
+import { getDecimalPosition } from '@/helpers/common';
+import { validateAddress } from '@/helpers/validateField';
 
 type ConfigContractProps = {
   isConnected: boolean;
@@ -16,7 +21,6 @@ type ConfigContractProps = {
 export default function ConfigDeployContract({
   isConnected,
 }: ConfigContractProps) {
-  const isLoading = false;
   const addressInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -24,6 +28,60 @@ export default function ConfigDeployContract({
       addressInputRef?.current?.focus();
     }
   }, [addressInputRef]);
+
+  const { value, isLoading } = useDeployState().state;
+  const { setValue } = useDeployState().methods;
+
+  const [addressError, setAddressError] = useState('');
+
+  const handleChangeAddress = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isLoading || !isConnected) {
+      e.preventDefault();
+    }
+    setAddressError('');
+    setValue({ ...value, assetAddress: e.currentTarget.value });
+  };
+
+  const handleBlurAddress = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const error = await validateAddress(e.currentTarget.value);
+    setAddressError(error);
+  };
+
+  const handleChangeMinAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isLoading || !isConnected) {
+      e.preventDefault();
+    }
+    const posPoint = getDecimalPosition(e.currentTarget.value);
+    if (
+      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
+      e.currentTarget.value.length > 79
+    ) {
+      e.preventDefault();
+      return;
+    }
+    setValue({ ...value, minAmountToBridge: e.currentTarget.value });
+  };
+
+  const handleChangeMaxAmount = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isConnected) {
+      e.preventDefault();
+    }
+    setValue({ ...value, maxAmountToBridge: e.currentTarget.value });
+    const posPoint = getDecimalPosition(e.currentTarget.value);
+    if (
+      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
+      e.currentTarget.value.length > 79
+    ) {
+      e.preventDefault();
+      return;
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'e' || e.key === 'E' || e.key === '+' || e.key === '-') {
+      e.preventDefault();
+    }
+  };
 
   return (
     <HStack w={'full'}>
@@ -54,25 +112,57 @@ export default function ConfigDeployContract({
                 min={0}
                 maxLength={79}
                 ref={addressInputRef}
+                isDisabled={!isConnected || isLoading}
+                value={value.assetAddress}
+                onChange={handleChangeAddress}
+                onBlur={handleBlurAddress}
               />
+              {!!addressError && (
+                <Text variant={'md'} color={'red.500'} mb={1}>
+                  {addressError}
+                </Text>
+              )}
             </GridItem>
             <GridItem>
               <Text variant={'lg_medium'} color={'text.700'} mb={1}>
                 Asset name
               </Text>
-              <Input placeholder={'Asset name'} min={0} maxLength={79} />
+              <Input
+                isDisabled
+                placeholder={'Asset name'}
+                value={value.assetName}
+                opacity={'1 !important'}
+              />
             </GridItem>
             <GridItem>
               <Text variant={'lg_medium'} color={'text.700'} mb={1}>
                 Minimum Tokens to bridge
               </Text>
-              <Input placeholder={'0'} type={'number'} min={0} maxLength={79} />
+              <Input
+                placeholder={'0'}
+                type={'number'}
+                min={0}
+                maxLength={79}
+                isDisabled={!isConnected || isLoading}
+                value={value.minAmountToBridge}
+                onChange={handleChangeMinAmount}
+                onKeyDown={handleKeyDown}
+              />
             </GridItem>
             <GridItem>
               <Text variant={'lg_medium'} color={'text.700'} mb={1}>
                 Maximum Tokens to bridge
               </Text>
-              <Input placeholder={'0'} type={'number'} min={0} maxLength={79} />
+              <Input
+                placeholder={'0'}
+                type={'number'}
+                min={0}
+                maxLength={79}
+                isDisabled={!isConnected || isLoading}
+                value={value.maxAmountToBridge}
+                onChange={handleChangeMaxAmount}
+                onKeyDown={handleKeyDown}
+              />
             </GridItem>
           </>
         )}

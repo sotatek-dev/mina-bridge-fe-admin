@@ -118,7 +118,7 @@ const initializeData = createAppThunk()(
       }
     }
 
-    res!!.forEach((pair) => {
+    res!!.forEach((pair, i) => {
       listPair.push({
         id: pair.id,
         status: pair.status,
@@ -128,21 +128,21 @@ const initializeData = createAppThunk()(
 
       addAsset(pair.fromChain, {
         pairId: `${pair.id}`,
-        bridgeCtrAddr: pair.fromScAddress,
-        tokenAddr: pair.fromAddress,
+        bridgeCtrAddr: pair?.fromScAddress,
+        tokenAddr: pair?.fromAddress,
         des: 'src',
-        symbol: pair.fromSymbol.toUpperCase(),
+        symbol: pair?.fromSymbol?.toUpperCase(),
         name: '',
         decimals: pair.fromDecimal,
       });
       addAsset(pair.toChain, {
         pairId: `${pair.id}`,
-        bridgeCtrAddr: pair.toScAddress,
-        tokenAddr: pair.toAddress,
+        bridgeCtrAddr: pair?.toScAddress,
+        tokenAddr: pair?.toAddress,
         des: 'tar',
-        symbol: pair.toSymbol.toUpperCase(),
+        symbol: pair?.toSymbol?.toUpperCase(),
         name: '',
-        decimals: pair.toDecimal,
+        decimals: pair?.toDecimal,
       });
     });
 

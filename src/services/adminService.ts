@@ -2,6 +2,13 @@ import axiosService, { AxiosService } from './axiosService';
 
 import { ADMIN_ENDPOINT } from '@/services/config';
 
+export enum STATUS {
+  ENABLE = 'enable',
+  DISABLE = 'disable',
+  CREATED = 'created',
+  DEPLOYING = 'deploying',
+}
+
 export type HistoryResponse = {
   id: number;
   createdAt: string;
@@ -40,13 +47,48 @@ export type MetaDataHistory = {
   hasNextPage: boolean;
 };
 
+export type TokenResponse = {
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
+  dailyQuota: string;
+  bridgeFee: string;
+  mintingFee: string;
+  unlockingFee: string;
+  asset: string;
+  totalWethMinted: string;
+  totalWethBurnt: string;
+  fromChain: string;
+  toChain: string;
+  fromSymbol: string;
+  toSymbol: string;
+  fromAddress: string;
+  toAddress: string;
+  fromDecimal: number;
+  toDecimal: number;
+  fromScAddress: string;
+  toScAddress: string;
+  status: STATUS;
+};
+
 export type ListHistoryResponse = {
   data: HistoryResponse[];
   meta: MetaDataHistory;
 };
 
+export type ListTokenResponse = {
+  data: TokenResponse[];
+  meta: MetaDataHistory;
+};
+
 export type ParamHistory = {
   address?: string;
+  limit?: number;
+  page?: number;
+};
+
+export type ParamTokens = {
   limit?: number;
   page?: number;
 };
@@ -66,6 +108,17 @@ export type CommonConfigResponse = {
   asset: string;
   feeUnlockMina: string;
   feeUnlockEth: string;
+};
+
+export type TokenDetail = {
+  assetAddress: string;
+  assetName: string;
+  minAmountToBridge: string;
+  maxAmountToBridge: string;
+  dailyQuota: number;
+  bridgeFee: number;
+  unlockingFee: string;
+  mintingFee: string;
 };
 
 class AdminService {
@@ -95,6 +148,22 @@ class AdminService {
     return this.service.putAuth<any>(
       `${this.baseURL}/${ADMIN_ENDPOINT.UPDATE_COMMON_CONFIG}/${id}`,
       config
+    );
+  }
+
+  getAssetTokens(params: ParamHistory) {
+    return this.service.getAuth<any>(
+      `${this.baseURL}/${ADMIN_ENDPOINT.GET_TOKENS}`,
+      {
+        params,
+      }
+    );
+  }
+
+  addAssetToken(body: TokenDetail) {
+    return this.service.postAuth<ListTokenResponse>(
+      `${this.baseURL}/${ADMIN_ENDPOINT.ADD_TOKEN}`,
+      body
     );
   }
 }
