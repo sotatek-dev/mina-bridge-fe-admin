@@ -34,7 +34,7 @@ function WrapperLayout({ children }: Props) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const isNotHistoryScreen = pathname !== ROUTES.HISTORY;
-  const isNotConfigurationScreen = pathname !== ROUTES.CONFIGURATION;
+  // const isNotConfigurationScreen = pathname !== ROUTES.CONFIGURATION;
   const isNotAsset = pathname !== ROUTES.ASSETS;
   const isNotHomeScreen = pathname !== ROUTES.HOME;
   const { isConnected } = useAppSelector(getWalletSlice);
@@ -70,7 +70,7 @@ function WrapperLayout({ children }: Props) {
             h={'full'}
             bgColor={'text.100'}
             bgImage={
-              isNotHistoryScreen && isNotConfigurationScreen && isNotAsset
+              isNotHistoryScreen && isNotAsset
                 ? 'url("/assets/images/image.main-bg.jpg")'
                 : ''
             }

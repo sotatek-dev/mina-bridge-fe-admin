@@ -5,9 +5,9 @@ import { useEffect } from 'react';
 import { useAssetsState } from './context';
 import useAssetLogic from './hooks/useAssetsLogic';
 import useCheckRouter from './hooks/useCheckRouter';
-import BodyTable from './partials/table.body';
 import EmptyHistoryData from './partials/empty.assetsData';
 import SearchBar from './partials/search.assets';
+import BodyTable from './partials/table.body';
 import HeaderTable from './partials/table.header';
 import Pagination from './partials/table.pagination';
 
