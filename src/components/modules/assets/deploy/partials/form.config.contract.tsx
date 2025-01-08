@@ -136,7 +136,7 @@ export default function ConfigDeployContract({
                 min={0}
                 maxLength={79}
                 ref={addressInputRef}
-                isDisabled={!isConnected || isLoading}
+                isDisabled={true}
                 value={value.assetAddress}
                 onChange={handleChangeAddress}
                 onBlur={handleBlurAddress}
@@ -153,10 +153,9 @@ export default function ConfigDeployContract({
                 Asset name
               </Text>
               <Input
-                isDisabled
+                isDisabled={true}
                 placeholder={'Asset name'}
                 value={value.assetName}
-                opacity={'1 !important'}
               />
             </GridItem>
             <GridItem>
@@ -168,7 +167,7 @@ export default function ConfigDeployContract({
                 type={'number'}
                 min={0}
                 maxLength={79}
-                isDisabled={!isConnected || isLoading}
+                isDisabled={true}
                 value={value.minAmountToBridge}
                 onChange={handleChangeMinAmount}
                 onKeyDown={handleKeyDown}
@@ -183,7 +182,7 @@ export default function ConfigDeployContract({
                 type={'number'}
                 min={0}
                 maxLength={79}
-                isDisabled={!isConnected || isLoading}
+                isDisabled={true}
                 value={value.maxAmountToBridge}
                 onChange={handleChangeMaxAmount}
                 onKeyDown={handleKeyDown}

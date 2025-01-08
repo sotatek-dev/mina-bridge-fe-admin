@@ -22,12 +22,22 @@ function BodyTable({ data }: PropsBodyTable) {
   const { openLoadingDeployModal } = useModalLoadingDeployLogic();
 
   const handleRow = (data: TokenResponse) => {
-    if (data.status === STATUS.ENABLE || data.status === STATUS.DISABLE) {
-      router.push(`?action=${Action.DETAIL}&&address=${data.fromAddress}`);
-      return;
-    }
-    if (data.status === STATUS.DEPLOY_FAILED) {
-      router.push(`?action=${Action.RE_DEPLOY}&&address=${data.fromAddress}`);
+    switch (data.status) {
+      case STATUS.ENABLE:
+      case STATUS.DISABLE:
+        return router.push(
+          `?action=${Action.DETAIL}&address=${data.fromAddress}`
+        );
+
+      case STATUS.DEPLOY_FAILED:
+        return router.push(
+          `?action=${Action.RE_DEPLOY}&address=${data.fromAddress}&id=${data.id}`
+        );
+      case STATUS.CREATED:
+      case STATUS.DEPLOYING:
+        return openLoadingDeployModal();
+      default:
+        break;
     }
   };
   return (

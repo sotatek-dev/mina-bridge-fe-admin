@@ -121,7 +121,7 @@ export default function ConfigDeployCommon({
                 type={'number'}
                 min={0}
                 maxLength={79}
-                isDisabled={!isConnected || isLoading}
+                isDisabled={true}
                 value={value.dailyQuota}
                 onChange={handleChangeDailyQuota}
                 onKeyDown={handleKeyDown}
@@ -136,7 +136,7 @@ export default function ConfigDeployCommon({
                 type={'number'}
                 min={0}
                 maxLength={79}
-                isDisabled={!isConnected || isLoading}
+                isDisabled={true}
                 value={value.bridgeFee}
                 onChange={handleChangeBridgeFee}
               />
@@ -150,7 +150,7 @@ export default function ConfigDeployCommon({
                 type={'number'}
                 min={0}
                 maxLength={79}
-                isDisabled={!isConnected || isLoading}
+                isDisabled={true}
                 value={value.unlockingFee}
                 onChange={handleChangeFeeUnlockEth}
               />
@@ -164,7 +164,7 @@ export default function ConfigDeployCommon({
                 type={'number'}
                 min={0}
                 maxLength={79}
-                isDisabled={!isConnected || isLoading}
+                isDisabled={true}
                 value={value.mintingFee}
                 onChange={handleChangeFeeUnlockMina}
               />
