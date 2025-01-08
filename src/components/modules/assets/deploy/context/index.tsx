@@ -17,12 +17,16 @@ export type DeployState = {
   value: DeployValue;
   fetchedValue: DeployValue;
   isLoading: boolean;
+  isInitLoading: boolean;
+  isError: boolean;
 };
 
 export type DeployCtxValueType = {
   state: DeployState;
   methods: {
     setIsLoading: (loading: boolean) => void;
+    setIsInitLoading: (loading: boolean) => void;
+    setIsError: (isError: boolean) => void;
     setValue: (value: DeployValue) => void;
     setFetchedValue: (fetchedValue: DeployValue) => void;
   };
@@ -31,6 +35,8 @@ export type DeployProviderProps = React.PropsWithChildren<{}>;
 
 export const initPagingDataState: DeployState = {
   isLoading: false,
+  isInitLoading: false,
+  isError: false,
   value: {
     assetAddress: '',
     assetName: '',
@@ -105,6 +111,32 @@ export default function DeployProvider({ children }: DeployProviderProps) {
     [setState]
   );
 
+  const setIsInitLoading = useCallback(
+    (loading: boolean) =>
+      setState((prev) =>
+        prev.isInitLoading !== loading
+          ? {
+              ...prev,
+              isInitLoading: loading,
+            }
+          : prev
+      ),
+    [setState]
+  );
+
+  const setIsError = useCallback(
+    (isError: boolean) =>
+      setState((prev) =>
+        prev.isError !== isError
+          ? {
+              ...prev,
+              isError,
+            }
+          : prev
+      ),
+    [setState]
+  );
+
   const value = useMemo<DeployCtxValueType>(
     () => ({
       state,
@@ -112,9 +144,11 @@ export default function DeployProvider({ children }: DeployProviderProps) {
         setValue,
         setFetchedValue,
         setIsLoading,
+        setIsInitLoading,
+        setIsError,
       },
     }),
-    [state, setValue, setIsLoading, setFetchedValue]
+    [state, setValue, setIsLoading, setIsInitLoading, setFetchedValue]
   );
 
   return (

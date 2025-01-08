@@ -37,6 +37,7 @@ enum ADMIN_ENDPOINT {
   UPDATE_TOKEN = 'token',
   ADD_TOKEN = 'new-token',
   UPDATE_STATUS = 'token/visibility',
+  RE_DEPLOY = 'token/re-deploy',
 }
 
 enum AUTH {

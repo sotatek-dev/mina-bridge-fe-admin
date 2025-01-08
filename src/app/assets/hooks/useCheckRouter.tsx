@@ -21,7 +21,8 @@ const useCheckRouter = () => {
       isConnected &&
       pathname === ROUTES.ASSETS &&
       action !== Action.CREATE &&
-      action !== Action.DETAIL
+      action !== Action.DETAIL &&
+      action !== Action.RE_DEPLOY
     ) {
       router.replace(ROUTES.ASSETS);
     }

@@ -21,25 +21,20 @@ function BodyTable({ data }: PropsBodyTable) {
   const router = useRouter();
   const { openLoadingDeployModal } = useModalLoadingDeployLogic();
 
-  const handleClickRowAsset = (status: STATUS) => {
-    switch (status) {
-      case STATUS.DEPLOYING:
-      case STATUS.CREATED:
-        return openLoadingDeployModal();
-      default:
-        return router.push(`?action=${Action.DETAIL}`);
+  const handleRow = (data: TokenResponse) => {
+    if (data.status === STATUS.ENABLE || data.status === STATUS.DISABLE) {
+      router.push(`?action=${Action.DETAIL}&&address=${data.fromAddress}`);
+      return;
+    }
+    if (data.status === STATUS.DEPLOY_FAILED) {
+      router.push(`?action=${Action.RE_DEPLOY}&&address=${data.fromAddress}`);
     }
   };
-
   return (
     <Tbody>
       {data.map((item) => {
         return (
-          <Tr
-            key={item.id}
-            cursor={'pointer'}
-            onClick={(e) => handleClickRowAsset(item.status)}
-          >
+          <Tr key={item.id} cursor={'pointer'} onClick={() => handleRow(item)}>
             <Td borderBottom={'solid 1px #E4E4E7'}>
               <div>
                 <RowStatus status={item.status} />

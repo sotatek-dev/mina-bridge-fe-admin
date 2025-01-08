@@ -29,7 +29,7 @@ function RowStatus({ status }: RowStatusProps) {
         <Text as={'span'}>Processing</Text>
       </Flex>
     );
-  if (status === STATUS.FAILED)
+  if (status === STATUS.DEPLOY_FAILED)
     return (
       <Flex align={'center'}>
         <Box {...boxStyle} bg={'red.500'} />
