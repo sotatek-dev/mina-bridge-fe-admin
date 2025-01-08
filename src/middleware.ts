@@ -11,5 +11,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/history', '/configuration', '/assets'],
+  matcher: ['/history', '/assets'],
 };

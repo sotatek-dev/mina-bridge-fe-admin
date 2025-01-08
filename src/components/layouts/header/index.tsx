@@ -65,7 +65,7 @@ export default function Header({}: Props) {
                 Asset
               </Text>
             </Link>
-            <Link href={ROUTES.CONFIGURATION} mr={'32px'}>
+            {/* <Link href={ROUTES.CONFIGURATION} mr={'32px'}>
               <Text
                 variant={'lg_semiBold'}
                 color={
@@ -76,7 +76,7 @@ export default function Header({}: Props) {
               >
                 Configuration
               </Text>
-            </Link>
+            </Link> */}
           </>
         )}
         <Button {...btnSelectNetworkProps} />
