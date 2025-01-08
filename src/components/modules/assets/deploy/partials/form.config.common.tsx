@@ -11,6 +11,7 @@ import {
 import { useDeployState } from '../context';
 
 import { getDecimalPosition } from '@/helpers/common';
+import { useSearchParams } from 'next/navigation';
 
 type ConfigContractProps = {
   isConnected: boolean;
@@ -19,6 +20,10 @@ type ConfigContractProps = {
 export default function ConfigDeployCommon({
   isConnected,
 }: ConfigContractProps) {
+  const searchParams = useSearchParams();
+
+  const id = searchParams.get('id');
+
   const { value, isLoading, isInitLoading } = useDeployState().state;
   const { setValue } = useDeployState().methods;
 
@@ -41,14 +46,6 @@ export default function ConfigDeployCommon({
   const handleChangeBridgeFee = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!isConnected) {
       e.preventDefault();
-    }
-    const posPoint = getDecimalPosition(e.currentTarget.value);
-    if (
-      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
-      e.currentTarget.value.length > 79
-    ) {
-      e.preventDefault();
-      return;
     }
     setValue({ ...value, bridgeFee: e.currentTarget.value });
   };
@@ -121,7 +118,7 @@ export default function ConfigDeployCommon({
                 type={'number'}
                 min={0}
                 maxLength={79}
-                isDisabled={true}
+                isDisabled={!isConnected || isLoading || Boolean(id)}
                 value={value.dailyQuota}
                 onChange={handleChangeDailyQuota}
                 onKeyDown={handleKeyDown}
@@ -136,7 +133,7 @@ export default function ConfigDeployCommon({
                 type={'number'}
                 min={0}
                 maxLength={79}
-                isDisabled={true}
+                isDisabled={!isConnected || isLoading || Boolean(id)}
                 value={value.bridgeFee}
                 onChange={handleChangeBridgeFee}
               />
@@ -150,7 +147,7 @@ export default function ConfigDeployCommon({
                 type={'number'}
                 min={0}
                 maxLength={79}
-                isDisabled={true}
+                isDisabled={!isConnected || isLoading || Boolean(id)}
                 value={value.unlockingFee}
                 onChange={handleChangeFeeUnlockEth}
               />
@@ -164,7 +161,7 @@ export default function ConfigDeployCommon({
                 type={'number'}
                 min={0}
                 maxLength={79}
-                isDisabled={true}
+                isDisabled={!isConnected || isLoading || Boolean(id)}
                 value={value.mintingFee}
                 onChange={handleChangeFeeUnlockMina}
               />

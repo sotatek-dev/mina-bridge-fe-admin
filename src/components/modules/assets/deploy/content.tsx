@@ -20,7 +20,7 @@ export default function DeployContent() {
   const router = useRouter();
   const { fetchedValue, isLoading } = useDeployState().state;
 
-  const { action, handleReDeploy } = useDeployLogic();
+  const { action, handleReDeploy, handleDeploy } = useDeployLogic();
 
   return (
     <VStack w={'full'} mb={10} gap={5} alignItems={'flex-start'}>
@@ -49,7 +49,7 @@ export default function DeployContent() {
           variant={!isConnected || isLoading ? 'ghost' : 'primary.orange.solid'}
           isLoading={isLoading}
           isDisabled={!isConnected || isLoading}
-          onClick={() => handleReDeploy(Number(id))}
+          onClick={id ? () => handleReDeploy(Number(id)) : () => handleDeploy}
           _hover={{
             background:
               !isConnected || isLoading ? 'ghost' : 'primary.orange.solid',
@@ -57,7 +57,7 @@ export default function DeployContent() {
             border: 'none',
           }}
         >
-          Re Deploy
+          {id ? 'Re Deploy' : 'Deploy'}
         </Button>
       </VStack>
     </VStack>

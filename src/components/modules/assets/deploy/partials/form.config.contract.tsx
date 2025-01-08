@@ -23,6 +23,10 @@ type ConfigContractProps = {
 export default function ConfigDeployContract({
   isConnected,
 }: ConfigContractProps) {
+  const searchParams = useSearchParams();
+
+  const id = searchParams.get('id');
+
   const addressInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -136,7 +140,7 @@ export default function ConfigDeployContract({
                 min={0}
                 maxLength={79}
                 ref={addressInputRef}
-                isDisabled={true}
+                isDisabled={!isConnected || isLoading || Boolean(id)}
                 value={value.assetAddress}
                 onChange={handleChangeAddress}
                 onBlur={handleBlurAddress}
@@ -153,9 +157,10 @@ export default function ConfigDeployContract({
                 Asset name
               </Text>
               <Input
-                isDisabled={true}
+                isDisabled
                 placeholder={'Asset name'}
                 value={value.assetName}
+                opacity={Boolean(id) ? 'none' : '1 !important'}
               />
             </GridItem>
             <GridItem>
@@ -167,7 +172,7 @@ export default function ConfigDeployContract({
                 type={'number'}
                 min={0}
                 maxLength={79}
-                isDisabled={true}
+                isDisabled={!isConnected || isLoading || Boolean(id)}
                 value={value.minAmountToBridge}
                 onChange={handleChangeMinAmount}
                 onKeyDown={handleKeyDown}
@@ -182,7 +187,7 @@ export default function ConfigDeployContract({
                 type={'number'}
                 min={0}
                 maxLength={79}
-                isDisabled={true}
+                isDisabled={!isConnected || isLoading || Boolean(id)}
                 value={value.maxAmountToBridge}
                 onChange={handleChangeMaxAmount}
                 onKeyDown={handleKeyDown}
