@@ -15,27 +15,27 @@ type RowStatusProps = {
 };
 
 function RowStatus({ status }: RowStatusProps) {
-  if (status === STATUS.ENABLE)
+  if (status === STATUS.ENABLE || status === STATUS.DISABLE)
     return (
       <Flex align={'center'}>
         <Box {...boxStyle} bg={'primary.purple'} />
         <Text as={'span'}>Success</Text>
       </Flex>
     );
-  if (status === STATUS.CREATED)
+  if (status === STATUS.CREATED || status === STATUS.DEPLOYING)
     return (
       <Flex align={'center'}>
         <Box {...boxStyle} bg={'primary.orange'} />
         <Text as={'span'}>Processing</Text>
       </Flex>
     );
-  // if (status === STATUS.CREATED)
-  //   return (
-  //     <Flex align={'center'}>
-  //       <Box {...boxStyle} bg={'red.500'} />
-  //       <Text as={'span'}>Failed</Text>
-  //     </Flex>
-  //   );
+  if (status === STATUS.FAILED)
+    return (
+      <Flex align={'center'}>
+        <Box {...boxStyle} bg={'red.500'} />
+        <Text as={'span'}>Failed</Text>
+      </Flex>
+    );
 }
 
 export default RowStatus;

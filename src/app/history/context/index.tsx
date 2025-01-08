@@ -1,10 +1,7 @@
 'use client';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
-import { handleRequest } from '@/helpers/asyncHandlers';
-import adminService from '@/services/adminService';
 import { HistoryResponse, MetaDataHistory } from '@/services/usersService';
-import { getWalletSlice, useAppSelector } from '@/store';
 
 export type HistoryState = {
   pagingData: MetaDataHistory;
@@ -17,7 +14,7 @@ export type HistoryCtxValueType = {
   methods: {
     updateMetaData: (newMetaData: MetaDataHistory) => void;
     updateData: (newData: HistoryResponse[]) => void;
-    updateTip: (tip: string) => void;
+    // updateTip: (tip: string) => void;
   };
 };
 export type HistoryProviderProps = React.PropsWithChildren<{}>;
@@ -45,7 +42,7 @@ export function useHistoryState() {
 
 export default function HistoryProvider({ children }: HistoryProviderProps) {
   const [state, setState] = useState<HistoryState>(initPagingDataState);
-  const { isConnected } = useAppSelector(getWalletSlice);
+  // const { isConnected } = useAppSelector(getWalletSlice);
 
   const updateMetaData = useCallback(
     (newMetaData: MetaDataHistory) =>
@@ -73,40 +70,40 @@ export default function HistoryProvider({ children }: HistoryProviderProps) {
     [setState]
   );
 
-  const updateTip = useCallback(
-    (tip: string) =>
-      setState((prev) =>
-        prev.tip !== tip
-          ? {
-              ...prev,
-              tip,
-            }
-          : prev
-      ),
-    [setState]
-  );
+  // const updateTip = useCallback(
+  //   (tip: string) =>
+  //     setState((prev) =>
+  //       prev.tip !== tip
+  //         ? {
+  //             ...prev,
+  //             tip,
+  //           }
+  //         : prev
+  //     ),
+  //   [setState]
+  // );
 
-  const getCommonConfig = useCallback(async () => {
-    if (!isConnected) return null;
-    const [res, error] = await handleRequest(adminService.getCommonConfig());
-    if (error) {
-      // console.log('🚀 ~ getCommonConfig ~ error:', error);
-      return false;
-    }
-    updateTip(res!!.tip);
-    return true;
-  }, [isConnected]);
+  // const getCommonConfig = useCallback(async () => {
+  //   if (!isConnected) return null;
+  //   const [res, error] = await handleRequest(adminService.getCommonConfig());
+  //   if (error) {
+  //     // console.log('🚀 ~ getCommonConfig ~ error:', error);
+  //     return false;
+  //   }
+  //   updateTip(res!!.tip);
+  //   return true;
+  // }, [isConnected]);
 
-  useEffect(() => {
-    getCommonConfig();
-  }, []);
+  // useEffect(() => {
+  //   getCommonConfig();
+  // }, []);
 
   const value = useMemo<HistoryCtxValueType>(
     () => ({
       state,
-      methods: { updateMetaData, updateData, updateTip },
+      methods: { updateMetaData, updateData },
     }),
-    [state, updateMetaData, updateData, updateTip]
+    [state, updateMetaData, updateData]
   );
 
   return (

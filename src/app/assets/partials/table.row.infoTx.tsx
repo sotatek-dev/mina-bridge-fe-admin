@@ -21,7 +21,7 @@ function InfoTransaction({
   const [fSlice, sSlice] = !address ? ['', ''] : truncateMid(address, 4, 4);
 
   function copyToClipboard(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-    e.preventDefault();
+    e.stopPropagation();
     navigator.clipboard
       .writeText(address)
       .then(() => {
@@ -52,7 +52,7 @@ function InfoTransaction({
           </Text>
           <Box cursor={'pointer'} onClick={copyToClipboard}>
             <Text variant={'md'} color={'primary.purple'} whiteSpace={'nowrap'}>
-              {`${fSlice}...${sSlice}`}
+              {`${fSlice}...${sSlice}`} ({assetName})
             </Text>
           </Box>
         </>

@@ -1,7 +1,7 @@
 'use client';
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { HistoryResponse, MetaDataHistory } from '@/services/usersService';
+import { TokenResponse, MetaDataHistory } from '@/services/adminService';
 
 export type AssetsState = {
   pagingData: MetaDataHistory;
@@ -13,7 +13,7 @@ export type AssetsCtxValueType = {
   state: AssetsState;
   methods: {
     updateMetaData: (newMetaData: MetaDataHistory) => void;
-    updateData: (newData: HistoryResponse[]) => void;
+    updateData: (newData: TokenResponse[]) => void;
   };
 };
 export type AssetsProviderProps = React.PropsWithChildren<{}>;
@@ -56,7 +56,7 @@ export default function AssetsProvider({ children }: AssetsProviderProps) {
   );
 
   const updateData = useCallback(
-    (newData: HistoryResponse[]) =>
+    (newData: TokenResponse[]) =>
       setState((prev) =>
         prev.data !== newData
           ? {
