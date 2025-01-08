@@ -1,7 +1,7 @@
 'use client';
 import { debounce } from 'lodash';
 import { useRouter } from 'next/navigation';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import { useAssetsState } from '../context';
 
@@ -13,11 +13,12 @@ import { getWalletSlice, useAppDispatch, useAppSelector } from '@/store';
 import { walletSliceActions } from '@/store/slices/walletSlice';
 
 export default function useAssetLogic() {
-  const { methods } = useAssetsState();
+  const { methods, state } = useAssetsState();
   const { isConnected } = useAppSelector(getWalletSlice);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { sendNotification } = useNotifier();
+  const [searchValue, setSearchValue] = useState<string>('');
 
   const disconnectWallet = useCallback(() => {
     dispatch(walletSliceActions.disconnect());
@@ -28,7 +29,7 @@ export default function useAssetLogic() {
     async (search?: string, page?: number) => {
       let params = {
         assetName: search,
-        page: page,
+        page: page || state.pagingData.currentPage,
         limit: 10,
       };
 
@@ -57,6 +58,7 @@ export default function useAssetLogic() {
   const debounceOnChange = useCallback(
     debounce((value) => {
       getListAssets(value, 1);
+      setSearchValue(value);
     }, 1000),
     [methods]
   );
@@ -110,7 +112,8 @@ export default function useAssetLogic() {
   const handleChangeCurrentPage = useCallback(
     (page: number) => {
       if (isConnected) {
-        getListAssets('', page);
+        methods.updateMetaData({ ...state.pagingData, currentPage: page });
+        getListAssets(searchValue, page);
       }
     },
     [isConnected]

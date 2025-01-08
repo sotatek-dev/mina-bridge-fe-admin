@@ -1,6 +1,6 @@
 'use client';
 import { Box, Button, HStack, Image, Text, VStack } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { useDeployState } from './context';
 import useDeployLogic from './hooks/useDeployLogic';
@@ -12,11 +12,15 @@ import { Action } from '@/constants';
 import { getWalletSlice, useAppSelector } from '@/store';
 
 export default function DeployContent() {
+  const searchParams = useSearchParams();
+
+  const id = searchParams.get('id');
+
   const { isConnected } = useAppSelector(getWalletSlice);
   const router = useRouter();
   const { fetchedValue, isLoading } = useDeployState().state;
 
-  const { isDisabled, action, handleDeploy } = useDeployLogic();
+  const { action, handleReDeploy } = useDeployLogic();
 
   return (
     <VStack w={'full'} mb={10} gap={5} alignItems={'flex-start'}>
@@ -42,24 +46,18 @@ export default function DeployContent() {
       <VStack w={'full'} alignItems={'flex-end'}>
         <Button
           w={'140px'}
-          variant={
-            !isConnected || isLoading || isDisabled
-              ? 'ghost'
-              : 'primary.orange.solid'
-          }
+          variant={!isConnected || isLoading ? 'ghost' : 'primary.orange.solid'}
           isLoading={isLoading}
-          isDisabled={!isConnected || isLoading || isDisabled}
-          onClick={handleDeploy}
+          isDisabled={!isConnected || isLoading}
+          onClick={() => handleReDeploy(Number(id))}
           _hover={{
             background:
-              !isConnected || isLoading || isDisabled
-                ? 'ghost'
-                : 'primary.orange.solid',
-            opacity: 0.4,
+              !isConnected || isLoading ? 'ghost' : 'primary.orange.solid',
+            opacity: 0.8,
             border: 'none',
           }}
         >
-          Deploy
+          Re Deploy
         </Button>
       </VStack>
     </VStack>

@@ -93,6 +93,33 @@ function useDeployLogic() {
     router.replace(ROUTES.ASSETS);
   };
 
+  const handleReDeploy = async (id: number) => {
+    if (isError || isLoading || !isConnected) return;
+
+    setIsLoading(true);
+    const [res, error] = await handleRequest(
+      adminService.reDeployAssetToken(id)
+    );
+    if (error) {
+      sendNotification({
+        toastType: 'error',
+        options: {
+          title: 'Re deploy failure',
+        },
+      });
+      console.log('🚀 ~ deploy tokenn ~ error:', error);
+      return;
+    }
+    setIsLoading(false);
+    sendNotification({
+      toastType: 'success',
+      options: {
+        title: 'Re deploying',
+      },
+    });
+    router.replace(ROUTES.ASSETS);
+  };
+
   const getTokenDetail = async (address: string) => {
     setIsLoading(true);
     const [res, error] = await handleRequest(
@@ -152,7 +179,7 @@ function useDeployLogic() {
     getValue();
   }, [value.assetAddress]);
 
-  return { isDisabled, action, handleDeploy };
+  return { isDisabled, action, handleDeploy, handleReDeploy };
 }
 
 export default useDeployLogic;
