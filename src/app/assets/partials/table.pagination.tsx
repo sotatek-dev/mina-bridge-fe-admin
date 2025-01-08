@@ -2,6 +2,7 @@
 import { Flex, FlexProps, Image } from '@chakra-ui/react';
 
 import { useAssetsState } from '../context';
+import useAssetLogic from '../hooks/useAssetsLogic';
 
 import ReactPaginateWithChakra from '@/components/elements/pagination';
 
@@ -15,10 +16,11 @@ const btnNavigateStyles: FlexProps = {
 };
 
 function Pagination() {
-  const { state, methods } = useAssetsState();
+  const { state } = useAssetsState();
+  const { handleChangeCurrentPage } = useAssetLogic();
 
   const handlePageClick = (value: number) => {
-    methods.updateMetaData({ ...state.pagingData, currentPage: value + 1 });
+    handleChangeCurrentPage(value + 1);
   };
 
   const btnPrevStyle: FlexProps = {

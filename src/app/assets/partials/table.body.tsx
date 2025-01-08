@@ -1,13 +1,15 @@
 'use client';
-import { Box, Switch, Tbody, Td, Text, Tr } from '@chakra-ui/react';
-import _ from 'lodash';
+
+import { Box, Tbody, Td, Text, Tr } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import React from 'react';
 
 import AddressInfo from './table.row.infoTx';
 import RowStatus from './table.row.status';
+import RowSwitch from './table.row.switch';
 
+import useModalLoadingDeployLogic from '@/components/modules/modals/components/modalLoadingDeploy/hooks/useModalLoadingDeployLogic';
 import { Action } from '@/constants';
+import { nFormatter } from '@/helpers/common';
 import { NETWORK_NAME } from '@/models/network';
 import { STATUS, TokenResponse } from '@/services/adminService';
 
@@ -17,6 +19,7 @@ type PropsBodyTable = {
 
 function BodyTable({ data }: PropsBodyTable) {
   const router = useRouter();
+  const { openLoadingDeployModal } = useModalLoadingDeployLogic();
 
   const handleRow = (data: TokenResponse) => {
     if (data.status === STATUS.ENABLE || data.status === STATUS.DISABLE) {
@@ -33,7 +36,7 @@ function BodyTable({ data }: PropsBodyTable) {
         return (
           <Tr key={item.id} cursor={'pointer'} onClick={() => handleRow(item)}>
             <Td borderBottom={'solid 1px #E4E4E7'}>
-              <div onClick={(e) => e.stopPropagation()}>
+              <div>
                 <RowStatus status={item.status} />
               </div>
             </Td>
@@ -49,17 +52,23 @@ function BodyTable({ data }: PropsBodyTable) {
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
               <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
+                {/* {`${truncatedNumber(
+                  item.tip ? item.tip : '0.00'
+                )} ${!item?.tip || _.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`} */}
                 0
               </Text>
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
               <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
+                {/* {`${truncatedNumber(
+                  item.tip ? item.tip : '0.00'
+                )} ${!item?.tip || _.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`} */}
                 0
               </Text>
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
               <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
-                {item?.dailyQuota ? Number(item?.dailyQuota) : ''}
+                {item?.dailyQuota ? nFormatter(item?.dailyQuota) : ''}
               </Text>
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
@@ -69,12 +78,10 @@ function BodyTable({ data }: PropsBodyTable) {
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
               <Box onClick={(e) => e.stopPropagation()} w={'fit-content'}>
-                <Switch
-                  sx={{
-                    '.chakra-switch__track[data-checked]': {
-                      backgroundColor: 'primary.purple',
-                    },
-                  }}
+                <RowSwitch
+                  id={item.id}
+                  isHidden={item.isHidden}
+                  status={item.status}
                 />
               </Box>
             </Td>

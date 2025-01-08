@@ -71,6 +71,7 @@ export type TokenResponse = {
   fromScAddress: string;
   toScAddress: string;
   status: STATUS;
+  isHidden: boolean;
 };
 
 export type ListHistoryResponse = {
@@ -175,6 +176,15 @@ class AdminService {
     return this.service.postAuth<ListTokenResponse>(
       `${this.baseURL}/${ADMIN_ENDPOINT.ADD_TOKEN}`,
       body
+    );
+  }
+
+  updateStatusToken({ id, isHidden }: { id: number; isHidden: boolean }) {
+    return this.service.putAuth<any>(
+      `${this.baseURL}/${ADMIN_ENDPOINT.UPDATE_STATUS}/${id}`,
+      {
+        isHidden: isHidden,
+      }
     );
   }
 
