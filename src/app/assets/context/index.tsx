@@ -7,6 +7,8 @@ export type AssetsState = {
   pagingData: MetaDataHistory;
   data: any[];
   loading: boolean;
+  search: string;
+  currentPage: number;
 };
 
 export type AssetsCtxValueType = {
@@ -14,6 +16,8 @@ export type AssetsCtxValueType = {
   methods: {
     updateMetaData: (newMetaData: MetaDataHistory) => void;
     updateData: (newData: TokenResponse[]) => void;
+    updateSearch: (value: string) => void;
+    updateCurrentPage: (page: number) => void;
   };
 };
 export type AssetsProviderProps = React.PropsWithChildren<{}>;
@@ -29,6 +33,8 @@ export const initPagingDataState: AssetsState = {
   },
   data: [],
   loading: false,
+  search: '',
+  currentPage: 1,
 };
 
 export const AssetsContext = React.createContext<AssetsCtxValueType | null>(
@@ -68,10 +74,36 @@ export default function AssetsProvider({ children }: AssetsProviderProps) {
     [setState]
   );
 
+  const updateSearch = useCallback(
+    (searchValue: string) =>
+      setState((prev) =>
+        prev.search !== searchValue
+          ? {
+              ...prev,
+              search: searchValue,
+            }
+          : prev
+      ),
+    [setState]
+  );
+
+  const updateCurrentPage = useCallback(
+    (page: number) =>
+      setState((prev) =>
+        prev.currentPage !== page
+          ? {
+              ...prev,
+              currentPage: page,
+            }
+          : prev
+      ),
+    [setState]
+  );
+
   const value = useMemo<AssetsCtxValueType>(
     () => ({
       state,
-      methods: { updateMetaData, updateData },
+      methods: { updateMetaData, updateData, updateSearch, updateCurrentPage },
     }),
     [state, updateMetaData, updateData]
   );

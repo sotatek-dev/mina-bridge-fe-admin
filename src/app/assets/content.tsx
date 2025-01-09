@@ -24,9 +24,9 @@ function AssetsContent() {
 
   useEffect(() => {
     if (isConnected) {
-      getListAssets('', 1);
+      getListAssets(state.search, state.currentPage);
     }
-  }, [isConnected]);
+  }, [isConnected, state.search, state.currentPage]);
 
   if (action === Action.CREATE || action === Action.RE_DEPLOY)
     return <AssetDeploy />;

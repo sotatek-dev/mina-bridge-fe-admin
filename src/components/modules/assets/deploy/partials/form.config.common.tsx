@@ -7,11 +7,11 @@ import {
   Skeleton,
   Text,
 } from '@chakra-ui/react';
+import { useSearchParams } from 'next/navigation';
 
 import { useDeployState } from '../context';
 
 import { getDecimalPosition } from '@/helpers/common';
-import { useSearchParams } from 'next/navigation';
 
 type ConfigContractProps = {
   isConnected: boolean;

@@ -196,7 +196,7 @@ class AdminService {
   }
 
   reDeployAssetToken(id: number) {
-    return this.service.putAuth<any>(
+    return this.service.postAuth<any>(
       `${this.baseURL}/${ADMIN_ENDPOINT.RE_DEPLOY}/${id}`,
       {}
     );
