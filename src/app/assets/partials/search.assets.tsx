@@ -40,7 +40,9 @@ function SearchBar() {
         w={'190px'}
         h={'44px'}
         variant={'primary.orange.solid'}
-        onClick={() => router.push(`?action=${Action.CREATE}`)}
+        onClick={() => {
+          router.push(`?action=${Action.CREATE}`);
+        }}
       >
         Create new asset
       </Button>

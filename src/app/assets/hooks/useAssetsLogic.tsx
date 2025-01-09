@@ -18,7 +18,6 @@ export default function useAssetLogic() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { sendNotification } = useNotifier();
-  const [searchValue, setSearchValue] = useState<string>('');
 
   const disconnectWallet = useCallback(() => {
     dispatch(walletSliceActions.disconnect());
@@ -26,10 +25,10 @@ export default function useAssetLogic() {
   }, [dispatch, router]);
 
   const getListAssets = useCallback(
-    async (search?: string, page?: number) => {
+    async (search: string, page?: number) => {
       let params = {
         assetName: search,
-        page: page || state.pagingData.currentPage,
+        page: page,
         limit: 10,
       };
 
@@ -57,8 +56,8 @@ export default function useAssetLogic() {
 
   const debounceOnChange = useCallback(
     debounce((value) => {
-      getListAssets(value, 1);
-      setSearchValue(value);
+      methods.updateSearch(value);
+      methods.updateCurrentPage(1);
     }, 1000),
     [methods]
   );
@@ -102,18 +101,17 @@ export default function useAssetLogic() {
                 : 'Hide token successfully',
             },
           });
-          getListAssets();
+          getListAssets(state.search, state.currentPage);
         }
       }
     },
-    [isConnected]
+    [isConnected, state.search, state.currentPage]
   );
 
   const handleChangeCurrentPage = useCallback(
     (page: number) => {
       if (isConnected) {
-        methods.updateMetaData({ ...state.pagingData, currentPage: page });
-        getListAssets(searchValue, page);
+        methods.updateCurrentPage(page);
       }
     },
     [isConnected]
