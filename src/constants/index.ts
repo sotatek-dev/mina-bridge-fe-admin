@@ -9,6 +9,7 @@ export function getEnvNetwork(env: string) {
 }
 
 export enum Action {
-  CREATE = 'create',
+  CREATE = 'deploy',
+  RE_DEPLOY = 'redeploy',
   DETAIL = 'detail',
 }

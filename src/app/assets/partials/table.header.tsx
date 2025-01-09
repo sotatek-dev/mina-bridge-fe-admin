@@ -4,10 +4,11 @@ import React from 'react';
 const header = [
   'Status',
   'Asset (Ethereum)',
+  'Asset (Mina)',
   'Minimum Token to bridge',
   'Maximum Token to bridge',
   'Daily Quota',
-  'Bride fee (%)',
+  'Brigde fee (%)',
   'Show/Hide',
 ];
 

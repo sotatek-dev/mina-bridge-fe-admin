@@ -1,9 +1,10 @@
 'use client';
-import { Box, Flex, Heading, Table, Text, VStack } from '@chakra-ui/react';
-import { useSearchParams } from 'next/navigation';
-import { useMemo } from 'react';
+import { Box, Flex, Heading, Table, VStack } from '@chakra-ui/react';
+import { useEffect } from 'react';
 
 import { useAssetsState } from './context';
+import useAssetLogic from './hooks/useAssetsLogic';
+import useCheckRouter from './hooks/useCheckRouter';
 import EmptyHistoryData from './partials/empty.assetsData';
 import SearchBar from './partials/search.assets';
 import BodyTable from './partials/table.body';
@@ -13,18 +14,23 @@ import Pagination from './partials/table.pagination';
 import AssetDeploy from '@/components/modules/assets/deploy';
 import AssetDetail from '@/components/modules/assets/detail';
 import { Action } from '@/constants';
+import { getWalletSlice, useAppSelector } from '@/store';
 
 function AssetsContent() {
   const { state } = useAssetsState();
-  const params = useSearchParams();
+  const { action } = useCheckRouter();
+  const { getListAssets } = useAssetLogic();
+  const { isConnected } = useAppSelector(getWalletSlice);
 
-  const action = useMemo(() => {
-    return params.get('action');
-  }, [params]);
+  useEffect(() => {
+    if (isConnected) {
+      getListAssets(state.search, state.currentPage);
+    }
+  }, [isConnected, state.search, state.currentPage]);
 
-  if (action === Action.CREATE) return <AssetDeploy />;
+  if (action === Action.CREATE || action === Action.RE_DEPLOY)
+    return <AssetDeploy />;
   if (action === Action.DETAIL) return <AssetDetail />;
-
   return (
     <VStack
       gap={'0'}

@@ -1,44 +1,61 @@
 'use client';
-import { Link, Text } from '@chakra-ui/react';
+import { Box, Text } from '@chakra-ui/react';
 import _ from 'lodash';
 
-import {
-  formWei,
-  getDecimal,
-  truncatedNumber,
-  truncateMid,
-} from '@/helpers/common';
+import { truncateMid } from '@/helpers/common';
+import useNotifier from '@/hooks/useNotifier';
+import { NETWORK_NAME } from '@/models/network';
 
 type InfoTransactionProps = {
-  amount: string;
-  tokenName: string;
-  txHash: string | null;
-  networkName: string;
-  scanUrl?: string;
+  assetName: string;
+  address: string;
+  networkName?: NETWORK_NAME;
 };
 
 function InfoTransaction({
-  amount,
-  tokenName,
-  txHash,
+  assetName,
+  address,
   networkName,
-  scanUrl,
 }: InfoTransactionProps) {
-  const [fSlice, sSlice] = !txHash ? ['', ''] : truncateMid(txHash, 4, 4);
-  const value = amount ? formWei(amount, getDecimal(networkName)) : '0.00';
+  const { sendNotification } = useNotifier();
+  const [fSlice, sSlice] = !address ? ['', ''] : truncateMid(address, 4, 4);
+
+  function copyToClipboard(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+    e.stopPropagation();
+    navigator.clipboard
+      .writeText(address)
+      .then(() => {
+        sendNotification({
+          toastType: 'success',
+          options: {
+            title: 'Copied to clipboard',
+          },
+        });
+      })
+      .catch((err) => {
+        sendNotification({
+          toastType: 'success',
+          options: {
+            title: 'Copied failed',
+          },
+        });
+      });
+  }
 
   return (
     <>
-      <Text variant={'lg'} color={'text.900'}>
-        {`${truncatedNumber(value, 0.0001)} ${_.isEmpty(tokenName) ? '' : tokenName}`}
-      </Text>
-
-      {txHash && scanUrl && (
-        <Link href={`${scanUrl}/tx/${txHash}`} target={'_blank'}>
-          <Text variant={'md'} color={'primary.purple'} whiteSpace={'nowrap'}>
-            {`${fSlice}...${sSlice} (${networkName.toUpperCase()})`}
+      {address && (
+        <>
+          <Text variant={'lg'} color={'text.900'}>
+            {networkName === NETWORK_NAME.MINA && 'W'}
+            {assetName}
           </Text>
-        </Link>
+          <Box cursor={'pointer'} onClick={copyToClipboard}>
+            <Text variant={'md'} color={'primary.purple'} whiteSpace={'nowrap'}>
+              {`${fSlice}...${sSlice}`} ({assetName})
+            </Text>
+          </Box>
+        </>
       )}
     </>
   );

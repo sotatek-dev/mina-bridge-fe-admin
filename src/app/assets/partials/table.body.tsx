@@ -1,90 +1,99 @@
 'use client';
-import { Switch, Tbody, Td, Text, Tr } from '@chakra-ui/react';
-import _ from 'lodash';
+
+import { Box, Tbody, Td, Text, Tr } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import React from 'react';
 
-import InfoTransaction from './table.row.infoTx';
-import RowStatus, { STATUS } from './table.row.status';
+import AddressInfo from './table.row.infoTx';
+import RowStatus from './table.row.status';
+import RowSwitch from './table.row.switch';
 
+import useModalLoadingDeployLogic from '@/components/modules/modals/components/modalLoadingDeploy/hooks/useModalLoadingDeployLogic';
 import { Action } from '@/constants';
-import {
-  formatDate,
-  formatTime,
-  getScanUrl,
-  truncatedNumber,
-} from '@/helpers/common';
-import { HistoryResponse } from '@/services/usersService';
+import { nFormatter } from '@/helpers/common';
+import { NETWORK_NAME } from '@/models/network';
+import { STATUS, TokenResponse } from '@/services/adminService';
 
 type PropsBodyTable = {
-  data: HistoryResponse[];
+  data: TokenResponse[];
 };
 
 function BodyTable({ data }: PropsBodyTable) {
   const router = useRouter();
+  const { openLoadingDeployModal } = useModalLoadingDeployLogic();
+
+  const handleRow = (data: TokenResponse) => {
+    switch (data.status) {
+      case STATUS.ENABLE:
+      case STATUS.DISABLE:
+        return router.push(
+          `?action=${Action.DETAIL}&address=${data.fromAddress}`
+        );
+
+      case STATUS.DEPLOY_FAILED:
+        return router.push(
+          `?action=${Action.RE_DEPLOY}&address=${data.fromAddress}&id=${data.id}`
+        );
+      case STATUS.CREATED:
+      case STATUS.DEPLOYING:
+        return openLoadingDeployModal();
+      default:
+        break;
+    }
+  };
   return (
     <Tbody>
       {data.map((item) => {
         return (
-          <Tr
-            key={item.id}
-            cursor={'pointer'}
-            onClick={() => router.push(`?action=${Action.DETAIL}`)}
-          >
+          <Tr key={item.id} cursor={'pointer'} onClick={() => handleRow(item)}>
             <Td borderBottom={'solid 1px #E4E4E7'}>
-              <RowStatus status={item.status} networkName={item.networkFrom} />
+              <div>
+                <RowStatus status={item.status} />
+              </div>
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
-              <InfoTransaction
-                amount={item.amountFrom}
-                tokenName={item.tokenFromName}
-                txHash={item.txHashLock}
-                networkName={item.networkFrom}
-                scanUrl={getScanUrl(item.networkFrom)}
+              <AddressInfo assetName={item.asset} address={item.fromAddress} />
+            </Td>
+            <Td borderBottom={'solid 1px #E4E4E7'}>
+              <AddressInfo
+                assetName={item.asset}
+                address={item?.toAddress}
+                networkName={NETWORK_NAME.MINA}
               />
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
               <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
-                {`${truncatedNumber(
+                {/* {`${truncatedNumber(
                   item.tip ? item.tip : '0.00'
-                )} ${!item?.tip || _.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`}
+                )} ${!item?.tip || _.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`} */}
+                0
               </Text>
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
               <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
-                {`${truncatedNumber(
-                  item.gasFee ? item.gasFee : '0.00'
-                )} ${!item?.gasFee || _.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`}
-              </Text>
-            </Td>
-            <Td borderBottom={'solid 1px #E4E4E7'} width={100}>
-              <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
-                {formatDate(Number(item.blockTimeLock) * 1000)}
-              </Text>
-              <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
-                {formatTime(Number(item.blockTimeLock) * 1000)}
+                {/* {`${truncatedNumber(
+                  item.tip ? item.tip : '0.00'
+                )} ${!item?.tip || _.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`} */}
+                0
               </Text>
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
-              {item?.status === STATUS.COMPLETED && item?.updatedAt && (
-                <>
-                  <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
-                    {formatDate(item?.updatedAt)}
-                  </Text>
-                  <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
-                    {formatTime(item?.updatedAt)}
-                  </Text>
-                </>
-              )}
+              <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
+                {item?.dailyQuota ? nFormatter(item?.dailyQuota) : ''}
+              </Text>
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
-              <Switch
-                sx={{
-                  '.chakra-switch__track[data-checked]': {
-                    backgroundColor: 'primary.purple',
-                  },
-                }}
-              />
+              <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
+                {item?.bridgeFee ? Number(item.bridgeFee) : ''}
+              </Text>
+            </Td>
+            <Td borderBottom={'solid 1px #E4E4E7'}>
+              <Box onClick={(e) => e.stopPropagation()} w={'fit-content'}>
+                <RowSwitch
+                  id={item.id}
+                  isHidden={item.isHidden}
+                  status={item.status}
+                />
+              </Box>
             </Td>
           </Tr>
         );
