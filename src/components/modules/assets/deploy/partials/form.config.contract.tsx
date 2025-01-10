@@ -1,10 +1,14 @@
 'use client';
 import {
+  Box,
   Grid,
   GridItem,
   HStack,
   Input,
+  InputGroup,
+  InputRightElement,
   Skeleton,
+  Spinner,
   Text,
 } from '@chakra-ui/react';
 import { useSearchParams } from 'next/navigation';
@@ -12,6 +16,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { useDeployState } from '../context';
 
+import LoadingClip from '@/components/elements/loading/loadingClip';
 import { Action } from '@/constants';
 import { getDecimalPosition } from '@/helpers/common';
 import { validateAddress } from '@/helpers/validateField';
@@ -35,7 +40,7 @@ export default function ConfigDeployContract({
     }
   }, [addressInputRef]);
 
-  const { value, fetchedValue, isLoading, isInitLoading } =
+  const { value, fetchedValue, isLoading, isInitLoading, isLoadingTokenName } =
     useDeployState().state;
   const { setValue, setIsError } = useDeployState().methods;
   const params = useSearchParams();
@@ -156,12 +161,23 @@ export default function ConfigDeployContract({
               <Text variant={'lg_medium'} color={'text.700'} mb={1}>
                 Asset name
               </Text>
-              <Input
-                isDisabled
-                placeholder={'Asset name'}
-                value={value.assetName}
-                opacity={Boolean(id) ? 'none' : '1 !important'}
-              />
+              <InputGroup>
+                <Input
+                  isDisabled
+                  placeholder={'Asset name'}
+                  value={value.assetName}
+                  // opacity={Boolean(id) ? 'none' : '1 !important'}
+                />
+                <InputRightElement h={'100%'}>
+                  {isLoadingTokenName ? (
+                    <Spinner
+                      id={'loading-token-name'}
+                      w={`${16}px`}
+                      h={`${16}px`}
+                    />
+                  ) : null}
+                </InputRightElement>
+              </InputGroup>
             </GridItem>
             <GridItem>
               <Text variant={'lg_medium'} color={'text.700'} mb={1}>

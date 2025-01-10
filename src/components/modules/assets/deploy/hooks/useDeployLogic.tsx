@@ -4,28 +4,22 @@ import { useEffect, useMemo } from 'react';
 
 import { DeployValue, useDeployState } from '../context';
 
-import ABITokenErc20 from '@/configs/ABIs/TokenErc20';
 import ROUTES from '@/configs/routes';
 import { Action } from '@/constants';
 import { handleRequest } from '@/helpers/asyncHandlers';
 import { isValidAddress } from '@/helpers/common';
 import useNotifier from '@/hooks/useNotifier';
-import Contract from '@/models/contract/evm/contract';
 import adminService, { TokenDetail } from '@/services/adminService';
-import {
-  getWalletInstanceSlice,
-  getWalletSlice,
-  useAppSelector,
-} from '@/store';
+import { getWalletSlice, useAppSelector } from '@/store';
 
 function useDeployLogic() {
   const { value, fetchedValue, isLoading, isError } = useDeployState().state;
-  const { setValue, setFetchedValue, setIsLoading } = useDeployState().methods;
+  const { setValue, setFetchedValue, setIsLoading, setIsLoadingTokenName } =
+    useDeployState().methods;
 
   const { sendNotification } = useNotifier();
 
   const { isConnected } = useAppSelector(getWalletSlice);
-  const { networkInstance } = useAppSelector(getWalletInstanceSlice);
 
   const router = useRouter();
   const params = useSearchParams();
@@ -59,7 +53,7 @@ function useDeployLogic() {
     const min = Number(value.minAmountToBridge);
     const max = Number(value.maxAmountToBridge);
     const dailyQuota = Number(value.dailyQuota);
-    if (min >= max || dailyQuota < max || dailyQuota < min) {
+    if (min > max || dailyQuota < max || dailyQuota < min) {
       sendNotification({
         toastType: 'error',
         options: {
@@ -80,7 +74,7 @@ function useDeployLogic() {
       adminService.addAssetToken(formatValue)
     );
     if (error) {
-      console.log('🚀 ~ deploy tokenn ~ error:', error);
+      console.log('🚀 ~ deploy token ~ error:', error);
       return;
     }
     setIsLoading(false);
@@ -155,28 +149,29 @@ function useDeployLogic() {
     getTokenDetail(address);
   }, []);
 
-  useEffect(() => {
+  const getTokenName = async () => {
     if (!value.assetAddress || !isValidAddress(value.assetAddress)) {
       if (!!value.assetName) setValue({ ...value, assetName: '' });
       return;
     }
-
-    const getValue = async () => {
+    if (value.assetAddress) {
       try {
-        const contract = new Contract({
-          address: value.assetAddress,
-          contractABI: ABITokenErc20,
-          provider: (networkInstance.src?.metadata as any)?.provider,
-        });
-        const assetName = await contract.contractInstance.methods
-          .symbol()
-          .call();
-        setValue({ ...value, assetName });
+        setIsLoadingTokenName(true);
+        const [res, error] = await handleRequest(
+          adminService.getAssetNameToken(value.assetAddress)
+        );
+        console.log('res', res);
+        setValue({ ...value, assetName: res?.symbol || '' });
       } catch (error) {
         console.log('Get Symbol Error: ', error);
+      } finally {
+        setIsLoadingTokenName(false);
       }
-    };
-    getValue();
+    }
+  };
+
+  useEffect(() => {
+    getTokenName();
   }, [value.assetAddress]);
 
   return { isDisabled, action, handleDeploy, handleReDeploy };

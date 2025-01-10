@@ -17,6 +17,7 @@ export type DeployState = {
   value: DeployValue;
   fetchedValue: DeployValue;
   isLoading: boolean;
+  isLoadingTokenName: boolean;
   isInitLoading: boolean;
   isError: boolean;
 };
@@ -25,6 +26,7 @@ export type DeployCtxValueType = {
   state: DeployState;
   methods: {
     setIsLoading: (loading: boolean) => void;
+    setIsLoadingTokenName: (loading: boolean) => void;
     setIsInitLoading: (loading: boolean) => void;
     setIsError: (isError: boolean) => void;
     setValue: (value: DeployValue) => void;
@@ -35,6 +37,7 @@ export type DeployProviderProps = React.PropsWithChildren<{}>;
 
 export const initPagingDataState: DeployState = {
   isLoading: false,
+  isLoadingTokenName: false,
   isInitLoading: false,
   isError: false,
   value: {
@@ -111,6 +114,19 @@ export default function DeployProvider({ children }: DeployProviderProps) {
     [setState]
   );
 
+  const setIsLoadingTokenName = useCallback(
+    (loading: boolean) =>
+      setState((prev) =>
+        prev.isLoadingTokenName !== loading
+          ? {
+              ...prev,
+              isLoadingTokenName: loading,
+            }
+          : prev
+      ),
+    [setState]
+  );
+
   const setIsInitLoading = useCallback(
     (loading: boolean) =>
       setState((prev) =>
@@ -146,9 +162,17 @@ export default function DeployProvider({ children }: DeployProviderProps) {
         setIsLoading,
         setIsInitLoading,
         setIsError,
+        setIsLoadingTokenName,
       },
     }),
-    [state, setValue, setIsLoading, setIsInitLoading, setFetchedValue]
+    [
+      state,
+      setValue,
+      setIsLoading,
+      setIsInitLoading,
+      setFetchedValue,
+      setIsLoadingTokenName,
+    ]
   );
 
   return (
