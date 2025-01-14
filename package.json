@@ -8,6 +8,7 @@
     "build": "node_modules/.bin/next build",
     "start": "node_modules/.bin/next start -p 3972",
     "start:testing": "node_modules/.bin/next start -p 3973",
+    "start:testing-v2": "node_modules/.bin/next start -p 3976",
     "lint": "node_modules/.bin/next lint"
   },
   "dependencies": {
