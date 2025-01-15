@@ -64,7 +64,7 @@ function Pagination() {
         activeClassName={'custom-pagination__item-active'}
         sx={{
           '.custom-pagination__item': {
-            width: '35px',
+            minWidth: '35px',
             height: '35px',
             lineHeight: '35px',
             textAlign: 'center',
@@ -74,6 +74,7 @@ function Pagination() {
             a: {
               display: 'block',
               width: 'full',
+              padding: '0 5px',
             },
             '&-active': {
               bg: 'primary.purple',
