@@ -167,6 +167,8 @@ export default function ModalCWProvider({
         wallet === WALLET_NAME.METAMASK &&
         state.selectedNetwork === NETWORK_NAME.MINA;
 
+      await switchNetwork(WALLETS[wallet]!!, NETWORKS[state.selectedNetwork]);
+
       const res = await dispatch(
         walletSliceActions.connectWallet({
           wallet: WALLETS[wallet]!!,
@@ -186,7 +188,6 @@ export default function ModalCWProvider({
           },
         })
       );
-      await switchNetwork(WALLETS[wallet]!!, NETWORKS[state.selectedNetwork]);
 
       updateScreenLoading(false);
 
