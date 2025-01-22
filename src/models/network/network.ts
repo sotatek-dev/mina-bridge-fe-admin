@@ -21,15 +21,17 @@ export enum EVM_CHAIN {
 
 export enum ZK_CHAIN {
   MAINNET = 'mina:mainnet',
-  DEVNET = 'mina:testnet',
-  BERKELEY = 'mina:berkeley',
-  TESTWORLD2 = 'testworld2',
+  DEVNET = 'mina:devnet',
+  ZEKO_TESTNET = 'zeko:testnet',
+  // BERKELEY = 'mina:berkeley',
+  // TESTWORLD2 = 'testworld2',
 }
 
 enum ENetworkNameOldVersion {
   MAINNET = 'Mainnet',
   DEVNET = 'Devnet',
-  BERKELEY = 'Berkeley',
+  ZEKO_TESTNET = 'Zeko Testnet',
+  // BERKELEY = 'Berkeley',
 }
 
 export enum CHAIN_TYPE {
@@ -156,20 +158,27 @@ export const ZK_CHAINS_METADATA: Record<ZK_CHAIN, NetworkZKChainMetadataType> =
       proxyUrl: 'https://api.minascan.io/node/devnet/v1/graphql',
       scanUrl: 'https://minascan.io/devnet',
     },
-    [ZK_CHAIN.BERKELEY]: {
-      chainId: ZK_CHAIN.BERKELEY,
+    [ZK_CHAIN.ZEKO_TESTNET]: {
+      chainId: ZK_CHAIN.ZEKO_TESTNET,
       chainType: CHAIN_TYPE.TESTNET,
-      chainName: 'Berkeley',
-      proxyUrl: 'https://proxy.berkeley.minaexplorer.com/',
-      scanUrl: 'https://minascan.io/berkeley',
-    },
-    [ZK_CHAIN.TESTWORLD2]: {
-      chainId: ZK_CHAIN.TESTWORLD2,
-      chainType: CHAIN_TYPE.TESTNET,
-      chainName: 'Mina Test world 2',
+      chainName: 'Zeko Testnet',
       proxyUrl: '',
       scanUrl: 'https://minascan.io/testworld',
     },
+    // [ZK_CHAIN.BERKELEY]: {
+    //   chainId: ZK_CHAIN.BERKELEY,
+    //   chainType: CHAIN_TYPE.TESTNET,
+    //   chainName: 'Berkeley',
+    //   proxyUrl: 'https://proxy.berkeley.minaexplorer.com/',
+    //   scanUrl: 'https://minascan.io/berkeley',
+    // },
+    // [ZK_CHAIN.TESTWORLD2]: {
+    //   chainId: ZK_CHAIN.TESTWORLD2,
+    //   chainType: CHAIN_TYPE.TESTNET,
+    //   chainName: 'Mina Test world 2',
+    //   proxyUrl: '',
+    //   scanUrl: 'https://minascan.io/testworld',
+    // },
   };
 
 export const getZKNetworkMetadata = (
@@ -183,8 +192,10 @@ export const getZKChainIdName = (chainId: string): string => {
       return ENetworkNameOldVersion.MAINNET;
     case ZK_CHAIN.DEVNET:
       return ENetworkNameOldVersion.DEVNET;
-    case ZK_CHAIN.BERKELEY:
-      return ENetworkNameOldVersion.BERKELEY;
+    case ZK_CHAIN.ZEKO_TESTNET:
+      return ENetworkNameOldVersion.ZEKO_TESTNET;
+    // case ZK_CHAIN.BERKELEY:
+    //   return ENetworkNameOldVersion.BERKELEY;
     default:
       return chainId;
   }
