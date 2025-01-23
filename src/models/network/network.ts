@@ -95,7 +95,7 @@ export const EVM_CHAINS_METADATA: Record<
     provider: {
       type: PROVIDER_TYPE.HTTPS,
       uri:
-        process.env.NEXT_PUBLIC_REQUIRED_ETH_RPC_MANNET ||
+        process.env.NEXT_PUBLIC_REQUIRED_ETH_RPC_MAINNET ||
         'https://mainnet.infura.io/v3/1b7a1af6054b4b4aa62d387f77eb5daa',
     },
     scanUrl: 'https://etherscan.io',
@@ -153,7 +153,7 @@ export const ZK_CHAINS_METADATA: Record<ZK_CHAIN, NetworkZKChainMetadataType> =
       chainType: CHAIN_TYPE.MAINNET,
       chainName: 'Mina',
       proxyUrl:
-        process.env.NEXT_PUBLIC_REQUIRED_MINA_RPC_MANNET ||
+        process.env.NEXT_PUBLIC_REQUIRED_MINA_RPC_MAINNET ||
         'https://api.minascan.io/node/mainnet/v1/graphql',
       scanUrl: 'https://minascan.io/mainnet',
     },
