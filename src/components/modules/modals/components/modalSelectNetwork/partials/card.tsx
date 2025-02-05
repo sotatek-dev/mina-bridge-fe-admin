@@ -50,6 +50,12 @@ export default function Card({ nwKey }: CardProps) {
 
     handleCloseCurModal();
 
+    WALLETS[
+      network.name === NETWORK_NAME.ETHEREUM
+        ? WALLET_NAME.METAMASK
+        : WALLET_NAME.AURO
+    ]?.switchNetwork(network);
+
     // retry get wallet account
     const res = await dispatch(
       walletSliceActions.connectWallet({
