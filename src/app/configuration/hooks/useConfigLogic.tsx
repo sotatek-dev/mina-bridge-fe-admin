@@ -272,7 +272,7 @@ export default function useConfigLogic() {
         sendNotification({
           toastType: 'success',
           options: {
-            title: 'Transaction Submitted',
+            title: 'Update successfully',
           },
         });
         return true;

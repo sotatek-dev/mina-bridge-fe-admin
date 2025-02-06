@@ -1,12 +1,13 @@
 'use client';
 import { debounce } from 'lodash';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Web3 from 'web3';
 
 import { initPagingDataState, useHistoryState } from '../context';
 
 import ROUTES from '@/configs/routes';
+import ITV from '@/configs/time';
 import { handleException, handleRequest } from '@/helpers/asyncHandlers';
 import useNotifier from '@/hooks/useNotifier';
 import adminService from '@/services/adminService';
@@ -20,6 +21,8 @@ export default function useHistoryLogic() {
   const router = useRouter();
   const { sendNotification } = useNotifier();
   const [searchValue, setSearchValue] = useState();
+
+  const interval = useRef<any>(null);
 
   const disconnectWallet = useCallback(() => {
     if (!address) return;
@@ -94,11 +97,20 @@ export default function useHistoryLogic() {
   );
   useEffect(() => {
     if (isConnected) {
+      if (interval.current) clearInterval(interval.current);
       getListHistory(searchValue, state.pagingData.currentPage);
+
+      interval.current = setInterval(() => {
+        getListHistory(searchValue, state.pagingData.currentPage);
+      }, ITV.S30);
     } else {
       methods.updateMetaData(initPagingDataState.pagingData);
       methods.updateData([]);
     }
+
+    return () => {
+      clearInterval(interval.current);
+    };
   }, [searchValue, state.pagingData.currentPage, isConnected]);
 
   return {
