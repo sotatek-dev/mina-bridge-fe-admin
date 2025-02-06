@@ -34,7 +34,17 @@ export default function UnmatchedChain() {
   }
 
   return walletInstance && curBanner.isDisplay && curBanner.payload ? (
-    <Flex bg={'red.500'} minH={'50px'} py={'5px'} alignItems={'center'}>
+    <Flex
+      bg={'red.500'}
+      minH={'50px'}
+      py={'5px'}
+      alignItems={'center'}
+      position={'fixed'}
+      top={'75px'}
+      left={0}
+      right={0}
+      zIndex={100}
+    >
       <Container
         maxW={{
           sm: 'container.sm',
