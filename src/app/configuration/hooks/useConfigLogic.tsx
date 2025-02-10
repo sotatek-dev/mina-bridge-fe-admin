@@ -227,7 +227,7 @@ export default function useConfigLogic() {
         sendNotification({
           toastType: 'success',
           options: {
-            title: 'Transaction Submitted',
+            title: 'Update successfully',
           },
         });
         return true;
@@ -272,7 +272,7 @@ export default function useConfigLogic() {
         sendNotification({
           toastType: 'success',
           options: {
-            title: 'Transaction Submitted',
+            title: 'Update successfully',
           },
         });
         return true;
@@ -315,7 +315,7 @@ export default function useConfigLogic() {
       sendNotification({
         toastType: 'success',
         options: {
-          title: 'Transaction Submitted',
+          title: 'Update successfully',
         },
       });
       return true;
@@ -324,7 +324,7 @@ export default function useConfigLogic() {
       sendNotification({
         toastType: 'error',
         options: {
-          title: 'Rejected Transaction',
+          title: 'Transaction rejected',
         },
       });
       return false;
