@@ -14,7 +14,8 @@ type ConfigCommonProps = {
 
 const initCommonConfig: CommonConfigResponse = {
   id: 0,
-  dailyQuota: '0',
+  dailyQuotaPerAddress: '0',
+  dailyQuotaSystem: '0',
   tip: '0',
   asset: 'ETH',
   feeUnlockMina: '0',
@@ -30,17 +31,48 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
 
   const [currentConfig, setCurrentConfig] =
     useState<CommonConfigResponse>(initCommonConfig);
-  const [dailyQuota, setDailyQuota] = useState<string>('');
+  const [dailyQuotaPerAddress, setDailyQuotaPerAddress] = useState<string>('');
+  const [dailyQuotaSystem, setDailyQuotaSystem] = useState<string>('');
   const [tip, setTip] = useState<string>('');
   const [feeUnlockMina, setFeeUnlockMina] = useState<string>('');
   const [feeUnlockEth, setFeeUnlockEth] = useState<string>('');
 
   const disable = useMemo(() => {
-    if (!tip && !dailyQuota && !feeUnlockEth && !feeUnlockMina) return true;
+    if (
+      !tip &&
+      !dailyQuotaPerAddress &&
+      !dailyQuotaSystem &&
+      !feeUnlockEth &&
+      !feeUnlockMina
+    )
+      return true;
     return false;
-  }, [tip, dailyQuota, feeUnlockEth, feeUnlockMina]);
+  }, [
+    tip,
+    dailyQuotaPerAddress,
+    dailyQuotaSystem,
+    feeUnlockEth,
+    feeUnlockMina,
+  ]);
 
-  const handleChangeDailyQuota = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // const handleChangeDailyQuota = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (isLoading || !isConnected) {
+  //     e.preventDefault();
+  //   }
+  //   const posPoint = getDecimalPosition(e.currentTarget.value);
+  //   if (
+  //     (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
+  //     e.currentTarget.value.length > 79
+  //   ) {
+  //     e.preventDefault();
+  //     return;
+  //   }
+  //   setDailyQuota(e.currentTarget.value);
+  // };
+
+  const handleChangeDailyQuotaPerAddress = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (isLoading || !isConnected) {
       e.preventDefault();
     }
@@ -52,7 +84,24 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
       e.preventDefault();
       return;
     }
-    setDailyQuota(e.currentTarget.value);
+    setDailyQuotaPerAddress(e.currentTarget.value);
+  };
+
+  const handleChangeDailyQuotaSystem = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (isLoading || !isConnected) {
+      e.preventDefault();
+    }
+    const posPoint = getDecimalPosition(e.currentTarget.value);
+    if (
+      (posPoint <= e.currentTarget.value.length - 5 && posPoint !== -1) ||
+      e.currentTarget.value.length > 79
+    ) {
+      e.preventDefault();
+      return;
+    }
+    setDailyQuotaSystem(e.currentTarget.value);
   };
 
   const handleChangeTip = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,14 +157,20 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
     const res = await updateCommonConfig({
       id: currentConfig.id,
       tip,
-      dailyQuota,
+      dailyQuotaPerAddress,
+      dailyQuotaSystem,
       feeUnlockEth,
       feeUnlockMina,
     });
     if (res) {
       setDisplayedConfig({
         tip: !!tip ? tip : displayedConfig.tip,
-        dailyQuota: !!dailyQuota ? dailyQuota : displayedConfig.dailyQuota,
+        dailyQuotaPerAddress: !!dailyQuotaPerAddress
+          ? dailyQuotaPerAddress
+          : displayedConfig.dailyQuotaPerAddress,
+        dailyQuotaSystem: !!dailyQuotaSystem
+          ? dailyQuotaSystem
+          : displayedConfig.dailyQuotaSystem,
         feeUnlockEth: !!feeUnlockEth
           ? feeUnlockEth
           : displayedConfig.feeUnlockEth,
@@ -124,7 +179,8 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
           : displayedConfig.feeUnlockMina,
       });
       setTip('');
-      setDailyQuota('');
+      setDailyQuotaPerAddress('');
+      setDailyQuotaSystem('');
       setFeeUnlockEth('');
       setFeeUnlockMina('');
     }
@@ -147,13 +203,8 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
 
   if (isMinMaxLoading)
     return (
-      <Flex
-        bg={'text.25'}
-        w={'full'}
-        padding={'22px 35px'}
-        justifyContent={'space-between'}
-      >
-        <VStack w={'49%'} alignItems={'flex-end'}>
+      <VStack bg={'text.25'} w={'full'} padding={'22px 35px'} gap={5}>
+        <Flex gap={6} w={'100%'}>
           <VStack w={'full'} alignItems={'flex-start'}>
             <Skeleton h={'22.4px'} w={'100%'} />
             <Skeleton h={12} w={'100%'} />
@@ -162,8 +213,9 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
             <Skeleton h={'22.4px'} w={'100%'} />
             <Skeleton h={12} w={'100%'} />
           </VStack>
-        </VStack>
-        <VStack w={'49%'} alignItems={'flex-end'}>
+        </Flex>
+
+        <Flex gap={6} w={'100%'}>
           <VStack w={'full'} alignItems={'flex-start'}>
             <Skeleton h={'22.4px'} w={'100%'} />
             <Skeleton h={12} w={'100%'} />
@@ -172,19 +224,51 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
             <Skeleton h={'22.4px'} w={'100%'} />
             <Skeleton h={12} w={'100%'} />
           </VStack>
+          <VStack w={'full'} alignItems={'flex-start'}>
+            <Skeleton h={'22.4px'} w={'100%'} />
+            <Skeleton h={12} w={'100%'} />
+          </VStack>
+        </Flex>
+
+        <Flex w={'100%'} justifyContent={'flex-end'}>
           <Skeleton h={10} w={'191px'} />
-        </VStack>
-      </Flex>
+        </Flex>
+      </VStack>
     );
 
   return (
-    <Flex
-      bg={'text.25'}
-      w={'full'}
-      padding={'22px 35px'}
-      justifyContent={'space-between'}
-    >
-      <VStack w={'49%'} alignItems={'flex-start'}>
+    <VStack bg={'text.25'} w={'full'} padding={'22px 35px'} gap={5}>
+      <Flex gap={6} w={'100%'}>
+        <VStack w={'full'} alignItems={'flex-start'}>
+          <Text variant={'lg_medium'}>Daily Quota (System)</Text>
+          <Input
+            placeholder={String(Number(displayedConfig.dailyQuotaSystem))}
+            size={'md_medium'}
+            type={'number'}
+            isDisabled={!isConnected}
+            value={dailyQuotaSystem}
+            onChange={handleChangeDailyQuotaSystem}
+            maxLength={79}
+            min={0}
+            onKeyDown={handleKeyDown}
+          />
+        </VStack>
+        <VStack w={'full'} alignItems={'flex-start'}>
+          <Text variant={'lg_medium'}>Daily Quota (Per Address)</Text>
+          <Input
+            placeholder={String(Number(displayedConfig.dailyQuotaPerAddress))}
+            size={'md_medium'}
+            type={'number'}
+            isDisabled={!isConnected}
+            value={dailyQuotaPerAddress}
+            min={0}
+            onChange={handleChangeDailyQuotaPerAddress}
+            onKeyDown={handleKeyDown}
+          />
+        </VStack>
+      </Flex>
+
+      <Flex gap={6} w={'100%'}>
         <VStack w={'full'} alignItems={'flex-start'}>
           <Text variant={'lg_medium'}>Unlocking Fee</Text>
           <Input
@@ -200,9 +284,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
           />
         </VStack>
         <VStack w={'full'} alignItems={'flex-start'}>
-          <Text variant={'lg_medium'} mt={'20px'}>
-            Minting Fee
-          </Text>
+          <Text variant={'lg_medium'}>Minting Fee</Text>
           <Input
             placeholder={displayedConfig.feeUnlockMina}
             size={'md_medium'}
@@ -215,67 +297,31 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
             onKeyDown={handleKeyDown}
           />
         </VStack>
-      </VStack>
-      {isMinMaxLoading ? (
-        <VStack w={'48%'} alignItems={'flex-end'}>
-          <VStack w={'full'} alignItems={'flex-start'}>
-            <Skeleton h={'22.4px'} w={'100%'} />
-            <Skeleton h={12} w={'100%'} />
-          </VStack>
-          <VStack w={'full'} alignItems={'flex-start'}>
-            <Skeleton h={'22.4px'} w={'100%'} />
-            <Skeleton h={12} w={'100%'} />
-          </VStack>
-          <VStack w={'full'} alignItems={'flex-start'}>
-            <Skeleton h={'22.4px'} w={'100%'} />
-            <Skeleton h={12} w={'100%'} />
-          </VStack>
-          <VStack w={'full'} alignItems={'flex-start'}>
-            <Skeleton h={'22.4px'} w={'100%'} />
-            <Skeleton h={12} w={'100%'} />
-          </VStack>
-          <Skeleton h={10} w={'191px'} />
+        <VStack w={'full'} alignItems={'flex-start'}>
+          <Text variant={'lg_medium'}>Bridging Fee (%)</Text>
+          <Input
+            placeholder={String(Number(displayedConfig.tip))}
+            size={'md_medium'}
+            type={'number'}
+            isDisabled={!isConnected}
+            value={tip}
+            onChange={handleChangeTip}
+            maxLength={79}
+            min={0}
+            onKeyDown={handleKeyDown}
+          />
         </VStack>
-      ) : (
-        <VStack w={'49%'} alignItems={'flex-end'}>
-          <VStack w={'full'} alignItems={'flex-start'}>
-            <Text variant={'lg_medium'}>Daily Quota</Text>
-            <Input
-              placeholder={String(Number(displayedConfig.dailyQuota))}
-              size={'md_medium'}
-              type={'number'}
-              isDisabled={!isConnected}
-              value={dailyQuota}
-              min={0}
-              onChange={handleChangeDailyQuota}
-              onKeyDown={handleKeyDown}
-            />
-          </VStack>
-          <VStack w={'full'} alignItems={'flex-start'}>
-            <Text variant={'lg_medium'} mt={'20px'}>
-              Bridging Fee (%)
-            </Text>
-            <Input
-              placeholder={String(Number(displayedConfig.tip))}
-              size={'md_medium'}
-              type={'number'}
-              isDisabled={!isConnected}
-              value={tip}
-              onChange={handleChangeTip}
-              maxLength={79}
-              min={0}
-              onKeyDown={handleKeyDown}
-            />
-          </VStack>
-          <Button
-            variant={!isConnected || disable ? 'ghost' : 'primary.orange.solid'}
-            w={'191px'}
-            onClick={handleUpdateConfig}
-          >
-            Save
-          </Button>
-        </VStack>
-      )}
-    </Flex>
+      </Flex>
+
+      <Flex w={'100%'} justifyContent={'flex-end'}>
+        <Button
+          variant={!isConnected || disable ? 'ghost' : 'primary.orange.solid'}
+          w={'191px'}
+          onClick={handleUpdateConfig}
+        >
+          Save
+        </Button>
+      </Flex>
+    </VStack>
   );
 }

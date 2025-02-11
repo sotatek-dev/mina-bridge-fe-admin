@@ -29,7 +29,8 @@ export type ValueType = {
   max: string;
 };
 export type DisplayedConfigType = {
-  dailyQuota: string;
+  dailyQuotaSystem: string;
+  dailyQuotaPerAddress: string;
   tip: string;
   feeUnlockMina: string;
   feeUnlockEth: string;
@@ -67,7 +68,8 @@ export const initPagingDataState: ConfigState = {
     max: '',
   },
   displayedConfig: {
-    dailyQuota: '',
+    dailyQuotaPerAddress: '',
+    dailyQuotaSystem: '',
     tip: '',
     feeUnlockMina: '',
     feeUnlockEth: '',
