@@ -172,6 +172,12 @@ class AdminService {
     );
   }
 
+  getAssetNameToken(address: string) {
+    return this.service.getAuth<{ symbol: string; address: string }>(
+      `${this.baseURL}/${ADMIN_ENDPOINT.ASSET_NAME}/${address}`
+    );
+  }
+
   addAssetToken(body: TokenDetail) {
     return this.service.postAuth<ListTokenResponse>(
       `${this.baseURL}/${ADMIN_ENDPOINT.ADD_TOKEN}`,
