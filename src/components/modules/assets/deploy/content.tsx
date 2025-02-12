@@ -8,6 +8,7 @@ import ConfigDeployCommon from './partials/form.config.common';
 import ConfigDeployContract from './partials/form.config.contract';
 
 import { useAssetsState } from '@/app/assets/context';
+import useAssetLogic from '@/app/assets/hooks/useAssetsLogic';
 import { Action } from '@/constants';
 import { getWalletSlice, useAppSelector } from '@/store';
 
@@ -19,7 +20,7 @@ export default function DeployContent() {
   const { isConnected } = useAppSelector(getWalletSlice);
   const router = useRouter();
   const { fetchedValue, isLoading } = useDeployState().state;
-
+  const { getListAssets } = useAssetLogic();
   const { action, handleReDeploy, handleDeploy, isDisabled } = useDeployLogic();
 
   const isBtnNotActive = id
@@ -31,6 +32,7 @@ export default function DeployContent() {
     else await handleDeploy();
     methods.updateSearch('');
     methods.updateCurrentPage(1);
+    getListAssets('', 1);
   };
 
   return (

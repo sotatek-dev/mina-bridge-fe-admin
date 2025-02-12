@@ -12,7 +12,7 @@ export const validateAddress = async (
   }
 
   if (!isValidAddress(address.trim())) {
-    return 'Address is invalid';
+    return 'Please enter contract address of token on Ethereum';
   }
 
   if (skipAddress && address === skipAddress) return '';

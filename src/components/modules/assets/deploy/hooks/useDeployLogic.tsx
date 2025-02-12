@@ -4,28 +4,28 @@ import { useEffect, useMemo } from 'react';
 
 import { DeployValue, useDeployState } from '../context';
 
-import ABITokenErc20 from '@/configs/ABIs/TokenErc20';
 import ROUTES from '@/configs/routes';
 import { Action } from '@/constants';
 import { handleRequest } from '@/helpers/asyncHandlers';
 import { isValidAddress } from '@/helpers/common';
 import useNotifier from '@/hooks/useNotifier';
-import Contract from '@/models/contract/evm/contract';
 import adminService, { TokenDetail } from '@/services/adminService';
-import {
-  getWalletInstanceSlice,
-  getWalletSlice,
-  useAppSelector,
-} from '@/store';
+import { getWalletSlice, useAppSelector } from '@/store';
 
 function useDeployLogic() {
-  const { value, fetchedValue, isLoading, isError } = useDeployState().state;
-  const { setValue, setFetchedValue, setIsLoading } = useDeployState().methods;
+  const { value, fetchedValue, isLoading, addressError } =
+    useDeployState().state;
+  const {
+    setValue,
+    setFetchedValue,
+    setIsLoading,
+    setIsLoadingTokenName,
+    setAddressError,
+  } = useDeployState().methods;
 
   const { sendNotification } = useNotifier();
 
   const { isConnected } = useAppSelector(getWalletSlice);
-  const { networkInstance } = useAppSelector(getWalletInstanceSlice);
 
   const router = useRouter();
   const params = useSearchParams();
@@ -40,7 +40,7 @@ function useDeployLogic() {
 
   const isDisabled = useMemo(() => {
     return (
-      isError ||
+      !!addressError ||
       !value.assetAddress ||
       !value.assetName ||
       !value.minAmountToBridge ||
@@ -51,15 +51,15 @@ function useDeployLogic() {
       !value.mintingFee ||
       isEqual(value, fetchedValue)
     );
-  }, [value, fetchedValue, isError]);
+  }, [value, fetchedValue, addressError]);
 
   const handleDeploy = async () => {
-    if (isError || isLoading || !isConnected) return;
+    if (addressError || isLoading || !isConnected) return;
 
     const min = Number(value.minAmountToBridge);
     const max = Number(value.maxAmountToBridge);
     const dailyQuota = Number(value.dailyQuota);
-    if (min >= max || dailyQuota < max || dailyQuota < min) {
+    if (min > max || dailyQuota < max || dailyQuota < min) {
       sendNotification({
         toastType: 'error',
         options: {
@@ -80,7 +80,7 @@ function useDeployLogic() {
       adminService.addAssetToken(formatValue)
     );
     if (error) {
-      console.log('🚀 ~ deploy tokenn ~ error:', error);
+      console.log('🚀 ~ deploy token ~ error:', error);
       return;
     }
     setIsLoading(false);
@@ -94,7 +94,7 @@ function useDeployLogic() {
   };
 
   const handleReDeploy = async (id: number) => {
-    if (isError || isLoading || !isConnected) return;
+    if (!!addressError || isLoading || !isConnected) return;
 
     setIsLoading(true);
     const [res, error] = await handleRequest(
@@ -155,28 +155,28 @@ function useDeployLogic() {
     getTokenDetail(address);
   }, []);
 
-  useEffect(() => {
+  const getTokenName = async () => {
     if (!value.assetAddress || !isValidAddress(value.assetAddress)) {
       if (!!value.assetName) setValue({ ...value, assetName: '' });
       return;
     }
-
-    const getValue = async () => {
-      try {
-        const contract = new Contract({
-          address: value.assetAddress,
-          contractABI: ABITokenErc20,
-          provider: (networkInstance.src?.metadata as any)?.provider,
-        });
-        const assetName = await contract.contractInstance.methods
-          .symbol()
-          .call();
-        setValue({ ...value, assetName });
-      } catch (error) {
-        console.log('Get Symbol Error: ', error);
+    if (value.assetAddress) {
+      setIsLoadingTokenName(true);
+      const [res, error] = await handleRequest(
+        adminService.getAssetNameToken(value.assetAddress)
+      );
+      if (error) {
+        setAddressError('Please enter contract address of token on Ethereum');
+        setIsLoadingTokenName(false);
+        return;
       }
-    };
-    getValue();
+      setValue({ ...value, assetName: res?.symbol || '' });
+      setIsLoadingTokenName(false);
+    }
+  };
+
+  useEffect(() => {
+    getTokenName();
   }, [value.assetAddress]);
 
   return { isDisabled, action, handleDeploy, handleReDeploy };
