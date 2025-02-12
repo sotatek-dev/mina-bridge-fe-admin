@@ -40,22 +40,26 @@ export default function ConfigDeployContract({
     }
   }, [addressInputRef]);
 
-  const { value, fetchedValue, isLoading, isInitLoading, isLoadingTokenName } =
-    useDeployState().state;
-  const { setValue, setIsError } = useDeployState().methods;
+  const {
+    value,
+    fetchedValue,
+    isLoading,
+    isInitLoading,
+    isLoadingTokenName,
+    addressError,
+  } = useDeployState().state;
+  const { setValue, setAddressError } = useDeployState().methods;
   const params = useSearchParams();
 
   const action = useMemo(() => {
     return params.get('action');
   }, [params]);
 
-  const [addressError, setAddressError] = useState('');
-
   const handleChangeAddress = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isLoading || !isConnected) {
       e.preventDefault();
     }
-    setAddressError('');
+    setAddressError(undefined);
     setValue({ ...value, assetAddress: e.currentTarget.value });
   };
 
@@ -65,10 +69,6 @@ export default function ConfigDeployContract({
     const error = await validateAddress(e.currentTarget.value, skipAddress);
     if (error) {
       setAddressError(error);
-      setIsError(true);
-    } else {
-      setAddressError('');
-      setIsError(false);
     }
   };
 

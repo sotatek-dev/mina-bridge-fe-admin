@@ -21,7 +21,7 @@ export enum EVM_CHAIN {
 
 export enum ZK_CHAIN {
   MAINNET = 'mina:mainnet',
-  DEVNET = 'mina:testnet',
+  DEVNET = 'mina:devnet',
   BERKELEY = 'mina:berkeley',
   TESTWORLD2 = 'testworld2',
 }

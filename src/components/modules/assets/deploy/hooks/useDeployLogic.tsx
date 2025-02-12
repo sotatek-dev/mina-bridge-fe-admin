@@ -13,9 +13,15 @@ import adminService, { TokenDetail } from '@/services/adminService';
 import { getWalletSlice, useAppSelector } from '@/store';
 
 function useDeployLogic() {
-  const { value, fetchedValue, isLoading, isError } = useDeployState().state;
-  const { setValue, setFetchedValue, setIsLoading, setIsLoadingTokenName } =
-    useDeployState().methods;
+  const { value, fetchedValue, isLoading, addressError } =
+    useDeployState().state;
+  const {
+    setValue,
+    setFetchedValue,
+    setIsLoading,
+    setIsLoadingTokenName,
+    setAddressError,
+  } = useDeployState().methods;
 
   const { sendNotification } = useNotifier();
 
@@ -34,7 +40,7 @@ function useDeployLogic() {
 
   const isDisabled = useMemo(() => {
     return (
-      isError ||
+      !!addressError ||
       !value.assetAddress ||
       !value.assetName ||
       !value.minAmountToBridge ||
@@ -45,10 +51,10 @@ function useDeployLogic() {
       !value.mintingFee ||
       isEqual(value, fetchedValue)
     );
-  }, [value, fetchedValue, isError]);
+  }, [value, fetchedValue, addressError]);
 
   const handleDeploy = async () => {
-    if (isError || isLoading || !isConnected) return;
+    if (addressError || isLoading || !isConnected) return;
 
     const min = Number(value.minAmountToBridge);
     const max = Number(value.maxAmountToBridge);
@@ -88,7 +94,7 @@ function useDeployLogic() {
   };
 
   const handleReDeploy = async (id: number) => {
-    if (isError || isLoading || !isConnected) return;
+    if (!!addressError || isLoading || !isConnected) return;
 
     setIsLoading(true);
     const [res, error] = await handleRequest(
@@ -155,18 +161,17 @@ function useDeployLogic() {
       return;
     }
     if (value.assetAddress) {
-      try {
-        setIsLoadingTokenName(true);
-        const [res, error] = await handleRequest(
-          adminService.getAssetNameToken(value.assetAddress)
-        );
-        console.log('res', res);
-        setValue({ ...value, assetName: res?.symbol || '' });
-      } catch (error) {
-        console.log('Get Symbol Error: ', error);
-      } finally {
+      setIsLoadingTokenName(true);
+      const [res, error] = await handleRequest(
+        adminService.getAssetNameToken(value.assetAddress)
+      );
+      if (error) {
+        setAddressError('Please enter contract address of token on Ethereum');
         setIsLoadingTokenName(false);
+        return;
       }
+      setValue({ ...value, assetName: res?.symbol || '' });
+      setIsLoadingTokenName(false);
     }
   };
 

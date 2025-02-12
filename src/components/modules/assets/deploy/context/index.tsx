@@ -19,7 +19,7 @@ export type DeployState = {
   isLoading: boolean;
   isLoadingTokenName: boolean;
   isInitLoading: boolean;
-  isError: boolean;
+  addressError?: string;
 };
 
 export type DeployCtxValueType = {
@@ -28,7 +28,7 @@ export type DeployCtxValueType = {
     setIsLoading: (loading: boolean) => void;
     setIsLoadingTokenName: (loading: boolean) => void;
     setIsInitLoading: (loading: boolean) => void;
-    setIsError: (isError: boolean) => void;
+    setAddressError: (addressError?: string) => void;
     setValue: (value: DeployValue) => void;
     setFetchedValue: (fetchedValue: DeployValue) => void;
   };
@@ -39,7 +39,6 @@ export const initPagingDataState: DeployState = {
   isLoading: false,
   isLoadingTokenName: false,
   isInitLoading: false,
-  isError: false,
   value: {
     assetAddress: '',
     assetName: '',
@@ -140,13 +139,13 @@ export default function DeployProvider({ children }: DeployProviderProps) {
     [setState]
   );
 
-  const setIsError = useCallback(
-    (isError: boolean) =>
+  const setAddressError = useCallback(
+    (addressError?: string) =>
       setState((prev) =>
-        prev.isError !== isError
+        prev.addressError !== addressError
           ? {
               ...prev,
-              isError,
+              addressError,
             }
           : prev
       ),
@@ -161,7 +160,7 @@ export default function DeployProvider({ children }: DeployProviderProps) {
         setFetchedValue,
         setIsLoading,
         setIsInitLoading,
-        setIsError,
+        setAddressError,
         setIsLoadingTokenName,
       },
     }),
