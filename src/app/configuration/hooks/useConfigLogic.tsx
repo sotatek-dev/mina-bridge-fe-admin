@@ -23,7 +23,8 @@ import { walletSliceActions } from '@/store/slices/walletSlice';
 export type CommonConfigBody = {
   id: number;
   tip: string;
-  dailyQuota: string;
+  dailyQuotaPerAddress: string;
+  dailyQuotaSystem: string;
   feeUnlockMina: string;
   feeUnlockEth: string;
 };
@@ -75,7 +76,8 @@ export default function useConfigLogic() {
     }
 
     setDisplayedConfig({
-      dailyQuota: res!!.dailyQuota,
+      dailyQuotaPerAddress: res!!.dailyQuotaPerAddress,
+      dailyQuotaSystem: res!!.dailyQuotaSystem,
       tip: res!!.tip,
       feeUnlockEth: res!!.feeUnlockEth,
       feeUnlockMina: res!!.feeUnlockMina,
@@ -87,7 +89,8 @@ export default function useConfigLogic() {
     async ({
       id,
       tip,
-      dailyQuota,
+      dailyQuotaPerAddress,
+      dailyQuotaSystem,
       feeUnlockEth,
       feeUnlockMina,
     }: CommonConfigBody) => {
@@ -95,9 +98,12 @@ export default function useConfigLogic() {
       const configData: ParamCommonConfig = {
         id,
         tip: !!tip ? Number(tip) : Number(displayedConfig.tip),
-        dailyQuota: !!dailyQuota
-          ? Number(dailyQuota)
-          : Number(displayedConfig.dailyQuota),
+        dailyQuotaPerAddress: !!dailyQuotaPerAddress
+          ? Number(dailyQuotaPerAddress)
+          : Number(displayedConfig.dailyQuotaPerAddress),
+        dailyQuotaSystem: !!dailyQuotaSystem
+          ? Number(dailyQuotaSystem)
+          : Number(displayedConfig.dailyQuotaSystem),
         feeUnlockEth: !!feeUnlockEth
           ? feeUnlockEth
           : displayedConfig.feeUnlockEth,
@@ -105,6 +111,16 @@ export default function useConfigLogic() {
           ? feeUnlockMina
           : displayedConfig.feeUnlockMina,
       };
+
+      if (configData.dailyQuotaPerAddress > configData.dailyQuotaSystem) {
+        sendNotification({
+          toastType: 'error',
+          options: {
+            title: 'Per address quota must be ≤ system quota.',
+          },
+        });
+        return false;
+      }
 
       const [res, error] = await handleRequest(
         adminService.updateCommonConfig(configData)
