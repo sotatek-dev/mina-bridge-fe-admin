@@ -54,14 +54,16 @@ export type ParamHistory = {
 export type ParamCommonConfig = {
   id: number;
   tip: number;
-  dailyQuota: number;
+  dailyQuotaPerAddress: number;
+  dailyQuotaSystem: number;
   feeUnlockMina: string;
   feeUnlockEth: string;
 };
 
 export type CommonConfigResponse = {
   id: number;
-  dailyQuota: string;
+  dailyQuotaPerAddress: string;
+  dailyQuotaSystem: string;
   tip: string;
   asset: string;
   feeUnlockMina: string;
