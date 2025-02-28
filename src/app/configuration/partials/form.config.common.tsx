@@ -240,7 +240,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
     <VStack bg={'text.25'} w={'full'} padding={'22px 35px'} gap={5}>
       <Flex gap={6} w={'100%'}>
         <VStack w={'full'} alignItems={'flex-start'}>
-          <Text variant={'lg_medium'}>Daily Quota (System)</Text>
+          <Text variant={'lg_medium'}>Daily Quota (system-wide)</Text>
           <Input
             placeholder={String(Number(displayedConfig.dailyQuotaSystem))}
             size={'md_medium'}
@@ -254,7 +254,7 @@ export default function ConfigCommon({ isConnected }: ConfigCommonProps) {
           />
         </VStack>
         <VStack w={'full'} alignItems={'flex-start'}>
-          <Text variant={'lg_medium'}>Daily Quota (Per Address)</Text>
+          <Text variant={'lg_medium'}>Daily Quota (per address)</Text>
           <Input
             placeholder={String(Number(displayedConfig.dailyQuotaPerAddress))}
             size={'md_medium'}
