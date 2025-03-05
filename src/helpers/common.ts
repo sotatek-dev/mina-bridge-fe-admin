@@ -176,23 +176,23 @@ export function fetchFiles(type: ZkContractType) {
 
   const publicStaticUri = process.env.NEXT_PUBLIC_BASE_PUBLIC_STATIC_URI || '';
 
-  // if (publicStaticUri) {
-  //   return Promise.all(
-  //     listFiles.map((file) => {
-  //       return Promise.all([
-  //         fetch(`${publicStaticUri}/o1js/${file}.header`).then((res) =>
-  //           res.text()
-  //         ),
-  //         fetch(`${publicStaticUri}/o1js/${file}`).then((res) => res.text()),
-  //       ]).then(([header, data]) => ({ file, header, data }));
-  //     })
-  //   ).then((cacheList) =>
-  //     cacheList.reduce((acc: any, { file, header, data }) => {
-  //       acc[file] = { file, header, data };
-  //       return acc;
-  //     }, {})
-  //   );
-  // }
+  if (publicStaticUri) {
+    return Promise.all(
+      listFiles.map((file) => {
+        return Promise.all([
+          fetch(`${publicStaticUri}/o1js/${file}.header`).then((res) =>
+            res.text()
+          ),
+          fetch(`${publicStaticUri}/o1js/${file}`).then((res) => res.text()),
+        ]).then(([header, data]) => ({ file, header, data }));
+      })
+    ).then((cacheList) =>
+      cacheList.reduce((acc: any, { file, header, data }) => {
+        acc[file] = { file, header, data };
+        return acc;
+      }, {})
+    );
+  }
 
   return Promise.all(
     listFiles.map((file) => {
