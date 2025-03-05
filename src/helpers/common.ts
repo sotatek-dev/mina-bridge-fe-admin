@@ -3,6 +3,15 @@ import moment from 'moment';
 
 import { ListFileName, ZkContractType } from '@/configs/constants';
 
+export const getMinaNetworkId = () => {
+  return process.env.NEXT_PUBLIC_ENV === 'production' ? 'mainnet' : 'testnet';
+};
+export const getMinaProxyUrl = () => {
+  return process.env.NEXT_PUBLIC_ENV === 'production'
+    ? process.env.NEXT_PUBLIC_REQUIRED_MINA_RPC_MAINNET!
+    : process.env.NEXT_PUBLIC_REQUIRED_MINA_RPC_DEVNET!;
+};
+
 export const isDevelopment = () =>
   process.env.NEXT_PUBLIC_ENV === 'development';
 export const isFnc = <F>(maybeFnc: F | unknown): maybeFnc is F =>
