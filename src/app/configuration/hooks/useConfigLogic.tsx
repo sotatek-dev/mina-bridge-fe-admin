@@ -198,11 +198,13 @@ export default function useConfigLogic() {
         '@/models/contract/zk/contract.ERC20'
       );
 
+      console.log('Start: init contact');
       const ctr = new ERC20Contract(asset?.bridgeCtrAddr, asset?.tokenAddr);
+      console.log('Finish: init contact');
 
       // fetch involve into the process accounts
       await ctr.fetchInvolveAccount(address);
-      // console.log('🚀 ~ useConfigLogic ~ address:', address);
+      console.log('🚀 ~ useConfigLogic ~ address:', address);
 
       if (value.max && !value.min) {
         const min = toWei(assetRange[0], asset.decimals);
@@ -307,7 +309,9 @@ export default function useConfigLogic() {
         }
       );
 
+      console.log('🚀 ~ useConfigLogic ~ prove:', tx);
       await tx.prove();
+
       // console.log('🚀 ~ handleZKBridge ~ tx:', tx.toPretty());
 
       // only when a tx is proved then system will start send payment request
