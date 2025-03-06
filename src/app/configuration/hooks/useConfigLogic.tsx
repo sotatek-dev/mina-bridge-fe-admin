@@ -198,9 +198,13 @@ export default function useConfigLogic() {
         '@/models/contract/zk/contract.ERC20'
       );
 
-      console.log('Start: init contact');
       const ctr = new ERC20Contract(asset?.bridgeCtrAddr, asset?.tokenAddr);
-      console.log('Finish: init contact');
+      console.log(
+        'Finish: init contact',
+        ctr,
+        asset?.bridgeCtrAddr,
+        asset?.tokenAddr
+      );
 
       // fetch involve into the process accounts
       await ctr.fetchInvolveAccount(address);
@@ -210,7 +214,6 @@ export default function useConfigLogic() {
         const min = toWei(assetRange[0], asset.decimals);
         const max = toWei(value.max, asset.decimals);
         // build tx
-        // console.log('building tx...', min, max);
         const tx = await ctr.provider.transaction(
           {
             sender: PublicKey.fromBase58(address),
@@ -221,8 +224,9 @@ export default function useConfigLogic() {
           }
         );
 
+        console.log('building tx...', { min, max, tx });
         await tx.prove();
-        // console.log('🚀 ~ handleZKBridge ~ tx:', tx.toPretty());
+        console.log('🚀 ~ handleZKBridge ~ tx:', tx.toPretty());
 
         // only when a tx is proved then system will start send payment request
 
@@ -255,7 +259,7 @@ export default function useConfigLogic() {
         const min = toWei(value.min, asset.decimals);
         const max = toWei(assetRange[1], asset.decimals);
         // build tx
-        // console.log('building tx...', min, max);
+
         const tx = await ctr.provider.transaction(
           {
             sender: PublicKey.fromBase58(address),
@@ -266,8 +270,9 @@ export default function useConfigLogic() {
           }
         );
 
+        console.log('building tx...', { min, max, tx });
         await tx.prove();
-        // console.log('🚀 ~ handleZKBridge ~ tx:', tx.toPretty());
+        console.log('🚀 ~ handleZKBridge ~ tx:', tx.toPretty());
 
         // only when a tx is proved then system will start send payment request
 
@@ -298,7 +303,6 @@ export default function useConfigLogic() {
       const min = toWei(value.min, asset.decimals);
       const max = toWei(value.max, asset.decimals);
       // build tx
-      // console.log('building tx...', min, max);
       const tx = await ctr.provider.transaction(
         {
           sender: PublicKey.fromBase58(address),
@@ -309,10 +313,10 @@ export default function useConfigLogic() {
         }
       );
 
-      console.log('🚀 ~ useConfigLogic ~ prove:', tx);
+      console.log('building tx...', { min, max, tx });
       await tx.prove();
 
-      // console.log('🚀 ~ handleZKBridge ~ tx:', tx.toPretty());
+      console.log('🚀 ~ handleZKBridge ~ tx:', tx.toPretty());
 
       // only when a tx is proved then system will start send payment request
 
