@@ -21,7 +21,7 @@ export default class ERC20Contract {
     Mina.setActiveInstance(
       Mina.Network({
         mina: getMinaProxyUrl(),
-        archive: 'https://api.minascan.io/archive/devnet/v1/graphql',
+        archive: 'https://api.minascan.io/archive/berkeley/v1/graphql/',
         networkId: getMinaNetworkId(),
       })
     );
