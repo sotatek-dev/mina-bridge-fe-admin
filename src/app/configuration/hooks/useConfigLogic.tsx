@@ -185,157 +185,49 @@ export default function useConfigLogic() {
   }
 
   async function handleZKBridge(address: string): Promise<boolean> {
-    // console.log('🚀 ~ handleZKBridge ~ value.min:', value.min);
-    // console.log('🚀 ~ handleZKBridge ~ value.min:', value.max);
-    // setIsLoading(true);
-    if (!walletInstance || (!value.min && !value.max)) return false;
-
-    if (!asset?.bridgeCtrAddr || !asset?.tokenAddr) return false;
+    if (!walletInstance || (!value.min && !value.max) || !asset) return false;
 
     try {
-      const { PublicKey } = await import('o1js');
-      const { default: ERC20Contract } = await import(
-        '@/models/contract/zk/contract.ERC20'
+      const configMin = !!value?.min ? value.min : assetRange[0];
+      const configMax = !!value?.max ? value.max : assetRange[1];
+
+      const min = toWei(configMin, asset.decimals);
+      const max = toWei(configMax, asset.decimals);
+
+      const [res, error] = await handleRequest(
+        adminService.signMinaConfigMinMax({
+          min,
+          max,
+          address,
+        })
       );
-
-      const ctr = new ERC20Contract(asset?.bridgeCtrAddr, asset?.tokenAddr);
-      console.log(
-        'Finish: init contact',
-        ctr,
-        asset?.bridgeCtrAddr,
-        asset?.tokenAddr
-      );
-
-      // fetch involve into the process accounts
-      await ctr.fetchInvolveAccount(address);
-      console.log('🚀 ~ useConfigLogic ~ address:', address);
-
-      if (value.max && !value.min) {
-        const min = toWei(assetRange[0], asset.decimals);
-        const max = toWei(value.max, asset.decimals);
-        // build tx
-        const tx = await ctr.provider.transaction(
-          {
-            sender: PublicKey.fromBase58(address),
-            fee: Number(0.1) * 1e9,
-          },
-          async () => {
-            await ctr.setAmountLimits(Number(min), Number(max));
-          }
-        );
-
-        console.log('building tx...', { min, max, tx });
-        await tx.prove();
-        console.log('🚀 ~ handleZKBridge ~ tx:', tx.toPretty());
-
-        // only when a tx is proved then system will start send payment request
-
-        // send tx via wallet instances
-        switch (walletInstance.name) {
-          case WALLET_NAME.AURO:
-            await walletInstance.sendTx(tx.toJSON());
-            break;
-          case WALLET_NAME.METAMASK:
-            await walletInstance.sendTx({
-              transaction: tx.toJSON(),
-              fee: Number(0.1),
-            });
-            break;
-          default:
-            break;
-        }
-
-        updateAssetRage([assetRange[0], value.max]);
+      if (error) {
         sendNotification({
-          toastType: 'success',
+          toastType: 'error',
           options: {
-            title: 'Update successfully',
+            title: error.message,
           },
         });
-        return true;
+        return false;
       }
 
-      if (!value.max && value.min) {
-        const min = toWei(value.min, asset.decimals);
-        const max = toWei(assetRange[1], asset.decimals);
-        // build tx
+      console.log(res?.jsonTx);
 
-        const tx = await ctr.provider.transaction(
-          {
-            sender: PublicKey.fromBase58(address),
-            fee: Number(0.1) * 1e9,
-          },
-          async () => {
-            await ctr.setAmountLimits(Number(min), Number(max));
-          }
-        );
-
-        console.log('building tx...', { min, max, tx });
-        await tx.prove();
-        console.log('🚀 ~ handleZKBridge ~ tx:', tx.toPretty());
-
-        // only when a tx is proved then system will start send payment request
-
-        // send tx via wallet instances
-        switch (walletInstance.name) {
-          case WALLET_NAME.AURO:
-            await walletInstance.sendTx(tx.toJSON());
-            break;
-          case WALLET_NAME.METAMASK:
-            await walletInstance.sendTx({
-              transaction: tx.toJSON(),
-              fee: Number(0.1),
-            });
-            break;
-          default:
-            break;
-        }
-
-        updateAssetRage([value.min, assetRange[1]]);
-        sendNotification({
-          toastType: 'success',
-          options: {
-            title: 'Update successfully',
-          },
-        });
-        return true;
-      }
-      const min = toWei(value.min, asset.decimals);
-      const max = toWei(value.max, asset.decimals);
-      // build tx
-      const tx = await ctr.provider.transaction(
-        {
-          sender: PublicKey.fromBase58(address),
-          fee: Number(0.1) * 1e9,
-        },
-        async () => {
-          await ctr.setAmountLimits(Number(min), Number(max));
-        }
-      );
-
-      console.log('building tx...', { min, max, tx });
-      await tx.prove();
-
-      console.log('🚀 ~ handleZKBridge ~ tx:', tx.toPretty());
-
-      // only when a tx is proved then system will start send payment request
-
-      // send tx via wallet instances
       switch (walletInstance.name) {
         case WALLET_NAME.AURO:
-          await walletInstance.sendTx(tx.toJSON());
+          await walletInstance.sendTx(res?.jsonTx);
           break;
         case WALLET_NAME.METAMASK:
-          await walletInstance.sendTx({
-            transaction: tx.toJSON(),
-            fee: Number(0.1),
-          });
-          break;
+        // await walletInstance.sendTx({
+        //   transaction: tx.toJSON(),
+        //   fee: Number(0.1),
+        // });
+        // break;
         default:
           break;
       }
 
-      updateAssetRage([value.min, value.max]);
+      updateAssetRage([configMin, configMax]);
       sendNotification({
         toastType: 'success',
         options: {
@@ -343,6 +235,127 @@ export default function useConfigLogic() {
         },
       });
       return true;
+
+      //   const { PublicKey } = await import('o1js');
+      //   const { default: ERC20Contract } = await import(
+      //     '@/models/contract/zk/contract.ERC20'
+      //   );
+
+      //   const ctr = new ERC20Contract(asset?.bridgeCtrAddr, asset?.tokenAddr);
+
+      //   // fetch involve into the process accounts
+      //   await ctr.fetchInvolveAccount(address);
+      //   // console.log('🚀 ~ useConfigLogic ~ address:', address);
+
+      //   if (value.max && !value.min) {
+      //     const min = toWei(assetRange[0], asset.decimals);
+      //     const max = toWei(value.max, asset.decimals);
+      //     // build tx
+      //     // console.log('building tx...', min, max);
+      //     const tx = await ctr.provider.transaction(
+      //       {
+      //         sender: PublicKey.fromBase58(address),
+      //         fee: Number(0.1) * 1e9,
+      //       },
+      //       async () => {
+      //         await ctr.setAmountLimits(Number(min), Number(max));
+      //       }
+      //     );
+
+      //     await tx.prove();
+      //     // console.log('🚀 ~ handleZKBridge ~ tx:', tx.toPretty());
+
+      //     // only when a tx is proved then system will start send payment request
+
+      //     // send tx via wallet instances
+      //     switch (walletInstance.name) {
+      //       case WALLET_NAME.AURO:
+      //         await walletInstance.sendTx(tx.toJSON());
+      //         break;
+      //       case WALLET_NAME.METAMASK:
+      //         await walletInstance.sendTx({
+      //           transaction: tx.toJSON(),
+      //           fee: Number(0.1),
+      //         });
+      //         break;
+      //       default:
+      //         break;
+      //     }
+
+      //     updateAssetRage([assetRange[0], value.max]);
+      //     sendNotification({
+      //       toastType: 'success',
+      //       options: {
+      //         title: 'Update successfully',
+      //       },
+      //     });
+      //     return true;
+      //   }
+
+      //   if (!value.max && value.min) {
+      //     const min = toWei(value.min, asset.decimals);
+      //     const max = toWei(assetRange[1], asset.decimals);
+      //     // build tx
+      //     // console.log('building tx...', min, max);
+      //     const tx = await ctr.provider.transaction(
+      //       {
+      //         sender: PublicKey.fromBase58(address),
+      //         fee: Number(0.1) * 1e9,
+      //       },
+      //       async () => {
+      //         await ctr.setAmountLimits(Number(min), Number(max));
+      //       }
+      //     );
+
+      //     await tx.prove();
+      //     // console.log('🚀 ~ handleZKBridge ~ tx:', tx.toPretty());
+
+      //     // only when a tx is proved then system will start send payment request
+
+      //     // send tx via wallet instances
+      //     switch (walletInstance.name) {
+      //       case WALLET_NAME.AURO:
+      //         await walletInstance.sendTx(tx.toJSON());
+      //         break;
+      //       case WALLET_NAME.METAMASK:
+      //         await walletInstance.sendTx({
+      //           transaction: tx.toJSON(),
+      //           fee: Number(0.1),
+      //         });
+      //         break;
+      //       default:
+      //         break;
+      //     }
+
+      //     updateAssetRage([value.min, assetRange[1]]);
+      //     sendNotification({
+      //       toastType: 'success',
+      //       options: {
+      //         title: 'Update successfully',
+      //       },
+      //     });
+      //     return true;
+      //   }
+      //   const min = toWei(value.min, asset.decimals);
+      //   const max = toWei(value.max, asset.decimals);
+      //   // build tx
+      //   // console.log('building tx...', min, max);
+      //   const tx = await ctr.provider.transaction(
+      //     {
+      //       sender: PublicKey.fromBase58(address),
+      //       fee: Number(0.1) * 1e9,
+      //     },
+      //     async () => {
+      //       await ctr.setAmountLimits(Number(min), Number(max));
+      //     }
+      //   );
+
+      //   await tx.prove();
+      //   // console.log('🚀 ~ handleZKBridge ~ tx:', tx.toPretty());
+
+      //   // only when a tx is proved then system will start send payment request
+
+      //   // send tx via wallet instances
     } catch (error) {
       // console.log('🚀 ~ useModalConfirmLogic ~ error:', error);
       sendNotification({
