@@ -211,8 +211,6 @@ export default function useConfigLogic() {
         return false;
       }
 
-      console.log(res?.jsonTx);
-
       switch (walletInstance.name) {
         case WALLET_NAME.AURO:
           await walletInstance.sendTx(res?.jsonTx);
