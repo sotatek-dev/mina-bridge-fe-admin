@@ -70,6 +70,12 @@ export type CommonConfigResponse = {
   feeUnlockEth: string;
 };
 
+export type SignMinaConfigBody = {
+  min: string;
+  max: string;
+  address: string;
+};
+
 class AdminService {
   readonly service: AxiosService;
   readonly baseURL: string = 'admin';
@@ -97,6 +103,13 @@ class AdminService {
     return this.service.putAuth<any>(
       `${this.baseURL}/${ADMIN_ENDPOINT.UPDATE_COMMON_CONFIG}/${id}`,
       config
+    );
+  }
+
+  signMinaConfigMinMax(body: SignMinaConfigBody) {
+    return this.service.postAuth<{ jsonTx: Object }>(
+      `${this.baseURL}/${ADMIN_ENDPOINT.SIGN_MINA_CONFIG}`,
+      body
     );
   }
 }
