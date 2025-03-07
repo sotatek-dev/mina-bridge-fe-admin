@@ -33,6 +33,7 @@ enum ADMIN_ENDPOINT {
   HISTORY = 'history',
   COMMON_CONFIG = 'common-config',
   UPDATE_COMMON_CONFIG = 'update-common-config',
+  SIGN_MINA_CONFIG = 'sign-mina-config',
 }
 
 enum AUTH {
