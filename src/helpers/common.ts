@@ -56,7 +56,6 @@ export const formWei = (amount: string | number, decimal: string | number) => {
 
     const decimalToBN = new BigNumber(decimalPow);
     const newAmount = amountToBN.dividedBy(decimalToBN);
-    if (newAmount.isLessThan(0.0001)) return '0';
     return zeroCutterEnd(newAmount.toString());
   }
 
