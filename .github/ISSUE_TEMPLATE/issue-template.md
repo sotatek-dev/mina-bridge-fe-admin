@@ -1,3 +1,12 @@
+---
+name: Issue template
+about: Create a report to help us improve
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 ## Issue Description
 
 <!-- Briefly describe the issue you are experiencing -->
