@@ -12,7 +12,7 @@ import { handleRequest } from '@/helpers/asyncHandlers';
 import { formWei, formatNumber } from '@/helpers/common';
 import useETHBridgeContract from '@/hooks/useETHBridgeContract';
 import { Network } from '@/models/network';
-import { NETWORK_TYPE } from '@/models/network/network';
+import { NETWORK_NAME, NETWORK_TYPE } from '@/models/network/network';
 import {
   getPersistSlice,
   getWalletInstanceSlice,
@@ -29,7 +29,8 @@ export type ValueType = {
   max: string;
 };
 export type DisplayedConfigType = {
-  dailyQuota: string;
+  dailyQuotaSystem: string;
+  dailyQuotaPerAddress: string;
   tip: string;
   feeUnlockMina: string;
   feeUnlockEth: string;
@@ -67,7 +68,8 @@ export const initPagingDataState: ConfigState = {
     max: '',
   },
   displayedConfig: {
-    dailyQuota: '',
+    dailyQuotaPerAddress: '',
+    dailyQuotaSystem: '',
     tip: '',
     feeUnlockMina: '',
     feeUnlockEth: '',
@@ -289,8 +291,17 @@ export default function ConfigProvider({ children }: ConfigProviderProps) {
   // get asset max min when have network and change asset
   useEffect(() => {
     if (!networkInstance.src || !asset) return;
-    getAssetMaxMin(networkInstance.src, asset);
-  }, [bridgeCtr, networkInstance.src, asset]);
+
+    const isEthereumNetwork =
+      networkInstance.src.type === NETWORK_TYPE.EVM &&
+      asset?.network === NETWORK_NAME.ETHEREUM;
+    const isMinaNetwork =
+      networkInstance.src.type === NETWORK_TYPE.ZK &&
+      asset?.network === NETWORK_NAME.MINA;
+
+    if (isEthereumNetwork || isMinaNetwork)
+      getAssetMaxMin(networkInstance.src, asset);
+  }, [networkInstance.src, asset]);
 
   const value = useMemo<ConfigCtxValueType>(
     () => ({

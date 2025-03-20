@@ -1,0 +1,10 @@
+{
+  "apps": [
+    {
+      "name": "testing-v2-mina-admin",
+      "script": "yarn start:testing-v2",
+      "node_args": "",
+      "instances": 1
+    }
+  ]
+}

@@ -4216,10 +4216,10 @@ mime-types@^2.1.12:
   dependencies:
     mime-db "1.52.0"
 
-mina-fungible-token@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/mina-fungible-token/-/mina-fungible-token-1.0.0.tgz#41cdfa2de1732f046b1ab4ba1c3dadbfe25e7187"
-  integrity sha512-2LfoBIuwQO5qk3H1JjRLKsCdZsSu+B/lannjMBdujdoHnoj6aWEcLQOY4jAz4BnhVCgAmJ/uUrTqVZ86J63iTg==
+mina-fungible-token@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/mina-fungible-token/-/mina-fungible-token-1.1.0.tgz#d1817d9ffe80bd6b33a5c36a3e97bfee1cf5cf93"
+  integrity sha512-nfpKQuo49KBUkTFQjE+H47sXs2SzzAs484S6IXwSX38JX+VJKSEihuMv08Mi+x8cVjJ2hVsPlsvRcApIUI1lug==
 
 mina-signer@^3.0.7:
   version "3.0.7"
@@ -4329,10 +4329,10 @@ normalize-path@^3.0.0, normalize-path@~3.0.0:
   resolved "https://registry.yarnpkg.com/normalize-path/-/normalize-path-3.0.0.tgz#0dcd69ff23a1c9b11fd0978316644a0388216a65"
   integrity sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==
 
-o1js@^1.6.0:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/o1js/-/o1js-1.6.0.tgz#93e1c29edf45d42c5938ba1311cd7befeeeb4504"
-  integrity sha512-5pHCM0qIHG+MhLlcRJZRK8YFC7MOCjlxwSYbmrLDKER267eUip7JRDtWATytIRxtCPqOBvqKeJb0hR/mvjWxqg==
+o1js@^2.1.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/o1js/-/o1js-2.2.0.tgz#55f55312fae3e5815b5524d2df82ecf9076d6bee"
+  integrity sha512-lR8vmBlvzz3h+tDUajZfC/zVM+yKyrJFoIa57nED7F8WRfCGZHHy5lUpaUgHwVsC3ZE+aRaFtj2B2IzYyJu1AQ==
   dependencies:
     blakejs "1.2.1"
     cachedir "^2.4.0"

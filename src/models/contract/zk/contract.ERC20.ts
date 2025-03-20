@@ -3,7 +3,12 @@ import { Mina, PublicKey, UInt64, fetchAccount } from 'o1js';
 
 import { Bridge } from '@/configs/ABIs/Bridge';
 import { ZkContractType } from '@/configs/constants';
-import { fetchFiles, fileSystem } from '@/helpers/common';
+import {
+  fetchFiles,
+  fileSystem,
+  getMinaNetworkId,
+  getMinaProxyUrl,
+} from '@/helpers/common';
 
 export default class ERC20Contract {
   bridgeAddress: PublicKey;
@@ -15,8 +20,9 @@ export default class ERC20Contract {
   constructor(bridgeAddress: string, tokenAddress: string) {
     Mina.setActiveInstance(
       Mina.Network({
-        mina: 'https://api.minascan.io/node/devnet/v1/graphql',
-        archive: 'https://api.minascan.io/archive/devnet/v1/graphql',
+        mina: getMinaProxyUrl(),
+        archive: 'https://api.minascan.io/archive/berkeley/v1/graphql/',
+        networkId: getMinaNetworkId(),
       })
     );
 

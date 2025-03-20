@@ -8,11 +8,18 @@ import BodyTable from './partials/table.body';
 import HeaderTable from './partials/table.header';
 import Pagination from './partials/table.pagination';
 
+import { getUISlice, useAppSelector } from '@/store';
+import { BANNER_NAME } from '@/store/slices/uiSlice';
+
 function HistoryContent() {
   const { state } = useHistoryState();
+  const { banners } = useAppSelector(getUISlice);
+
+  const curBanner = banners[BANNER_NAME.UNMATCHED_CHAIN_ID];
 
   return (
     <VStack
+      mt={curBanner.isDisplay && curBanner.payload ? '50px' : '0'}
       gap={'0'}
       w={'full'}
       alignItems={'flex-start'}

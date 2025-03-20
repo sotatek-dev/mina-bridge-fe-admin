@@ -100,14 +100,16 @@ export type ParamTokens = {
 export type ParamCommonConfig = {
   id: number;
   tip: number;
-  dailyQuota: number;
+  dailyQuotaPerAddress: number;
+  dailyQuotaSystem: number;
   feeUnlockMina: string;
   feeUnlockEth: string;
 };
 
 export type CommonConfigResponse = {
   id: number;
-  dailyQuota: string;
+  dailyQuotaPerAddress: string;
+  dailyQuotaSystem: string;
   tip: string;
   asset: string;
   feeUnlockMina: string;
@@ -133,6 +135,12 @@ export type ParamTokenConfig = {
   mintingFee: string;
 };
 
+export type SignMinaConfigBody = {
+  min: string;
+  max: string;
+  address: string;
+};
+
 class AdminService {
   readonly service: AxiosService;
   readonly baseURL: string = 'admin';
@@ -146,20 +154,20 @@ class AdminService {
       `${this.baseURL}/${ADMIN_ENDPOINT.HISTORY}`,
       {
         params,
-      }
+      },
     );
   }
 
   getCommonConfig() {
     return this.service.getAuth<CommonConfigResponse>(
-      `${this.baseURL}/${ADMIN_ENDPOINT.COMMON_CONFIG}`
+      `${this.baseURL}/${ADMIN_ENDPOINT.COMMON_CONFIG}`,
     );
   }
 
   updateCommonConfig({ id, ...config }: ParamCommonConfig) {
     return this.service.putAuth<any>(
       `${this.baseURL}/${ADMIN_ENDPOINT.UPDATE_COMMON_CONFIG}/${id}`,
-      config
+      config,
     );
   }
 
@@ -168,20 +176,20 @@ class AdminService {
       `${this.baseURL}/${ADMIN_ENDPOINT.GET_TOKENS}`,
       {
         params,
-      }
+      },
     );
   }
 
   getAssetNameToken(address: string) {
     return this.service.getAuth<{ symbol: string; address: string }>(
-      `${this.baseURL}/${ADMIN_ENDPOINT.ASSET_NAME}/${address}`
+      `${this.baseURL}/${ADMIN_ENDPOINT.ASSET_NAME}/${address}`,
     );
   }
 
   addAssetToken(body: TokenDetail) {
     return this.service.postAuth<ListTokenResponse>(
       `${this.baseURL}/${ADMIN_ENDPOINT.ADD_TOKEN}`,
-      body
+      body,
     );
   }
 
@@ -190,21 +198,27 @@ class AdminService {
       `${this.baseURL}/${ADMIN_ENDPOINT.UPDATE_STATUS}/${id}`,
       {
         isHidden: isHidden,
-      }
+      },
     );
   }
 
   updateAssetToken({ id, ...body }: ParamTokenConfig) {
     return this.service.putAuth<any>(
       `${this.baseURL}/${ADMIN_ENDPOINT.UPDATE_TOKEN}/${id}`,
-      body
+      body,
     );
   }
 
   reDeployAssetToken(id: number) {
     return this.service.postAuth<any>(
       `${this.baseURL}/${ADMIN_ENDPOINT.RE_DEPLOY}/${id}`,
-      {}
+      {},
+    );
+  }
+  signMinaConfigMinMax(body: SignMinaConfigBody) {
+    return this.service.postAuth<{ jsonTx: Object }>(
+      `${this.baseURL}/${ADMIN_ENDPOINT.SIGN_MINA_CONFIG}`,
+      body,
     );
   }
 }

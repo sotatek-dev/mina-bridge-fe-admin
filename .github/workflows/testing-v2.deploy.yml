@@ -1,0 +1,24 @@
+name: Deploy testing-v2
+run-name: ${{ github.actor }} is deploying develop branch🚀
+on:
+  push:
+    branches:
+      - 'feedback/testing'
+jobs:
+  Deploy:
+    runs-on: [testing-v2-mina-admin-runner]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20
+
+      - run: |
+          rm -rf .next
+          cp .env.testingv2 .env
+          yarn
+          yarn build
+          pm2 restart testing-v2.pm2.json

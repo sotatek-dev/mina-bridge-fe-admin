@@ -8,6 +8,7 @@
     "build": "node_modules/.bin/next build",
     "start": "node_modules/.bin/next start -p 3972",
     "start:testing": "node_modules/.bin/next start -p 3973",
+    "start:testing-v2": "node_modules/.bin/next start -p 3976",
     "lint": "node_modules/.bin/next lint"
   },
   "dependencies": {
@@ -28,11 +29,11 @@
     "formik": "^2.4.6",
     "framer-motion": "^11.3.31",
     "lodash": "^4.17.21",
-    "mina-fungible-token": "^1.0.0",
+    "mina-fungible-token": "^1.1.0",
     "mina-signer": "^3.0.7",
     "moment": "^2.30.1",
     "next": "14.2.7",
-    "o1js": "^1.6.0",
+    "o1js": "^2.1.0",
     "react": "^18",
     "react-dom": "^18",
     "react-number-format": "^5.4.1",

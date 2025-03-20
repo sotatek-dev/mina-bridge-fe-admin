@@ -39,6 +39,7 @@ enum ADMIN_ENDPOINT {
   UPDATE_STATUS = 'token/visibility',
   RE_DEPLOY = 'token/re-deploy',
   ASSET_NAME = 'token-name',
+  SIGN_MINA_CONFIG = 'sign-mina-config',
 }
 
 enum AUTH {
