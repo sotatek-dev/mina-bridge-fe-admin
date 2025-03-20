@@ -1,4 +1,4 @@
-FROM node:18.19.0-alpine AS base
+FROM public.ecr.aws/docker/library/node:20.0.0-alpine AS base
 # Install dependencies only when needed
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
