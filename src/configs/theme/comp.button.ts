@@ -123,6 +123,24 @@ const Button: ComponentStyleConfig = {
         color: 'white',
       },
     },
+    connected: {
+      borderColor: 'text.100',
+      bg: 'text.100',
+      bgColor: 'text.100',
+      color: 'text.500',
+      cursor: 'not-allowed',
+      _hover: {
+        borderColor: 'text.100',
+        bg: 'text.100',
+        bgColor: 'text.100',
+        color: 'text.500',
+      },
+      _active: {
+        bg: 'text.100',
+        bgColor: 'text.100',
+        color: 'text.500',
+      },
+    },
     'icon.orange.solid': {
       bg: 'rgba(244, 111, 78, 0.10);',
       backgroundColor: 'rgba(244, 111, 78, 0.10);',
