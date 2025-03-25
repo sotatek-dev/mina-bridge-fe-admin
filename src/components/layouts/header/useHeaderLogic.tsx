@@ -1,10 +1,17 @@
 'use client';
-import { AspectRatio, ButtonProps, Image, Text } from '@chakra-ui/react';
+import {
+  AspectRatio,
+  ButtonProps,
+  HStack,
+  Image,
+  Text,
+} from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 
 import { MODAL_NAME } from '@/configs/modal';
 import ROUTES from '@/configs/routes';
+import { getEnvNetwork } from '@/constants';
 import { truncateMid } from '@/helpers/common';
 import NETWORKS from '@/models/network';
 import {
@@ -46,7 +53,7 @@ export default function useHeaderLogic(extractFnc: boolean = false) {
 
   const openConnectWalletModal = useCallback(() => {
     dispatch(
-      uiSliceActions.openModal({ modalName: MODAL_NAME.CONNECT_WALLET })
+      uiSliceActions.openModal({ modalName: MODAL_NAME.CONNECT_WALLET }),
     );
   }, [dispatch]);
 
@@ -58,7 +65,7 @@ export default function useHeaderLogic(extractFnc: boolean = false) {
           networkKey: NETWORK_KEY.SRC,
           isValidate: true,
         },
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -86,46 +93,86 @@ export default function useHeaderLogic(extractFnc: boolean = false) {
     };
   }, [lastNetworkName, openSelectNetworkModal]);
 
+  // const btnConnectWalletProps = useMemo<ButtonProps>(() => {
+  //   // if extract function only, this jsx is redundant
+  //   if (extractFnc) return <></>;
+
+  //   // when no wallet connected
+  //   if (!isConnected)
+  //     return {
+  //       variant: 'primary.orange.solid',
+  //       onClick: openConnectWalletModal,
+  //       children: 'Connect Wallet',
+  //     };
+
+  //   // when have a wallet connect
+  //   const [fSlice, sSlice] = truncateMid(address!!, 4, 4); // truncate adddress
+
+  //   return {
+  //     variant: 'primary.orange',
+  //     leftIcon: (
+  //       <AspectRatio w={'24px'} h={'24px'} ratio={1}>
+  //         <Image src={walletInstance?.metadata.logo.base} />
+  //       </AspectRatio>
+  //     ),
+  //     onClick: toggleMenu,
+  //     iconSpacing: 0,
+  //     children: fSlice + '...' + sSlice,
+  //   };
+  // }, [
+  //   openConnectWalletModal,
+  //   toggleMenu,
+  //   walletInstance,
+  //   address,
+  //   isConnected,
+  //   extractFnc,
+  // ]);
+
   const btnConnectWalletProps = useMemo<ButtonProps>(() => {
     // if extract function only, this jsx is redundant
     if (extractFnc) return <></>;
 
-    // when no wallet connected
-    if (!isConnected)
-      return {
-        variant: 'primary.orange.solid',
-        onClick: openConnectWalletModal,
-        children: 'Connect Wallet',
-      };
+    return {
+      variant: 'primary.orange.solid',
+      onClick: openConnectWalletModal,
+      children: 'Connect Wallet',
+    };
+  }, [openConnectWalletModal]);
 
-    // when have a wallet connect
+  const btnWalletInforProps = useMemo<ButtonProps>(() => {
+    // if extract function only, this jsx is redundant
+    if (extractFnc || !isConnected) return <></>;
+
     const [fSlice, sSlice] = truncateMid(address!!, 4, 4); // truncate adddress
 
     return {
-      variant: 'primary.orange',
+      bg: 'background.0',
+      color: 'primary.orange',
+      onClick: openConnectWalletModal,
+      iconSpacing: 0,
+      children: fSlice + '...' + sSlice,
       leftIcon: (
         <AspectRatio w={'24px'} h={'24px'} ratio={1}>
           <Image src={walletInstance?.metadata.logo.base} />
         </AspectRatio>
       ),
-      onClick: toggleMenu,
-      iconSpacing: 0,
-      children: fSlice + '...' + sSlice,
+      rightIcon: (
+        <HStack gap={1} ml={2}>
+          <Image width={'22px'} src={'/assets/icons/icon.env.network.svg'} />
+          <Text color={'text.700'} fontWeight={'400'}>
+            {getEnvNetwork(process.env.NEXT_PUBLIC_ENV!)}
+          </Text>
+        </HStack>
+      ),
     };
-  }, [
-    openConnectWalletModal,
-    toggleMenu,
-    walletInstance,
-    address,
-    isConnected,
-    extractFnc,
-  ]);
+  }, [walletInstance, address, extractFnc]);
 
   return {
     isMenuOpened,
     disconnectWallet,
     closeMenu,
     btnConnectWalletProps,
+    btnWalletInforProps,
     openConnectWalletModal,
     btnSelectNetworkProps,
     openSelectNetworkModal,

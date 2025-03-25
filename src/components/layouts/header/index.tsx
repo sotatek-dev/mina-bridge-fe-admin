@@ -7,7 +7,6 @@ import useHeaderLogic from './useHeaderLogic';
 
 import Logo from '@/components/elements/logo';
 import ROUTES from '@/configs/routes';
-import { getEnvNetwork } from '@/constants';
 import { useOutsideCheck } from '@/hooks/useOutsideCheck';
 import { getWalletSlice, useAppSelector } from '@/store';
 
@@ -18,7 +17,7 @@ export default function Header({}: Props) {
   const disconnectBtnRef = useRef<any>(null);
   const {
     disconnectWallet,
-    btnConnectWalletProps,
+    btnWalletInforProps,
     btnSelectNetworkProps,
     closeMenu,
   } = useHeaderLogic();
@@ -72,23 +71,14 @@ export default function Header({}: Props) {
                 Configuration
               </Text>
             </Link>
+
+            {/* <Button {...btnSelectNetworkProps} /> */}
+            <Button {...btnWalletInforProps} />
+            <Button w={10} p={'10px'} onClick={disconnectWallet}>
+              <Image width={'22px'} src={'/assets/icons/icon.log-out.svg'} />
+            </Button>
           </>
         )}
-        <Button {...btnSelectNetworkProps} />
-
-        <Button {...btnConnectWalletProps} />
-
-        {isConnected && (
-          <Button w={10} p={'10px'} onClick={disconnectWallet}>
-            <Image width={'22px'} src={'/assets/icons/icon.log-out.svg'} />
-          </Button>
-        )}
-        <HStack gap={1} ml={3}>
-          <Image width={'22px'} src={'/assets/icons/icon.env.network.svg'} />
-          <Text color={'text.500'}>
-            {getEnvNetwork(process.env.NEXT_PUBLIC_ENV!)}
-          </Text>
-        </HStack>
       </HStack>
     </Flex>
   );
