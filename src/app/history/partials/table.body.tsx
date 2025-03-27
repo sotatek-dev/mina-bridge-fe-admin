@@ -3,6 +3,7 @@ import { Tbody, Td, Text, Tr } from '@chakra-ui/react';
 import _ from 'lodash';
 import React from 'react';
 
+import AddressInfo from './table.row.address';
 import InfoTransaction from './table.row.infoTx';
 import RowStatus, { STATUS } from './table.row.status';
 
@@ -45,17 +46,23 @@ function BodyTable({ data }: PropsBodyTable) {
                 scanUrl={getScanUrl(item.networkReceived)}
               />
             </Td>
+            <Td borderBottom={'solid 1px'} borderColor={'text.200'}>
+              <AddressInfo address={item.senderAddress} />
+            </Td>
+            <Td borderBottom={'solid 1px'} borderColor={'text.200'}>
+              <AddressInfo address={item.receiveAddress} />
+            </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
               <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
                 {`${truncatedNumber(
-                  Number(item?.tip) ? item.tip : '0'
+                  Number(item?.tip) ? item.tip : '0',
                 )} ${!item?.tip || _.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`}
               </Text>
             </Td>
             <Td borderBottom={'solid 1px #E4E4E7'}>
               <Text variant={'lg'} color={'text.900'} whiteSpace={'nowrap'}>
                 {`${truncatedNumber(
-                  item.gasFee ? item.gasFee : '0.00'
+                  item.gasFee ? item.gasFee : '0.00',
                 )} ${!item?.gasFee || _.isEmpty(item.tokenFromName) ? '' : item.tokenFromName}`}
               </Text>
             </Td>
